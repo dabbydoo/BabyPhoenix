@@ -90,6 +90,23 @@ void Game::Update()
 	BackEnd::Update(m_register);
 
 	PhysicsSystem::Update(m_register, m_activeScene->GetPhysicsWorld());
+
+	//Update if player can player dash. (Check if player on ground)
+	if (m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody()->GetLinearVelocity().y < .1f)
+	{
+		if (isPlayerGrounded())
+			m_dashCounter = 1;
+		cout << m_dashCounter << endl;
+	}
+
+	//Update current player position
+	m_playerPos = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody()->GetPosition();
+
+	if (((m_playerPos - m_initDashPos).Length() > 100.f) && m_isDashing)
+	{
+		m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody()->SetLinearVelocity(b2Vec2(0, 0));
+		m_isDashing = false;
+	}
 }
 
 void Game::GUI()
@@ -210,75 +227,122 @@ void Game::GamepadTrigger(XInputController * con)
 
 void Game::KeyboardHold()
 {
-	vec3 position = m_register->get<Transform>(EntityIdentifier::MainPlayer()).GetPosition();
-	float speed = 30.f;
+	//Get player position
+	vec3 position = m_register->get<Transform>(EntityIdentifier::MainPlayer()).GetPosition(); 
 
-	vec3 hPush = vec3(50000.f, 0.f, 0.f);
-	vec3 vPush = vec3(0.f, 50000.f, 0.f);
+	//Apply horizontal and vertical force
+	/*vec3 hPush = vec3(30000.f, 0.f, 0.f);
+	vec3 vPush = vec3(0.f, 30000.f, 0.f);*/
+
+	//Directional force
+	vec3 dirForce = vec3(0.f, 0.f, 0.f);
+	float magForce = 30000;
+
+	//Get physics body
+	b2Body* body;
+	body = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
+
+	b2Vec2 velocity;
+	float speed;
+
+	//bool isDash = false;
 
 	b2Vec2 box = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetPosition();
 	//auto boxbody = ECS::GetComponent<PhysicsBody>(EntityIdentifier::MainPlayer()).GetPosition();
 
+	//Up
+	if (Input::GetKey(Key::W))
+	{
+		dirForce = vec3(dirForce.x, dirForce.y + magForce, dirForce.z);
+		
+	}
 
+	//Down
+	if (Input::GetKey(Key::S))
+	{
+		//dirForce = vec3(dirForce.x, dirForce.y - impulse, dirForce.z);
+	}
+
+	//Left 
 	if (Input::GetKey(Key::A)) {
-		m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).ApplyForce(-hPush);
-		
+		dirForce = vec3(dirForce.x - magForce, dirForce.y, dirForce.z);
+	
 	}
+	
+	//Right
 	if (Input::GetKey(Key::D)) {
-		m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).ApplyForce(hPush);
+		dirForce = vec3(dirForce.x + magForce, dirForce.y, dirForce.z);
 		
 	}
 
+	//Test direction
+	//cout << "X " << dirForce.x << " Y " << dirForce.y << endl;
 
-	//Keyboard button held
+	//Apply force for movement
+	if (dirForce.GetMagnitude() > 0) {
+		//Player movement
+
+		//body->ApplyLinearImpulse(b2Vec2(-1000, 0), body->GetWorldCenter(), true);
+		m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).ApplyForce(dirForce);
+		velocity = body->GetLinearVelocity();
+		speed = velocity.Normalize();
+		//body->ApplyForce(.5 * speed * speed * -velocity, body->GetWorldCenter(), true); CHECK
+		//cout << "X " << velocity.x << "Y " << velocity.y << endl;
 	
-	if (Input::GetKey(Key::W)) 
-	{
-		
 	}
-	
-	if (Input::GetKey(Key::S)) 
-	{
-	
-	}
-	
-	
+
 }
 
 void Game::KeyboardDown()
-{
-	vec3 vPush = vec3(0.f, 4500000.f, 0.f);
+{	
+	b2Body* body;
+	body = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
 
-	vec3 position = m_register->get<Transform>(EntityIdentifier::MainPlayer()).GetPosition();
-	
-
+	//Jump
 	if (Input::GetKeyDown(Key::Space))
 	{
-		if ((position.y <= -66)) {
-			m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).ApplyForce(vPush);
-		}
-	}
-
-	for (b2ContactEdge* ce = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody()->GetContactList(); ce; ce = ce->next)
-	{
-		b2Contact* c = ce->contact;
-
-		if (c->IsTouching())
+		if (isPlayerGrounded())
 		{
-			cout << "Touching" << endl;
+			float impulse = body->GetMass() * 80; //Adjust to change height of jump
+			body->ApplyLinearImpulse(b2Vec2(0, impulse), body->GetWorldCenter(), true);			
 		}
-		else
-			cout << "NOT Touching" << endl;
-
-	}
-
-	if (Input::GetKeyDown(Key::K))
-	{
 		
-
-
-
 	}
+
+	//Dash
+	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1) {
+		b2Vec2 impulse = b2Vec2(0.f, 0.f);
+		float magImpulse = 250000.f;
+
+		//Dash Up
+		if (Input::GetKey(Key::W)) {
+			impulse = b2Vec2(impulse.x, impulse.y + magImpulse);
+		}
+
+		//Dash Left
+		if (Input::GetKey(Key::A)) {
+			impulse = b2Vec2(impulse.x - magImpulse, impulse.y);
+		}
+
+		//Dash Down
+		if (Input::GetKey(Key::S)) {
+			impulse = b2Vec2(impulse.x, impulse.y - magImpulse);
+		}
+
+		//Dash Right
+		if (Input::GetKey(Key::D)) {
+			impulse = b2Vec2(impulse.x + magImpulse, impulse.y);
+		}
+
+		//Apply impulse
+		if (impulse.Length() > 0) {
+			body->ApplyLinearImpulse(impulse, body->GetWorldCenter(), true);
+			m_isDashing = true;
+			m_initDashPos = body->GetPosition();
+			m_dashCounter = 0;
+		}
+	}
+	
 }
 
 void Game::KeyboardUp()
@@ -345,4 +409,30 @@ void Game::MouseWheel(SDL_MouseWheelEvent evnt)
 	}
 	//Resets the enabled flag
 	m_wheel = false;
+}
+
+//Check if player is grounded
+bool Game::isPlayerGrounded() {
+	int numFootContacts = 0;
+
+	for (b2ContactEdge* ce = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody()->GetContactList(); ce; ce = ce->next)
+	{
+		b2Contact* contact = ce->contact;
+
+		void* fixtureAUserData = contact->GetFixtureA()->GetUserData();
+		void* fixtureBUserData = contact->GetFixtureB()->GetUserData();
+		//cout << "User Data: " << (int)fixtureUserData << endl;
+
+		//Sensor fixture identified with UserData = 3
+		if ((int)fixtureAUserData == 3 || (int)fixtureBUserData == 3)
+		{
+			numFootContacts++;
+		}
+	}
+	if (numFootContacts > 0) {
+
+		return true;
+	}
+	else
+		return false;			   		 
 }

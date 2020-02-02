@@ -65,6 +65,10 @@ public:
 	void MouseMotion(SDL_MouseMotionEvent evnt);
 	void MouseClick(SDL_MouseButtonEvent evnt);
 	void MouseWheel(SDL_MouseWheelEvent evnt);
+
+	//Check if main player grounded
+	bool isPlayerGrounded();
+	
 private:
 	//The window
 	Window *m_window = nullptr;
@@ -89,6 +93,18 @@ private:
 	bool m_motion = false;
 	bool m_click = false;
 	bool m_wheel = false;
+
+	//Dash
+	int m_dashCounter = 1;
+
+	//Check if currently dashing
+	bool m_isDashing = false;
+
+	//Initial Player position when dash starts
+	b2Vec2 m_initDashPos;
+
+	//Current player Position
+	b2Vec2 m_playerPos;
 };
 
 

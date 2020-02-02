@@ -289,7 +289,7 @@ PhysicsBody::PhysicsBody(b2Body* body, float radius, vec2 centerOffset, bool isD
 	InitBody();
 }
 
-PhysicsBody::PhysicsBody(b2Body* body, float width, float height, vec2 centerOffset, bool isDynamic)
+PhysicsBody::PhysicsBody(b2Body* body, float width, float height, vec2 centerOffset, bool isDynamic, float density, bool hasFootSensor)
 {
 	b2PolygonShape tempShape;
 	tempShape.SetAsBox(float32(width / 2.f), float32(height / 2.f),
@@ -298,11 +298,22 @@ PhysicsBody::PhysicsBody(b2Body* body, float width, float height, vec2 centerOff
 	//Creates the actual fixture (aka, shape, mass, etc)
 	b2FixtureDef tempFixture;
 	tempFixture.shape = &tempShape;
-	tempFixture.density = 1.f;
-	tempFixture.friction = 1.f;//0.3f
+	tempFixture.density = density;
+	tempFixture.friction = .1f;//0.3f
+	
 
 	m_body = body;
 	m_body->CreateFixture(&tempFixture);
+	
+
+	//Creates Foot sensor
+	if (hasFootSensor)
+	{
+		tempShape.SetAsBox(width * (2.f / 5.f), height * (1.f / 10.f), b2Vec2(0, -height / 2.5f), 0);
+		tempFixture.isSensor = true;
+		b2Fixture* footSensorFixture = m_body->CreateFixture(&tempFixture);
+		footSensorFixture->SetUserData((void*)3);
+	}
 
 	m_body = body;
 	m_bodyType = BodyType::BOX;

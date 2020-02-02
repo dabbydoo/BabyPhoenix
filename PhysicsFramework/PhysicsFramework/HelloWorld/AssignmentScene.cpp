@@ -1,6 +1,7 @@
 using namespace std;
 #include "AssignmentScene.h"
 
+
 AssignmentScene::AssignmentScene(std::string name)
 	:Scene(name)
 {
@@ -75,29 +76,55 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Ground");
+	}
 
-		//Temporary left side wall
-		auto& tempPhsBody2 = ECS::GetComponent<PhysicsBody>(entity);
+	//Left Wall
+	{
+		auto entity = ECS::CreateEntity();
+
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<PhysicsBody>(entity);
+
+		auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
 		b2Body* wallBody;
 		b2BodyDef wallBodyDef;
 		wallBodyDef.type = b2_staticBody;
 		wallBodyDef.position.Set(0.f, 0.f);
-		wallBody = m_physicsWorld->CreateBody(&wallBodyDef);
-		tempPhsBody2 = PhysicsBody(wallBody, 5.f, 200.f, vec2(-191.f, 0.f), false);
-		
 
-		//Temporary right side wall
-		auto& tempPhsBody3 = ECS::GetComponent<PhysicsBody>(entity);
-		b2Body* wallBody2;
-		b2BodyDef wallBodyDef2;
-		wallBodyDef2.type = b2_staticBody;
-		wallBodyDef2.position.Set(0.f, 0.f);
-		wallBody2 = m_physicsWorld->CreateBody(&wallBodyDef2);
-		tempPhsBody3 = PhysicsBody(wallBody2, 5.f, 200.f, vec2(191.f, 0.f), false);
+		wallBody = m_physicsWorld->CreateBody(&wallBodyDef);
+
+		phsBody = PhysicsBody(wallBody, 5.f, 200.f, vec2(-191.f, 0.f), false);
+
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "LeftWall");
+
 	}
 
+	//Right Wall 
 	{
+		auto entity = ECS::CreateEntity();
 
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<PhysicsBody>(entity);
+
+		auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+		b2Body* wallBody;
+		b2BodyDef wallBodyDef;
+		wallBodyDef.type = b2_staticBody;
+		wallBodyDef.position.Set(0.f, 0.f);
+
+		wallBody = m_physicsWorld->CreateBody(&wallBodyDef);
+
+		phsBody = PhysicsBody(wallBody, 5.f, 200.f, vec2(191.f, 0.f), false);
+
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "RightWall");
+	}
+
+	//Main Player
+	{
 		//Creates entity
 		auto entity = ECS::CreateEntity();
 		EntityIdentifier::MainPlayer(entity);
@@ -107,73 +134,31 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::AttachComponent<Transform>(entity);
 		ECS::AttachComponent<PhysicsBody>(entity);
 
-		string filename = "idle.png";
+		string filename = "box.png";
 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 40, 40);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-20.f, 0.f, 100.f));
 		auto& tempSpr = ECS::GetComponent<Sprite>(entity);
 		auto& tempPhsBody = ECS::GetComponent<PhysicsBody>(entity);
-
-
+		
 
 		b2Body* tempBody;
 		b2BodyDef tempDef;
-
-		b2PolygonShape tempPoly;	
-		tempPoly.SetAsBox(20, 20);
-
-		b2Fixture* tempFixture;
-		b2FixtureDef tempFixtureDef;
-
-		tempFixtureDef.shape = &tempPoly;
-		tempFixtureDef.density = 1.f;
-		tempFixtureDef.friction = 0.f;
 		
-		
-
-				
 		tempDef.type = b2_dynamicBody;
 		tempDef.position.Set(float32(-10.f), float32(-20.f));
-		
-
 		tempDef.fixedRotation = true;
 
-	
-		
 		tempBody = m_physicsWorld->CreateBody(&tempDef);
-		tempBody->CreateFixture(&tempFixtureDef);
 
-		//Foot Sensor
-		tempPoly.SetAsBox(0.3, 0.3, b2Vec2(0, -20), 0);
-		tempFixtureDef.isSensor = true;
-		b2Fixture* footSensorFixture = tempBody->CreateFixture(&tempFixtureDef);
-		footSensorFixture->SetUserData((void*)3);
+		tempBody->SetGravityScale(5);
 		
-		
-
-		/*b2PolygonShape boxShape;
-		boxShape.SetAsBox(10, 10);
-
-		b2FixtureDef boxFixtureDef;
-		boxFixtureDef.shape = &boxShape;
-		boxFixtureDef.density = 1;
-		tempBody->CreateFixture(&boxFixtureDef);*/
-
 		tempPhsBody = PhysicsBody(tempBody, float(tempSpr.GetWidth()), float(tempSpr.GetHeight()),
-			vec2(0.f, 0.f), false);
-
-		tempPhsBody.SetFriction(0.05f);
-		tempPhsBody.SetMaxVelo(.5f);
-		tempPhsBody.SetGravity(true);
-
-		
-		
-		
-		
+			vec2(0.f, 0.f), false, 1.5f, true);
 
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
-		ECS::SetUpIdentifier(entity, bitHolder, "Box");
+		ECS::SetUpIdentifier(entity, bitHolder, "Main Player");
 		ECS::SetIsMainPlayer(entity, true);
 
 		m_player = entity;

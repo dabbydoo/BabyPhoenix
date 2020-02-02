@@ -42,7 +42,7 @@ public:
 	//Contructs a circle collider
 	PhysicsBody(b2Body* body, float radius, vec2 centerOffset, bool isDynamic);
 	//Contructs a box collider
-	PhysicsBody(b2Body* body, float width, float height, vec2 centerOffset, bool isDynamic);
+	PhysicsBody(b2Body* body, float width, float height, vec2 centerOffset, bool isDynamic, float density = 1.f, bool hasFootSensor = false);
 
 	//Apply a force to the physics body
 	void ApplyForce(vec3 force);
