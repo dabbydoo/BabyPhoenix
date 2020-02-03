@@ -105,6 +105,7 @@ void Game::Update()
 	if (((m_playerPos - m_initDashPos).Length() > 100.f) && m_isDashing)
 	{
 		m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody()->SetLinearVelocity(b2Vec2(0, 0));
+		m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody()->SetGravityScale(5);
 		m_isDashing = false;
 	}
 }
@@ -281,14 +282,7 @@ void Game::KeyboardHold()
 	//Apply force for movement
 	if (dirForce.GetMagnitude() > 0) {
 		//Player movement
-
-		//body->ApplyLinearImpulse(b2Vec2(-1000, 0), body->GetWorldCenter(), true);
-		m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).ApplyForce(dirForce);
-		velocity = body->GetLinearVelocity();
-		speed = velocity.Normalize();
-		//body->ApplyForce(.5 * speed * speed * -velocity, body->GetWorldCenter(), true); CHECK
-		//cout << "X " << velocity.x << "Y " << velocity.y << endl;
-	
+		m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).ApplyForce(dirForce);	
 	}
 
 }
@@ -336,6 +330,8 @@ void Game::KeyboardDown()
 
 		//Apply impulse
 		if (impulse.Length() > 0) {
+			body->SetGravityScale(0);
+			body->SetLinearVelocity(b2Vec2(0, 0));
 			body->ApplyLinearImpulse(impulse, body->GetWorldCenter(), true);
 			m_isDashing = true;
 			m_initDashPos = body->GetPosition();
