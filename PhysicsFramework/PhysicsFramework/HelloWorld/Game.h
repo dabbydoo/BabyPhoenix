@@ -5,10 +5,13 @@
 #include "HelloWorld.h"
 #include "Xinput.h"
 #include "AssignmentScene.h"
+#include "time.h"
+
 //Our main class for running our game
 class Game
 {
 public:
+
 	//Empty constructor
 	Game() { };
 	//Deconstructor for game
@@ -67,7 +70,18 @@ public:
 	void MouseWheel(SDL_MouseWheelEvent evnt);
 
 	//Check if main player grounded
-	bool isPlayerGrounded();
+	bool isPlayerOnGround();
+
+	//Check if player collide with anything
+	bool isPlayerOnCollision();
+
+	b2Body* GetPlayerBody();
+
+	void BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB);
+
+	void EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB);
+
+
 	
 private:
 	//The window
@@ -94,20 +108,20 @@ private:
 	bool m_click = false;
 	bool m_wheel = false;
 
-	//Dash
-	int m_dashCounter = 1;
+	//Dashing
+	clock_t m_initDashTime; //Initial Player position when dash starts
+	int m_dashCounter = 1; //Dash counter
+	bool m_initDashOnGround = true; //Flag for if initial dash started on ground
+	bool m_isDashing = false; //Flag for if currently dashing
 
-	//Check if currently dashing
-	bool m_isDashing = false;
+	//Flag for if player on ground
+	bool m_isPlayerOnGround = false;
 
-	//Initial Player position when dash starts
-	b2Vec2 m_initDashPos;
-
-	//Current player Position
-	b2Vec2 m_playerPos;
+	//Collision flags
+	bool m_isPlayerOnCollision = false; //player collide
+	bool m_isPlayerHeadCollide = false; //player head sensor collides
+	bool m_isPlayerSideCollide = false; //player side sensor collides
 };
-
-
 
 #endif // !__GAME_H__
 

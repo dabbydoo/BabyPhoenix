@@ -3,6 +3,10 @@ using namespace std;
 
 #include "Scene.h"
 
+#include <iostream>
+
+//fixture name
+enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, OBJECT };
 
 class AssignmentScene : public Scene
 {
@@ -13,3 +17,5 @@ public:
 private:
 	unsigned int m_player;
 };
+
+
