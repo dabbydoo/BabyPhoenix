@@ -6,6 +6,7 @@
 #include "Xinput.h"
 #include "AssignmentScene.h"
 #include "time.h"
+#include <cstdlib>
 
 //Our main class for running our game
 class Game
@@ -75,8 +76,6 @@ public:
 	//Check if player collide with anything
 	bool isPlayerOnCollision();
 
-	b2Body* GetPlayerBody();
-
 	void BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB);
 
 	void EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB);
@@ -121,6 +120,12 @@ private:
 	bool m_isPlayerOnCollision = false; //player collide
 	bool m_isPlayerHeadCollide = false; //player head sensor collides
 	bool m_isPlayerSideCollide = false; //player side sensor collides
+
+	//Player gravity scale
+	float m_playerGravity = 7;
+
+	//Player body
+	b2Body* m_playerBody;
 };
 
 #endif // !__GAME_H__

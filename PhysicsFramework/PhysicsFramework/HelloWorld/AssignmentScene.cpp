@@ -27,7 +27,6 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::AttachComponent<HorizontalScroll>(entity);
 		ECS::AttachComponent<VerticalScroll>(entity);
 
-		
 		vec4 temp = ECS::GetComponent<Camera>(entity).GetOrthoSize();
 		ECS::GetComponent<Camera>(entity).SetWindowSize(vec2(float(windowWidth), float(windowHeight)));
 		ECS::GetComponent<Camera>(entity).Orthographic(aspectRatio, temp.x, temp.y, temp.z, temp.w, -100.f, 100.f);
@@ -37,7 +36,6 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::GetComponent<HorizontalScroll>(entity).SetOffset(1000.f);
 		ECS::GetComponent<VerticalScroll>(entity).SetCam(&ECS::GetComponent<Camera>(entity));
 		ECS::GetComponent<VerticalScroll>(entity).SetOffset(1000.f);
-
 
 		//Sets up the Identifier
 		unsigned int bitHolder2 = EntityIdentifier::VerticalScrollCamBit() |EntityIdentifier::HoriScrollCameraBit() | EntityIdentifier::CameraBit();
@@ -139,7 +137,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 
 		string filename = "box.png";
 
-		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 40, 40);
+		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 20, 40);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-20.f, 0.f, 100.f));
 		auto& tempSpr = ECS::GetComponent<Sprite>(entity);
 		auto& tempPhsBody = ECS::GetComponent<PhysicsBody>(entity);
@@ -162,7 +160,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		tempBody = m_physicsWorld->CreateBody(&tempDef);
 
 		//Set gravity scale
-		tempBody->SetGravityScale(5);
+		tempBody->SetGravityScale(7);
 		
 		//Construct box collider 
 		tempPhsBody = PhysicsBody(tempBody, float(tempSpr.GetWidth()), float(tempSpr.GetHeight()),
@@ -249,7 +247,6 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		//Creates entity
 		auto entity = ECS::CreateEntity();
 
-
 		//Add components
 		ECS::AttachComponent<Sprite>(entity);
 		ECS::AttachComponent<Transform>(entity);
@@ -266,7 +263,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		b2Body* tempBody;
 		b2BodyDef tempDef;
 		tempDef.type = b2_staticBody;
-		tempDef.position.Set(float32(120.f), float32(-20.f));
+		tempDef.position.Set(float32(140.f), float32(-20.f));
 
 		tempDef.userData = ((void*)PLATFORM);
 		tempBody = m_physicsWorld->CreateBody(&tempDef);

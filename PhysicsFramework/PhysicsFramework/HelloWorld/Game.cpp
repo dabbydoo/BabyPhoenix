@@ -1,7 +1,5 @@
 #include "Game.h"
-
 #include <random>
-
 #include"AssignmentScene.h"
 #include "MyContactListener.h"
 
@@ -48,13 +46,18 @@ void Game::InitGame()
     m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
 	//*m_activeScene = File::LoadJSON("Hello World.json");
 	
+	//Get active scene
 	m_register = m_activeScene->GetScene();
 
+	//Initialize physics
 	PhysicsSystem::Init();
 
+	//Set contact listener
 	listener.SetGame(this);
-	
 	m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
+
+	//Get player body
+	m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
 }
 
 bool Game::Run()
@@ -103,7 +106,7 @@ void Game::Update()
 	PhysicsSystem::Update(m_register, m_activeScene->GetPhysicsWorld());
 
 	//Update if player can dash. (Check if player on ground)
-	if (GetPlayerBody()->GetLinearVelocity().y < .1f)
+	if (m_playerBody->GetLinearVelocity().y < .1f)
 	{
 		//Resets dash to 1 when player grounded
 		if (m_isPlayerOnGround && !m_isDashing) {
@@ -111,32 +114,35 @@ void Game::Update()
 		}
 	}
 
-	//End of Dash
+	//End of Dash 
 	if (m_isDashing)
 	{
+		//**ADJUST DASH LENGTH HERE**
+		float dashTime = .3;
+
 		//End dash when foot sensor collides with (ground or platform) OR time of dash reached
 		if (m_isPlayerOnGround)
-			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > .5 || !m_initDashOnGround)
+			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime || !m_initDashOnGround)
 			{
-				GetPlayerBody()->SetLinearVelocity(b2Vec2(0, 0));
-				GetPlayerBody()->SetGravityScale(5);
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_playerBody->SetGravityScale(m_playerGravity);
 				m_isDashing = false;
 			}
 
 		//End dash when head sensor collides with platform 
 		if (m_isPlayerHeadCollide || m_isPlayerSideCollide)
 		{
-			GetPlayerBody()->SetLinearVelocity(b2Vec2(0, 0));
-			GetPlayerBody()->SetGravityScale(5);
+			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+			m_playerBody->SetGravityScale(m_playerGravity);
 			m_isDashing = false;
 		}
 
 		//End dash when player collides with anything but (ground or platform) OR time of dash reached
-		if (isPlayerOnCollision() || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > .5)) 
+		if (isPlayerOnCollision() || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
 		{
 			cout << m_dashCounter << endl;
-			GetPlayerBody()->SetLinearVelocity(b2Vec2(0, 0));
-			GetPlayerBody()->SetGravityScale(5);
+			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+			m_playerBody->SetGravityScale(m_playerGravity);
 			m_isDashing = false;
 		}
 	}
@@ -260,116 +266,86 @@ void Game::GamepadTrigger(XInputController * con)
 //KEYBOARD HOLD
 void Game::KeyboardHold()
 {
-	//Get player position
-	vec3 position = m_register->get<Transform>(EntityIdentifier::MainPlayer()).GetPosition(); 
-
-	//Player Movement FORCE
+	//Player Movement 
 	{
-		//Directional force
-		vec3 direction = vec3(0.f, 0.f, 0.f);
-		float magnitude = 30000;
+		//Movement direction 
+		b2Vec2 direction = b2Vec2(0.f, 0.f);
+
+		float force = 40000;
+		float velocity = 30; //Change for player velocity on ground
 
 		//Left 
-		if (Input::GetKey(Key::A)) {
-			direction = vec3(direction.x - magnitude, direction.y, direction.z);
-		}
+		if (Input::GetKey(Key::A)) 
+			direction = b2Vec2(-1, 0);	
 
 		//Right
-		if (Input::GetKey(Key::D)) {
-			direction = vec3(direction.x + magnitude, direction.y, direction.z);
-		}
-
+		if (Input::GetKey(Key::D)) 
+			direction = b2Vec2(1, 0);	
+		
 		//Apply force for movement
-		if (direction.GetMagnitude() > 0) {
-			m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).ApplyForce(direction);
+		if (direction.Length() > 0) {
+			if (isPlayerOnGround() && !m_isDashing)
+				m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
+			else
+				m_playerBody->ApplyForce(b2Vec2(direction.x * force, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
 		}
 	}
-	
-	////Player Movement impulse
-	//{
-	//	//Get physics body
-	//	b2Body* body;
-	//	body = GetPlayerBody();
-	//	b2Vec2 direction = b2Vec2(0.f, 0.f);
-	//	float magnitude = body->GetMass() * .3;
-
-	//	//Left 
-	//	if (Input::GetKey(Key::A)) {
-	//		direction = b2Vec2(direction.x - magnitude, direction.y);
-
-	//	}
-
-	//	//Right
-	//	if (Input::GetKey(Key::D)) {
-	//		direction = b2Vec2(direction.x + magnitude, direction.y);
-
-	//	}
-
-	//	//Apply force for movement
-	//	if (direction.Length() > 0) {
-	//		body->ApplyLinearImpulse(direction, body->GetWorldCenter(), true);
-	//	}
-	//}
-
 }
 
 void Game::KeyboardDown()
 {	
-	b2Body* body;
-	body = GetPlayerBody();
-
 	//Jump
 	if (Input::GetKeyDown(Key::Space))
 	{
 		if (isPlayerOnGround())
 		{
-			float impulse = body->GetMass() * 80; //Adjust to change height of jump
-			body->ApplyLinearImpulse(b2Vec2(0, impulse), body->GetWorldCenter(), true);			
+			float impulse = m_playerBody->GetMass() * 80; //Adjust to change height of jump
+			m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
+			m_isPlayerOnGround = false;
 		}	
 	}
 
 	//Dash direction
 	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1) {
-		b2Vec2 impulse = b2Vec2(0.f, 0.f);
-		float magImpulse = 250000.f;
+		b2Vec2 direction = b2Vec2(0.f, 0.f);
+		float magnitude = 250000.f;
 
 		//Dash Up
 		if (Input::GetKey(Key::W)) {
-			impulse = b2Vec2(impulse.x, impulse.y + magImpulse);
+			direction = b2Vec2(direction.x, direction.y + magnitude);
 		}
 
 		//Dash Left
 		if (Input::GetKey(Key::A)) {
-			impulse = b2Vec2(impulse.x - magImpulse, impulse.y);
+			direction = b2Vec2(direction.x - magnitude, direction.y);
 		}
 
 		//Dash Down
 		if (Input::GetKey(Key::S)) {
-			impulse = b2Vec2(impulse.x, impulse.y - magImpulse);
+			direction = b2Vec2(direction.x, direction.y - magnitude);
 		}
 
 		//Dash Right
 		if (Input::GetKey(Key::D)) {
-			impulse = b2Vec2(impulse.x + magImpulse, impulse.y);
+			direction = b2Vec2(direction.x + magnitude, direction.y);
 		}
 
 		//Start Dashing
-		if (impulse.Length() > 0) {
+		if (direction.Length() > 0) {
 
-			//Check initial dash  position
+			//Flag whether initial dash position on ground
 			if (isPlayerOnGround())
 				m_initDashOnGround = true;
 			else
 				m_initDashOnGround = false;
 
 			//Apply impulse
-			body->SetGravityScale(0);
-			body->SetLinearVelocity(b2Vec2(0, 0));
-			body->ApplyLinearImpulse(impulse, body->GetWorldCenter(), true);
+			m_playerBody->SetGravityScale(0);
+			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+			m_playerBody->ApplyLinearImpulse(direction, m_playerBody->GetWorldCenter(), true);
 			m_isDashing = true;
 			m_initDashTime = clock();
 			m_dashCounter = 0;
-			cout << "Start Dash\n";
 		}
 	}
 }
@@ -388,13 +364,9 @@ void Game::KeyboardUp()
 		PhysicsBody::SetDraw(!PhysicsBody::GetDraw());
 	}
 
-	//Get body
-	b2Body* body;
-	body = GetPlayerBody();
-
-	//Set linear velocity of x to zero when A or B key is up and is not dashing
+	//Set linear velocity of x to zero when A or D key is up and is not dashing
 	if ((Input::GetKeyUp(Key::A) || Input::GetKeyUp(Key::D)) && !m_isDashing) 
-		body->SetLinearVelocity(b2Vec2(0, body->GetLinearVelocity().y));
+		m_playerBody->SetLinearVelocity(b2Vec2(0, m_playerBody->GetLinearVelocity().y));
 }
 
 void Game::MouseMotion(SDL_MouseMotionEvent evnt)
@@ -459,11 +431,6 @@ bool Game::isPlayerOnCollision()
 	return m_isPlayerOnCollision;
 }
 
-//Get main player body
-b2Body* Game::GetPlayerBody() {
-	return m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
-}
-
 void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 {
 	//Recording both fixture data
@@ -497,7 +464,7 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 {
 	//cout << "Ended Fixture: " << (int)fixtureA->GetUserData() << " - " << (int)fixtureB->GetUserData() << endl;
 
-	//Recording both fixture data
+	//Record both fixture data
 	int f1 = (int)fixtureA->GetUserData();
 	int f2 = (int)fixtureB->GetUserData();
 
@@ -516,7 +483,7 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		|| (f2 == SIDESENSOR && f1 == PLATFORM))
 		m_isPlayerSideCollide = false;
 
-	//Check if Player end collision with any entity but ground
+	//Check if Player end collision with any entity but ground or platform
 	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM)
 		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM))
 		m_isPlayerOnCollision = false;
