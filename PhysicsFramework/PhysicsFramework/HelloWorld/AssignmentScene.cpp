@@ -33,9 +33,9 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		
 		//attaches the camera to the Horizontal scroll
 		ECS::GetComponent<HorizontalScroll>(entity).SetCam(&ECS::GetComponent<Camera>(entity));
-		ECS::GetComponent<HorizontalScroll>(entity).SetOffset(1000.f);
+	
 		ECS::GetComponent<VerticalScroll>(entity).SetCam(&ECS::GetComponent<Camera>(entity));
-		ECS::GetComponent<VerticalScroll>(entity).SetOffset(1000.f);
+	
 
 		//Sets up the Identifier
 		unsigned int bitHolder2 = EntityIdentifier::VerticalScrollCamBit() |EntityIdentifier::HoriScrollCameraBit() | EntityIdentifier::CameraBit();
@@ -47,6 +47,10 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 	//Ground
 	{
 		auto entity = ECS::CreateEntity();
+		m_background = entity;
+
+		ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetBackground(m_background);
+		ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetBackground(m_background);
 
 		ECS::AttachComponent<Sprite>(entity);
 		ECS::AttachComponent<Transform>(entity);
@@ -201,8 +205,6 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Main Player");
 		ECS::SetIsMainPlayer(entity, true);
-
-		m_player = entity;	
 	}
 
 	//BOX1
@@ -278,8 +280,6 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Box2");
-
-		m_player = entity;
 	}
 
 	//BOX3
@@ -320,8 +320,6 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Box3");
-
-		m_player = entity;
 	}
 
 	ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));

@@ -30,25 +30,7 @@ void RenderingSystem::Update(entt::registry* reg)
 	auto view2_1 = reg->view<HorizontalScroll>();
 
 	//Loops through all the enetities within view2_1
-	for (auto entity : view2_1)
-	{
-		//Grabs a reference tot he scroll component
-		auto& scroll = view2_1.get(entity);
-
-		//Updates the scroll
-		scroll.Update();
-	}
-	auto view2_2 = reg->view<VerticalScroll>();
-
-	//Loops through all the enetities within view2_1
-	for (auto entity : view2_2)
-	{
-		//Grabs a reference tot he scroll component
-		auto& scroll = view2_2.get(entity);
-
-		//Updates the scroll
-		scroll.Update();
-	}
+	
 	//Creates a view of all entities consisting of Camera
 	auto view2 = reg->view<Camera>();
 	
@@ -72,7 +54,25 @@ void RenderingSystem::Update(entt::registry* reg)
 		//Unbinds the shader
 		drawShader.Unbind();
 	}
-	
+	for (auto entity : view2_1)
+	{
+		//Grabs a reference tot he scroll component
+		auto& scroll = view2_1.get(entity);
+
+		//Updates the scroll
+		scroll.Update();
+	}
+	auto view2_2 = reg->view<VerticalScroll>();
+
+	//Loops through all the enetities within view2_1
+	for (auto entity : view2_2)
+	{
+		//Grabs a reference tot he scroll component
+		auto& scroll = view2_2.get(entity);
+
+		//Updates the scroll
+		scroll.Update();
+	}
 	auto view3 = reg->view<HealthBar>();
 	for (auto entity : view3)
 	{

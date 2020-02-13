@@ -15,7 +15,7 @@ public:
 
 	void InitScene(float windowWidth, float windowHeight) override;
 private:
-	unsigned int m_player;
+	unsigned int m_background;
 };
 
 

@@ -21,12 +21,15 @@ public:
 	void SetCam(Camera* cam);
 	void SetFocus(Transform* focus);
 	void SetOffset(float offset);
+	void SetBackground(unsigned int entity);
 
 private:
 	Camera* m_cam = nullptr;
 	Transform* m_focus = nullptr;
 
-	float m_offset = 5.f;
+	unsigned int background;
+
+	float m_offset = 0.f;
 };
 
 //Sends vertical scrolling camera FROM json file
