@@ -8,15 +8,18 @@ VerticalScroll::VerticalScroll()
 void VerticalScroll::Update()
 {
 	auto height = ECS::GetComponent<Sprite>(background).GetHeight();
-	auto center = ECS::GetComponent<Transform>(background).GetPosition();
+	//auto center = ECS::GetComponent<Transform>(background).GetPosition();
 
-	if (m_focus->GetPosition().y > (m_cam->m_localPosition.y  + m_offset))
+	//Above focus
+	if (m_focus->GetPosition().y > (m_cam->m_localPosition.y + m_offset))
 	{
 		//Calculate the amount the focus has "pushed" the camera right by
 		float difference = m_focus->GetPosition().y - (m_cam->m_localPosition.y + m_offset);
 
 		//Adjust the camera
-		m_cam->SetPosition(vec3(m_cam->GetPosition().x, clamp((m_cam->GetPosition().y + difference), (center.y - (height / 2)), (center.y + (height / 2))), m_cam->GetPosition().z));
+		float newY = m_cam->GetPositionY() + difference;
+		vec3 newPos = vec3(m_cam->GetPosition().x, newY, m_cam->GetPosition().z);
+		m_cam->SetPosition(newPos);
 	}
 	//Below focus
 	if (m_focus->GetPosition().y < (m_cam->m_localPosition.y - m_offset))
@@ -25,8 +28,11 @@ void VerticalScroll::Update()
 		float difference = m_focus->GetPosition().y - (m_cam->m_localPosition.y - m_offset);
 
 		//Adjust the camera
-		m_cam->SetPosition(vec3(m_cam->GetPosition().x, clamp((m_cam->GetPosition().y + difference), (center.y - (height / 2)), (center.y + (height / 2))), m_cam->GetPosition().z));
+		float newY = m_cam->GetPositionY() + difference;
+		vec3 newPos = vec3(m_cam->GetPosition().x, newY, m_cam->GetPosition().z);
+		m_cam->SetPosition(newPos);
 	}
+
 }
 Camera* VerticalScroll::GetCam() const
 {

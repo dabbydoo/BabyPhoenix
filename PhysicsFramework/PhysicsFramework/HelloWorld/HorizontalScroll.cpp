@@ -1,6 +1,5 @@
 #include "HorizontalScroll.h"
 #include "ECS.h"
-#include <iostream>
 
 HorizontalScroll::HorizontalScroll()
 {
@@ -9,9 +8,7 @@ HorizontalScroll::HorizontalScroll()
 void HorizontalScroll::Update()
 {
 	auto width = ECS::GetComponent<Sprite>(background).GetWidth();
-	auto center = ECS::GetComponent<Transform>(background).GetPosition();
-
-	float fixCam = clamp(m_cam->m_localPosition.x, center.x - (width / 2), center.x + (width / 2));
+	//auto center = ECS::GetComponent<Transform>(background).GetPosition();
 
 	//Above focus
 	if (m_focus->GetPosition().x > (m_cam->m_localPosition.x + m_offset))
@@ -20,16 +17,37 @@ void HorizontalScroll::Update()
 		float difference = m_focus->GetPosition().x - (m_cam->m_localPosition.x + m_offset);
 
 		//Adjust the camera
-		m_cam->SetPosition(vec3(clamp((m_cam->GetPosition().x + difference), center.x - (width / 2), center.x + (width / 2)), m_cam->GetPosition().y, m_cam->GetPosition().z));
+		float newX = m_cam->GetPositionX() + difference;
+		vec3 newPos = vec3(newX, m_cam->GetPosition().y, m_cam->GetPosition().z);
+		m_cam->SetPosition(newPos);
 	}
 	//Below focus
-	else if (m_focus->GetPosition().x < (m_cam->m_localPosition.x - m_offset))
+	if (m_focus->GetPosition().x < (m_cam->m_localPosition.x - m_offset))
 	{
 		//Calculate the amount the focus has "pushed" the camera left by
 		float difference = m_focus->GetPosition().x - (m_cam->m_localPosition.x - m_offset);
 
 		//Adjust the camera
-		m_cam->SetPosition(vec3(clamp((m_cam->GetPosition().x + difference), center.x - (width / 2), center.x + (width / 2)), m_cam->GetPosition().y, m_cam->GetPosition().z));
+		float newX = m_cam->GetPositionX() + difference;
+		vec3 newPos = vec3(newX, m_cam->GetPosition().y, m_cam->GetPosition().z);
+		m_cam->SetPosition(newPos);
+	}
+
+	// Check every frame if the camera is out of bounds, if it is, move it back in bounds
+	float size = abs(m_cam->GetOrthoSize().y - m_cam->GetOrthoSize().x);
+
+	float newX = m_cam->GetPositionX();
+	if (newX - size < -width / 2) // Left side check
+	{
+		vec3 newPos = m_cam->GetPosition();
+		newPos.x = -width / 2 + size;
+		m_cam->SetPosition(newPos);
+	}
+	else if (newX - size < width / 2) // Right side check
+	{
+		vec3 newPos = m_cam->GetPosition();
+		newPos.x = width / 2 - size;
+		m_cam->SetPosition(newPos);
 	}
 }
 

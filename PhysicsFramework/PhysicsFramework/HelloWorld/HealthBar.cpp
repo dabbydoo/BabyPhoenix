@@ -31,5 +31,10 @@ float HealthBar::GetHealth() const
 
 void HealthBar::SetHealth(float health)
 {
-	m_health = health;
+	m_health = health>m_max_h?m_max_h:health;
+}
+
+void HealthBar::SetMaxHealth(float health)
+{
+	m_max_h = health;
 }

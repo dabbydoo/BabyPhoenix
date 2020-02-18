@@ -1,15 +1,12 @@
 #pragma once
-//#include <iostream>
 #include "Camera.h"
-
 using namespace std;
 
 class HorizontalScroll
 {
 public:
 	HorizontalScroll();
-	//~HorizontalScroll();
-
+	
 	//Makes sure that the camera is following the focus
 	void Update();
 
@@ -17,7 +14,7 @@ public:
 	Camera* GetCam() const;
 	Transform* GetFocus() const;
 	float GetOffset() const;
-	
+
 	//Setters
 	void SetCam(Camera* cam);
 	void SetFocus(Transform* focus);
@@ -30,7 +27,7 @@ private:
 
 	unsigned int background;
 
-	float m_offset = 5.f;
+	float m_offset = 0.f;
 };
 
 //Sends vertical scrolling camera FROM json file

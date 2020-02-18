@@ -30,18 +30,18 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		vec4 temp = ECS::GetComponent<Camera>(entity).GetOrthoSize();
 		ECS::GetComponent<Camera>(entity).SetWindowSize(vec2(float(windowWidth), float(windowHeight)));
 		ECS::GetComponent<Camera>(entity).Orthographic(aspectRatio, temp.x, temp.y, temp.z, temp.w, -100.f, 100.f);
-		
+
 		//attaches the camera to the Horizontal scroll
 		ECS::GetComponent<HorizontalScroll>(entity).SetCam(&ECS::GetComponent<Camera>(entity));
-	
+
 		ECS::GetComponent<VerticalScroll>(entity).SetCam(&ECS::GetComponent<Camera>(entity));
-	
+
 
 		//Sets up the Identifier
-		unsigned int bitHolder2 = EntityIdentifier::VerticalScrollCamBit() |EntityIdentifier::HoriScrollCameraBit() | EntityIdentifier::CameraBit();
+		unsigned int bitHolder2 = EntityIdentifier::VerticalScrollCamBit() | EntityIdentifier::HoriScrollCameraBit() | EntityIdentifier::CameraBit();
 		ECS::SetUpIdentifier(entity, bitHolder2, "Horizontal Scrolling Main Camera");
 		ECS::SetIsMainCamera(entity, true);
-		
+
 	}
 
 	//Ground
@@ -58,6 +58,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 
 		std::string fileName = "practiceMap.png";
 		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 405, 260);
+		//ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 200, 260);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, -10.f));
 
 		auto& tempSpr = ECS::GetComponent<Sprite>(entity);
@@ -138,18 +139,25 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::AttachComponent<Sprite>(entity);
 		ECS::AttachComponent<Transform>(entity);
 		ECS::AttachComponent<PhysicsBody>(entity);
+		ECS::AttachComponent<HealthBar>(entity);
 
 		string filename = "box.png";
+
+
+		ECS::GetComponent<HealthBar>(entity).SetMaxHealth(3.f);
+
+		ECS::GetComponent<HealthBar>(entity).SetHealth(3.f);
+
 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 20, 40);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-20.f, 0.f, 100.f));
 		auto& tempSpr = ECS::GetComponent<Sprite>(entity);
 		auto& tempPhsBody = ECS::GetComponent<PhysicsBody>(entity);
-		
+
 		//Create box2d body
 		b2Body* tempBody;
 		b2BodyDef tempDef;
-		
+
 		//Set body type
 		tempDef.type = b2_dynamicBody;
 
@@ -165,7 +173,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 
 		//Set gravity scale
 		tempBody->SetGravityScale(7);
-		
+
 		//Construct box collider 
 		tempPhsBody = PhysicsBody(tempBody, float(tempSpr.GetWidth()), float(tempSpr.GetHeight()),
 			vec2(0.f, 0.f), false, 1.5f);
@@ -195,12 +203,12 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		rightSensorFixture->SetUserData((void*)SIDESENSOR);
 
 		//Create Left side sensor
-		tempShape.SetAsBox(float(tempSpr.GetWidth())* (1.f / 10.f), float(tempSpr.GetHeight())* (2.3f / 5.f), b2Vec2(-float(tempSpr.GetWidth()) / 2.5f, 0), 0);
+		tempShape.SetAsBox(float(tempSpr.GetWidth()) * (1.f / 10.f), float(tempSpr.GetHeight()) * (2.3f / 5.f), b2Vec2(-float(tempSpr.GetWidth()) / 2.5f, 0), 0);
 		tempFixture.shape = &tempShape;
 		tempFixture.isSensor = true;
 		b2Fixture* leftSensorFixture = tempBody->CreateFixture(&tempFixture);
 		leftSensorFixture->SetUserData((void*)SIDESENSOR);
-		
+
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Main Player");
@@ -260,7 +268,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 40, 7);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(100.f, -30.f, 100.f));
 		auto& tempSpr = ECS::GetComponent<Sprite>(entity);
-		auto& tempPhsBody = ECS::GetComponent<PhysicsBody>(entity);	
+		auto& tempPhsBody = ECS::GetComponent<PhysicsBody>(entity);
 
 		b2Body* tempBody;
 		b2BodyDef tempDef;
