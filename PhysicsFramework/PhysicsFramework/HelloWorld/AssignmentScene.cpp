@@ -57,7 +57,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::AttachComponent<PhysicsBody>(entity);
 
 		std::string fileName = "practiceMap.png";
-		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 405, 260);
+		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 480, 270);
 		//ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 200, 260);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, -10.f));
 

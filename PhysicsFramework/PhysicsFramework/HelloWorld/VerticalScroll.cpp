@@ -33,6 +33,22 @@ void VerticalScroll::Update()
 		m_cam->SetPosition(newPos);
 	}
 
+	// Check every frame if the camera is out of bounds, if it is, move it back in bounds
+	float size = abs(m_cam->GetOrthoSize().y);
+
+	float newY = m_cam->GetPositionY();
+	if (newY - size < -height / 2) // Bottom side check
+	{
+		vec3 newPos = m_cam->GetPosition();
+		newPos.y = -height / 2 + size;
+		m_cam->SetPosition(newPos);
+	}
+	else if (newY - size < height / 2) // Top side check
+	{
+		vec3 newPos = m_cam->GetPosition();
+		newPos.y = height / 2 - size;
+		m_cam->SetPosition(newPos);
+	}
 }
 Camera* VerticalScroll::GetCam() const
 {
