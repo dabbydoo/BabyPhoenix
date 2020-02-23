@@ -78,7 +78,7 @@ void RenderingSystem::Update(entt::registry* reg)
 	{
 		//Grabs a reference to the Camera component (in x entity)
 		auto &bar = view3.get(entity);
-		std::cout << "Enitity Number" << std::to_string(entity) << ":";
+		//std::cout << "Enitity Number" << std::to_string(entity) << ":";
 		bar.DisplayHealth();
 	}
 }

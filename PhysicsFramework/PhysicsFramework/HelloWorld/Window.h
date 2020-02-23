@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 #include "Vector.h"
 
+
 //This is a wrapper for all the raw SDL window stuff
 class Window
 {
@@ -34,14 +35,19 @@ public:
 
 	//Set whether or not the window is resizable
 	void SetWindowResizable(bool resizable);
+
 	//Sets the window being fullscreen
 	void SetFullscreen(Uint32 flags);
+
 	//Grabs whether or not the window is fullscreen
 	Uint32 GetFullscreen() const;
 
+	//Set the window to maximize
+	void MaximizeWindow();
+
 	//Closes the window
 	void Close();
-
+	
 	//returns whether or not the window is still open
 	inline bool isOpen() const { return m_open; }
 private:

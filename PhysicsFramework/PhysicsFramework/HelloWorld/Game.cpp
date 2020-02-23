@@ -40,6 +40,10 @@ void Game::InitGame()
 
 	//Grabs the initialized window
 	m_window = BackEnd::GetWindow();
+
+	//Set window name
+	m_window->SetWindowName("Project Soul");
+
 	m_scenes.push_back(new AssignmentScene("Assignment Scene Project"));
 	m_activeScene = m_scenes[0];
     m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
@@ -50,7 +54,7 @@ void Game::InitGame()
 
 	//Initialize physics
 	PhysicsSystem::Init();
-
+	
 	//Set contact listener
 	listener.SetGame(this);
 	m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
@@ -139,12 +143,13 @@ void Game::Update()
 		//End dash when player collides with anything but (ground or platform) OR time of dash reached
 		if (isPlayerOnCollision() || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
 		{
-			cout << m_dashCounter << endl;
 			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
 			m_playerBody->SetGravityScale(m_playerGravity);
 			m_isDashing = false;
 		}
 	}
+	//m_register->get<Camera>(EntityIdentifier::MainCamera()).SetPosition(0, -35, 100);
+
 }
 
 void Game::GUI()

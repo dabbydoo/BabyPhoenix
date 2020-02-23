@@ -20,7 +20,7 @@ HealthBar::~HealthBar()
 
 void HealthBar::DisplayHealth()
 {
-	std::cout << "Health: " << std::to_string((m_health*100.f)) << "%" << std::endl;
+	//std::cout << "Health: " << std::to_string((m_health*100.f)) << "%" << std::endl;
 
 }
 

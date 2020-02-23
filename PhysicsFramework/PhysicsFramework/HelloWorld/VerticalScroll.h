@@ -29,6 +29,9 @@ private:
 	unsigned int background;
 
 	float m_offset = 0.f;
+
+	//Scroll correction
+	float m_scrollCorrection = 1;
 };
 
 //Sends vertical scrolling camera FROM json file

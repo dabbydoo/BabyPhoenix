@@ -1,5 +1,7 @@
 #include "VerticalScroll.h"
 #include "ECS.h"
+#include <iostream>
+
 
 VerticalScroll::VerticalScroll()
 {
@@ -8,47 +10,50 @@ VerticalScroll::VerticalScroll()
 void VerticalScroll::Update()
 {
 	auto height = ECS::GetComponent<Sprite>(background).GetHeight();
-	//auto center = ECS::GetComponent<Transform>(background).GetPosition();
+	float topScrollLimit = (m_cam->GetOrthoSize().z - m_cam->GetOrthoSize().y) / 2 + (height / 2 - m_scrollCorrection);
+	float bottomScrollLimit = (m_cam->GetOrthoSize().z - m_cam->GetOrthoSize().y) / -2 - (height / 2 - m_scrollCorrection);
+
+	//Reset camera position within scroll limit
+	//Top
+	if (m_focus->GetPosition().y > topScrollLimit)
+		m_focus->SetPositionY(topScrollLimit);
+	//Bottom
+	if (m_focus->GetPosition().y < bottomScrollLimit)
+		m_focus->SetPositionY(bottomScrollLimit);
 
 	//Above focus
 	if (m_focus->GetPosition().y > (m_cam->m_localPosition.y + m_offset))
 	{
-		//Calculate the amount the focus has "pushed" the camera right by
+		//Calculate the amount the focus has "pushed" the camera UP by
 		float difference = m_focus->GetPosition().y - (m_cam->m_localPosition.y + m_offset);
 
 		//Adjust the camera
-		float newY = m_cam->GetPositionY() + difference;
-		vec3 newPos = vec3(m_cam->GetPosition().x, newY, m_cam->GetPosition().z);
-		m_cam->SetPosition(newPos);
+		if (m_cam->GetPosition().y < topScrollLimit)
+		{
+			float newY = m_cam->GetPositionY() + difference;
+			vec3 newPos = vec3(m_cam->GetPosition().x, newY, m_cam->GetPosition().z);
+			m_cam->SetPosition(newPos);
+		}
 	}
 	//Below focus
 	if (m_focus->GetPosition().y < (m_cam->m_localPosition.y - m_offset))
 	{
-		//Calculate the amount the focus has "pushed" the camera left by
+		//Calculate the amount the focus has "pushed" the camera DOWN by
 		float difference = m_focus->GetPosition().y - (m_cam->m_localPosition.y - m_offset);
 
 		//Adjust the camera
-		float newY = m_cam->GetPositionY() + difference;
-		vec3 newPos = vec3(m_cam->GetPosition().x, newY, m_cam->GetPosition().z);
-		m_cam->SetPosition(newPos);
+		if (m_cam->GetPosition().y > bottomScrollLimit)
+		{
+			float newY = m_cam->GetPositionY() + difference;
+			vec3 newPos = vec3(m_cam->GetPosition().x, newY, m_cam->GetPosition().z);
+			m_cam->SetPosition(newPos);
+		}
 	}
-
-	// Check every frame if the camera is out of bounds, if it is, move it back in bounds
-	float size = abs(m_cam->GetOrthoSize().y);
-
-	float newY = m_cam->GetPositionY();
-	if (newY - size < -height / 2) // Bottom side check
-	{
-		vec3 newPos = m_cam->GetPosition();
-		newPos.y = -height / 2 + size;
-		m_cam->SetPosition(newPos);
-	}
-	else if (newY - size < height / 2) // Top side check
-	{
-		vec3 newPos = m_cam->GetPosition();
-		newPos.y = height / 2 - size;
-		m_cam->SetPosition(newPos);
-	}
+	/*cout << "height: " << height << endl;*/
+	/*cout << "\nGetpositionY: " << m_cam->GetPosition().y << endl;
+	cout << "GetORTHOpositionY: " << m_cam->GetOrthoPos().y << endl;
+	cout << "windowSize: " << m_cam->GetWindowSize().y << endl;
+	cout << "getScale: " << m_cam->GetScale().y << endl;*/
 }
 Camera* VerticalScroll::GetCam() const
 {

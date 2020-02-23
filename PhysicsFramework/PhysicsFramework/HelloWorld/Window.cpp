@@ -99,6 +99,12 @@ Uint32 Window::GetFullscreen() const
 	return m_fullscreen;
 }
 
+void Window::MaximizeWindow()
+{
+	//Set window to maximize
+	SDL_MaximizeWindow(m_window);
+}
+
 void Window::Close()
 {
 	//Set window open to false

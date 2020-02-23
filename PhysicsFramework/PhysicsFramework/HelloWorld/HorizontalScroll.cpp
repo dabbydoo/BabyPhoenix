@@ -1,5 +1,7 @@
 #include "HorizontalScroll.h"
 #include "ECS.h"
+#include <iostream>
+
 
 HorizontalScroll::HorizontalScroll()
 {
@@ -8,7 +10,16 @@ HorizontalScroll::HorizontalScroll()
 void HorizontalScroll::Update()
 {
 	auto width = ECS::GetComponent<Sprite>(background).GetWidth();
-	//auto center = ECS::GetComponent<Transform>(background).GetPosition();
+	float rightScrollLimit = (m_cam->GetOrthoSize().x - m_cam->GetOrthoSize().w) / 2 * m_cam->GetAspect() + (width / 2 - m_scrollCorrection);
+	float leftScrollLimit = (m_cam->GetOrthoSize().x - m_cam->GetOrthoSize().w) / -2 * m_cam->GetAspect() - (width / 2 - m_scrollCorrection);
+	
+	//Reset camera position within scroll limit
+	//Right
+	if (m_focus->GetPosition().x > rightScrollLimit)
+		m_focus->SetPositionX(rightScrollLimit);
+	//Left
+	if (m_focus->GetPosition().x < leftScrollLimit)
+		m_focus->SetPositionX(leftScrollLimit);
 
 	//Above focus
 	if (m_focus->GetPosition().x > (m_cam->m_localPosition.x + m_offset))
@@ -17,9 +28,12 @@ void HorizontalScroll::Update()
 		float difference = m_focus->GetPosition().x - (m_cam->m_localPosition.x + m_offset);
 
 		//Adjust the camera
-		float newX = m_cam->GetPositionX() + difference;
-		vec3 newPos = vec3(newX, m_cam->GetPosition().y, m_cam->GetPosition().z);
-		m_cam->SetPosition(newPos);
+		if (m_cam->GetPosition().x < rightScrollLimit)
+		{
+			float newX = m_cam->GetPositionX() + difference;
+			vec3 newPos = vec3(newX, m_cam->GetPosition().y, m_cam->GetPosition().z);
+			m_cam->SetPosition(newPos);
+		}
 	}
 	//Below focus
 	if (m_focus->GetPosition().x < (m_cam->m_localPosition.x - m_offset))
@@ -28,27 +42,20 @@ void HorizontalScroll::Update()
 		float difference = m_focus->GetPosition().x - (m_cam->m_localPosition.x - m_offset);
 
 		//Adjust the camera
-		float newX = m_cam->GetPositionX() + difference;
-		vec3 newPos = vec3(newX, m_cam->GetPosition().y, m_cam->GetPosition().z);
-		m_cam->SetPosition(newPos);
+		if (m_cam->GetPosition().x > leftScrollLimit)
+		{
+			float newX = m_cam->GetPositionX() + difference;
+			vec3 newPos = vec3(newX, m_cam->GetPosition().y, m_cam->GetPosition().z);
+			m_cam->SetPosition(newPos);
+		}
 	}
 
-	// Check every frame if the camera is out of bounds, if it is, move it back in bounds
-	float size = abs(m_cam->GetOrthoSize().y - m_cam->GetOrthoSize().x);
+	/*cout << "\nGetpositionX: " << m_cam->GetPosition().x <<endl;
+	cout << "\nGetFOCUSX: " << m_focus->GetPosition().x << endl;
+	cout << "GetORTHOpositionX: " << m_cam->GetOrthoPos().x << endl;
+	cout << "windowSize: " << m_cam->GetWindowSize().x << endl;
+	cout << "getScale: " << m_cam->GetScale().x << endl;*/
 
-	float newX = m_cam->GetPositionX();
-	if (newX - size < -width / 2) // Left side check
-	{
-		vec3 newPos = m_cam->GetPosition();
-		newPos.x = -width / 2 + size;
-		m_cam->SetPosition(newPos);
-	}
-	else if (newX - size < width / 2) // Right side check
-	{
-		vec3 newPos = m_cam->GetPosition();
-		newPos.x = width / 2 - size;
-		m_cam->SetPosition(newPos);
-	}
 }
 
 Camera* HorizontalScroll::GetCam() const
