@@ -85,10 +85,38 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		groundBody = m_physicsWorld->CreateBody(&groundBodyDef);
 
 		phsBody = PhysicsBody(groundBody, float(bgEntity.GetWidth()), thickness,
-			vec2(0.f, -bgEntity.GetHeight() / 2 - (thickness / 2)), false);
+			vec2(0.f, -bgEntity.GetHeight() / 2 -	 (thickness / 2)), false);
 
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Ground");
+
+	}
+
+	//Ceiling
+	{
+		auto entity = ECS::CreateEntity();
+
+		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
+		float thickness = 5;
+
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<PhysicsBody>(entity);
+
+		auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+		b2Body* groundBody;
+		b2BodyDef groundBodyDef;
+		groundBodyDef.type = b2_staticBody;
+		groundBodyDef.position.Set(0.f, 0.f);
+
+		groundBodyDef.userData = ((void*)PLATFORM);
+		groundBody = m_physicsWorld->CreateBody(&groundBodyDef);
+
+		phsBody = PhysicsBody(groundBody, float(bgEntity.GetWidth()), thickness,
+			vec2(0.f, bgEntity.GetHeight() / 2 + (thickness / 2)), false);
+
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Ceiling");
 
 	}
 
@@ -386,7 +414,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::SetUpIdentifier(entity, bitHolder, "Box4");
 	}
 
-	//BOX4
+	//Magnet
 	{
 		//Creates entity
 		auto entity = ECS::CreateEntity();
@@ -397,7 +425,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::AttachComponent<Transform>(entity);
 		ECS::AttachComponent<PhysicsBody>(entity);
 
-		string filename = "box.png";
+		string filename = "magnet.png";
 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 5, 5);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(-20.f, 0.f, 100.f));
@@ -425,7 +453,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Box4");
 	}
-
+	
 	ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
 	ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
 }

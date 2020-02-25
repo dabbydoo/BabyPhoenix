@@ -6,7 +6,7 @@ using namespace std;
 #include <iostream>
 
 //fixture name
-enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, OBJECT };
+enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET };
 
 class AssignmentScene : public Scene
 {

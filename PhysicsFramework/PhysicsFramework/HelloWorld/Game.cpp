@@ -1,10 +1,12 @@
 #include "Game.h"
 #include <random>
 #include"AssignmentScene.h"
-#include "MyContactListener.h"
+#include "MyListener.h"
+
 
 //Contact listener GLOBAL SCOPE
-MyListener listener;
+MyContactListener listener;
+RayCastClosestCallback rayCastCallBack;
 
 Game::~Game()
 {
@@ -61,6 +63,7 @@ void Game::InitGame()
 
 	//Get player body
 	m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
+	rayCastCallBack.SetGame(this);
 }
 
 bool Game::Run()
@@ -123,6 +126,42 @@ void Game::Update()
 		//**ADJUST DASH LENGTH HERE**
 		float dashTime = .3;
 
+		//End dash when head sensor collides with platform 
+		if (m_isPlayerHeadCollide)
+		{
+			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+			m_playerBody->SetGravityScale(m_playerGravity);
+			m_isDashing = false;
+		}
+
+		//End dash when side sensor collides with wall OR time of dash reached
+		if (m_isPlayerOnWall)
+			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime || !m_initDashOnWall)
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_playerBody->SetGravityScale(m_playerGravity);
+				m_isDashing = false;
+			}
+
+		//End dash when side sensor collides with platform OR time of dash reached
+		if (m_isPlayerSideCollide)
+		{
+			if (abs(m_initVelocity.x) > 0.001 || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_playerBody->SetGravityScale(m_playerGravity);
+				m_isDashing = false;
+			}
+		}
+
+		//End dash when player collides with anything but (ground or platform) OR time of dash reached
+		if (m_isPlayerOnCollision || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
+		{
+			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+			m_playerBody->SetGravityScale(m_playerGravity);
+			m_isDashing = false;
+		}
+
 		//End dash when foot sensor collides with (ground or platform) OR time of dash reached
 		if (m_isPlayerOnGround)
 			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime || !m_initDashOnGround)
@@ -131,25 +170,25 @@ void Game::Update()
 				m_playerBody->SetGravityScale(m_playerGravity);
 				m_isDashing = false;
 			}
-
-		//End dash when head sensor collides with platform 
-		if (m_isPlayerHeadCollide || m_isPlayerSideCollide)
-		{
-			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
-			m_playerBody->SetGravityScale(m_playerGravity);
-			m_isDashing = false;
-		}
-
-		//End dash when player collides with anything but (ground or platform) OR time of dash reached
-		if (isPlayerOnCollision() || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
-		{
-			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
-			m_playerBody->SetGravityScale(m_playerGravity);
-			m_isDashing = false;
-		}
 	}
 	//m_register->get<Camera>(EntityIdentifier::MainCamera()).SetPosition(0, -35, 100);
+	//at global scope
+	float currentRayAngle = 0;
 
+	//in Step() function
+	currentRayAngle += 360 / 20.0 / 60.0 * (3.14 / 180); //one revolution every 20 seconds
+
+	//calculate points of ray
+	float rayLength = 25; //long enough to hit the walls
+	b2Vec2 p1(0, 20); //center of scene
+	b2Vec2 p2 = p1 + rayLength * b2Vec2(sinf(currentRayAngle), cosf(currentRayAngle));
+
+	//draw a line
+	glColor3f(1, 1, 1); //white
+	glBegin(GL_LINES);
+	glVertex2f(p1.x, p1.y);
+	glVertex2f(p2.x, p2.y);
+	glEnd();
 }
 
 void Game::GUI()
@@ -284,15 +323,26 @@ void Game::KeyboardHold()
 
 		//Right
 		if (Input::GetKey(Key::D)) 
-			direction = b2Vec2(1, 0);	
+			direction += b2Vec2(1, 0);	
 		
 		//Apply force for movement
-		if (direction.Length() > 0) {
-			if (isPlayerOnGround() && !m_isDashing)
+		if (direction.Length() > 0) 
+		{
+			if (m_isPlayerOnGround && !m_isDashing)
 				m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
 			else
 				m_playerBody->ApplyForce(b2Vec2(direction.x * force, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
 		}
+
+		//Stop x movement when player moves both left and right simultaneously
+		if (Input::GetKey(Key::A) && Input::GetKey(Key::D)) 
+		{
+			if (m_isPlayerOnGround && !m_isDashing)
+				m_playerBody->SetLinearVelocity(b2Vec2(0, direction.y * velocity));
+			else
+				m_playerBody->ApplyForce(b2Vec2(0, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
+		}
+
 	}
 }
 
@@ -301,7 +351,7 @@ void Game::KeyboardDown()
 	//Jump
 	if (Input::GetKeyDown(Key::Space))
 	{
-		if (isPlayerOnGround())
+		if (m_isPlayerOnGround)
 		{
 			float impulse = m_playerBody->GetMass() * 80; //Adjust to change height of jump
 			m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
@@ -310,7 +360,8 @@ void Game::KeyboardDown()
 	}
 
 	//Dash direction
-	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1) {
+	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1) 
+	{
 		b2Vec2 direction = b2Vec2(0.f, 0.f);
 		float magnitude = 250000.f;
 
@@ -335,13 +386,20 @@ void Game::KeyboardDown()
 		}
 
 		//Start Dashing
-		if (direction.Length() > 0) {
+		if (direction.Length() > 0) 
+		{
 
 			//Flag whether initial dash position on ground
-			if (isPlayerOnGround())
+			if (m_isPlayerOnGround)
 				m_initDashOnGround = true;
 			else
 				m_initDashOnGround = false;
+
+			//Flag whether initial dash position on wall
+			if (m_isPlayerOnWall)
+				m_initDashOnWall = true;
+			else
+				m_initDashOnWall = false;
 
 			//Apply impulse
 			m_playerBody->SetGravityScale(0);
@@ -350,7 +408,14 @@ void Game::KeyboardDown()
 			m_isDashing = true;
 			m_initDashTime = clock();
 			m_dashCounter = 0;
+			m_initVelocity = m_playerBody->GetLinearVelocity();
 		}
+	}
+	float force = 40000;
+	if (Input::GetKey(Key::Enter))
+	{
+		MagnetPull();
+		//m_playerBody->ApplyForce(b2Vec2(1 * force, 10 * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
 	}
 }
 
@@ -424,17 +489,6 @@ void Game::MouseWheel(SDL_MouseWheelEvent evnt)
 	m_wheel = false;
 }
 
-//Check if player is grounded
-bool Game::isPlayerOnGround() {
-	return m_isPlayerOnGround;  		 
-}
-
-//Flag if player on collision
-bool Game::isPlayerOnCollision()
-{
-	return m_isPlayerOnCollision;
-}
-
 void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 {
 	//Recording both fixture data
@@ -448,19 +502,24 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		|| ((f2 == FOOTSENSOR) && (f1 == GROUND || f1 == PLATFORM)))
 		m_isPlayerOnGround = true;
 
+	//Check if Player sidesensor begin collision with wall 
+	if ((f1 == SIDESENSOR && f2 == WALL)
+		|| ((f2 == SIDESENSOR) && f1 == WALL))
+		m_isPlayerOnWall = true;
+
 	//Check if Player headsensor begin collision with platform 
 	if ((f1 == HEADSENSOR && f2  == PLATFORM)
 		|| (f2 == HEADSENSOR && f1 == PLATFORM))
 		m_isPlayerHeadCollide = true;
 
-	//Check if Player sideSensor end collision with platform 
+	//Check if Player sideSensor begin collision with platform 
 	if ((f1 == SIDESENSOR && f2 == PLATFORM)
 		|| (f2 == SIDESENSOR && f1 == PLATFORM))
 		m_isPlayerSideCollide = true;
 
-	//Check if Player begin collision with any entity but ground or platform
-	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM)
-		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM))
+	//Check if Player begin collision with any entity that isn't a ground, platform, or wall
+	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL)
+		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL))
 		m_isPlayerOnCollision = true;
 }
 
@@ -477,6 +536,11 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		|| ((f2 == FOOTSENSOR) && (f1 == GROUND || f1 == PLATFORM)))
 		m_isPlayerOnGround = false;
 
+	//Check if Player sidesensor end collision with wall
+	if ((f1 == SIDESENSOR && f2 == WALL)
+		|| ((f2 == SIDESENSOR) && f1 == WALL))
+		m_isPlayerOnWall = false;
+
 	//Check if Player headSensor end collision with platform 
 	if ((f1 == HEADSENSOR && f2 == PLATFORM)
 		|| (f2 == HEADSENSOR && f1 == PLATFORM))
@@ -487,9 +551,42 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		|| (f2 == SIDESENSOR && f1 == PLATFORM))
 		m_isPlayerSideCollide = false;
 
-	//Check if Player end collision with any entity but ground or platform
-	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM)
-		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM))
+	//Check if Player end collision with any entity that isn't a ground, platform, or wall
+	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL)
+		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL))
 		m_isPlayerOnCollision = false;
+}
+
+float Game::RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction)
+{
+	cout << "Fixture: " << (int)fixture->GetUserData() << "  Fraction: " << fraction << endl;
+	return 0.0f;
+}
+
+void Game::MagnetPull()
+{
+	b2Vec2 point1(m_playerBody->GetPosition());
+	RayCastClosestCallback callback;
+	float distance = 80.f;
+	float angleRAD = 0;
+	b2Fixture* fixture = NULL;
+	b2Vec2 fixturePoint, fixtureNormal;
+	float fraction = 0;
+
+	for (int angleDEG = 5; angleDEG <= 175; ++angleDEG)
+	{
+		angleRAD = angleDEG * b2_pi / 180.0f;
+
+		b2Vec2 d(distance * cosf(angleRAD), distance * sinf(angleRAD));
+		b2Vec2 point2 = point1 + d;
+
+		m_activeScene->GetPhysicsWorld().RayCast(&callback, point1, point2);
+
+		if (callback.m_hit)
+		{
+			//callback.ReportFixture(fixture, fixturePoint, fixtureNormal, fraction);
+			cout << "rayHitAngle: " << angleDEG << endl;
+		}
+	}
 }
 

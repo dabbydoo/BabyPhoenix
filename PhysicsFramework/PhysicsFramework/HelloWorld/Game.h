@@ -70,19 +70,19 @@ public:
 	void MouseClick(SDL_MouseButtonEvent evnt);
 	void MouseWheel(SDL_MouseWheelEvent evnt);
 
-	//Check if main player grounded
-	bool isPlayerOnGround();
-
-	//Check if player collide with anything
-	bool isPlayerOnCollision();
-
+	//Contact listener
+	//What happens at start of collision
 	void BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB);
-
+	//What happens at end of collision
 	void EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB);
+
+	float RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction);
 
 
 	
 private:
+	void MagnetPull();
+
 	//The window
 	Window *m_window = nullptr;
 
@@ -110,11 +110,19 @@ private:
 	//Dashing
 	clock_t m_initDashTime; //Initial Player position when dash starts
 	int m_dashCounter = 1; //Dash counter
+	
 	bool m_initDashOnGround = true; //Flag for if initial dash started on ground
+	bool m_initDashOnWall = false; //Flag for if initial dash started on the wall
 	bool m_isDashing = false; //Flag for if currently dashing
+
+	//Initial velocity
+	b2Vec2 m_initVelocity;
 
 	//Flag for if player on ground
 	bool m_isPlayerOnGround = false;
+
+	//Flag for if player on wall
+	bool m_isPlayerOnWall = false;
 
 	//Collision flags
 	bool m_isPlayerOnCollision = false; //player collide
