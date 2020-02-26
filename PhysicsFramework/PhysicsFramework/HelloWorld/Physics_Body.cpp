@@ -333,9 +333,11 @@ void PhysicsBody::ApplyForce(vec3 force)
 
 void PhysicsBody::Update(Transform* trans)
 {
+	auto scale = trans->GetScale();
+
 	//Stores the position
 	m_position = m_body->GetPosition();
-
+	
 	//Sets the transform position to the position of the physics body
 	trans->SetPosition(vec3(m_body->GetPosition().x, m_body->GetPosition().y, trans->GetPosition().z));
 	trans->SetRotationAngleZ(Degrees(m_body->GetAngle()));

@@ -37,4 +37,5 @@ void HealthBar::SetHealth(float health)
 void HealthBar::SetMaxHealth(float health)
 {
 	m_max_h = health;
+	m_health = health;
 }

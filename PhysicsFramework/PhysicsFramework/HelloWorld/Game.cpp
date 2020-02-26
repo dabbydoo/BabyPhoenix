@@ -171,24 +171,7 @@ void Game::Update()
 				m_isDashing = false;
 			}
 	}
-	//m_register->get<Camera>(EntityIdentifier::MainCamera()).SetPosition(0, -35, 100);
-	//at global scope
-	float currentRayAngle = 0;
-
-	//in Step() function
-	currentRayAngle += 360 / 20.0 / 60.0 * (3.14 / 180); //one revolution every 20 seconds
-
-	//calculate points of ray
-	float rayLength = 25; //long enough to hit the walls
-	b2Vec2 p1(0, 20); //center of scene
-	b2Vec2 p2 = p1 + rayLength * b2Vec2(sinf(currentRayAngle), cosf(currentRayAngle));
-
-	//draw a line
-	glColor3f(1, 1, 1); //white
-	glBegin(GL_LINES);
-	glVertex2f(p1.x, p1.y);
-	glVertex2f(p2.x, p2.y);
-	glEnd();
+	
 }
 
 void Game::GUI()
@@ -311,11 +294,19 @@ void Game::KeyboardHold()
 {
 	//Player Movement 
 	{
+		
+		if (Input::GetKey(Key::Escape))
+			exit(0);
+
 		//Movement direction 
 		b2Vec2 direction = b2Vec2(0.f, 0.f);
 
 		float force = 40000;
 		float velocity = 30; //Change for player velocity on ground
+
+		if (Input::GetKey(Key::L)) {
+			ECS::GetComponent<Sprite>(EntityIdentifier::MainPlayer()).SetHeight(10);
+		}
 
 		//Left 
 		if (Input::GetKey(Key::A)) 
@@ -348,6 +339,14 @@ void Game::KeyboardHold()
 
 void Game::KeyboardDown()
 {	
+	if (Input::GetKeyDown(Key::I))
+	{
+		for (b2Fixture* f = m_playerBody->GetFixtureList(); f; f = f->GetNext())
+		{
+			cout << "Fixture: " << (int)f->GetUserData() << endl;
+		}
+	}
+
 	//Jump
 	if (Input::GetKeyDown(Key::Space))
 	{
@@ -410,6 +409,7 @@ void Game::KeyboardDown()
 			m_dashCounter = 0;
 			m_initVelocity = m_playerBody->GetLinearVelocity();
 		}
+	
 	}
 	float force = 40000;
 	if (Input::GetKey(Key::Enter))
