@@ -4,6 +4,12 @@
 #include "MyListener.h"
 
 
+const int FPS = 60;
+const int frameDelay = 1000 / 60;
+
+Uint32 frameStart;
+int frameTime;
+
 //Contact listener GLOBAL SCOPE
 MyContactListener listener;
 RayCastClosestCallback rayCastCallBack;
@@ -71,6 +77,7 @@ bool Game::Run()
 	//While window is still open
 	while (m_window->isOpen())
 	{
+		frameStart = SDL_GetTicks();
 		//Clear window with clearColor
 		m_window->Clear(m_clearColor);
 		//Updates the game
@@ -95,6 +102,13 @@ bool Game::Run()
 			//Accept all input
 			AcceptInput();
 		}
+	
+		frameTime = SDL_GetTicks()-frameStart;
+
+		if (frameDelay>frameTime) 
+			SDL_Delay(frameDelay - frameTime);
+		
+
 	}
 	
 	
@@ -106,6 +120,8 @@ void Game::Update()
 {
 	//Update timer
 	Timer::Update();
+
+	cout << Timer::deltaTime << endl;
 	//Update the backend
 	BackEnd::Update(m_register);
 
@@ -329,7 +345,7 @@ void Game::KeyboardHold()
 		if (Input::GetKey(Key::A) && Input::GetKey(Key::D)) 
 		{
 			if (m_isPlayerOnGround && !m_isDashing)
-				m_playerBody->SetLinearVelocity(b2Vec2(0, direction.y * velocity));
+				m_playerBody->SetLinearVelocity(b2Vec2(0, direction.y * velocity*Timer::time));
 			else
 				m_playerBody->ApplyForce(b2Vec2(0, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
 		}
@@ -337,8 +353,12 @@ void Game::KeyboardHold()
 	}
 }
 
+
 void Game::KeyboardDown()
-{	
+{
+
+	
+
 	if (Input::GetKeyDown(Key::I))
 	{
 		for (b2Fixture* f = m_playerBody->GetFixtureList(); f; f = f->GetNext())
@@ -353,7 +373,7 @@ void Game::KeyboardDown()
 		if (m_isPlayerOnGround)
 		{
 			float impulse = m_playerBody->GetMass() * 80; //Adjust to change height of jump
-			m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
+			m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse*Timer::time), m_playerBody->GetWorldCenter(), true);
 			m_isPlayerOnGround = false;
 		}	
 	}
@@ -362,26 +382,26 @@ void Game::KeyboardDown()
 	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1) 
 	{
 		b2Vec2 direction = b2Vec2(0.f, 0.f);
-		float magnitude = 250000.f;
+		float magnitude = 250000.f * Timer::deltaTime;
 
 		//Dash Up
 		if (Input::GetKey(Key::W)) {
-			direction = b2Vec2(direction.x, direction.y + magnitude);
+			direction = b2Vec2(direction.x, (direction.y + magnitude) );
 		}
 
 		//Dash Left
 		if (Input::GetKey(Key::A)) {
-			direction = b2Vec2(direction.x - magnitude, direction.y);
+			direction = b2Vec2((direction.x - magnitude), direction.y);
 		}
 
 		//Dash Down
 		if (Input::GetKey(Key::S)) {
-			direction = b2Vec2(direction.x, direction.y - magnitude);
+			direction = b2Vec2(direction.x, (direction.y - magnitude));
 		}
 
 		//Dash Right
 		if (Input::GetKey(Key::D)) {
-			direction = b2Vec2(direction.x + magnitude, direction.y);
+			direction = b2Vec2((direction.x + magnitude), direction.y);
 		}
 
 		//Start Dashing
@@ -411,7 +431,7 @@ void Game::KeyboardDown()
 		}
 	
 	}
-	float force = 40000;
+	float force = 4000;
 	if (Input::GetKey(Key::Enter))
 	{
 		MagnetPull();

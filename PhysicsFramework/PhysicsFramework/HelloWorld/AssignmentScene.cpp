@@ -185,16 +185,45 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::AttachComponent<PhysicsBody>(entity);
 		ECS::AttachComponent<HealthBar>(entity);
 
+
 		string filename = "box.png";
 
+//		string filename = "entire_sheet.png";
+		//ECS::AttachComponent<AnimationController>(entity);
 
 		ECS::GetComponent<HealthBar>(entity).SetMaxHealth(3.f);
 
-		ECS::GetComponent<HealthBar>(entity).SetHealth(3.f);
+		//auto movement = File::LoadJSON("entire_sheet.json");
+
+		//auto& animation = ECS::GetComponent<AnimationController>(entity);
+
+	//	animation.InitUVs("entire_sheet.png");
+
+	//	animation.AddAnimation(movement["Idle_Right"]);
+	//	animation.AddAnimation(movement["Idle_Left"]);
+	//	animation.AddAnimation(movement["Walk_Right"]);
+	//	animation.AddAnimation(movement["Walk_Left"]);
+	//	animation.AddAnimation(movement["Run_Right"]);
+	//	animation.AddAnimation(movement["Run_Left"]);
+	//	animation.AddAnimation(movement["Dash_Right"]);
+	//	animation.AddAnimation(movement["Dash_Left"]);
+	//	animation.AddAnimation(movement["Jump_Begin_Right"]);
+	//	animation.AddAnimation(movement["Jump_Begin_Left"]);
+	//	animation.AddAnimation(movement["Jump_End_Right"]);
+	////	animation.AddAnimation(movement["Jump_End_Left"]);
+	//	animation.AddAnimation(movement["Falling_Right"]);
+	//	animation.AddAnimation(movement["Falling_Left"]);
+
+	//	animation.SetActiveAnim(0);
 
 
+		//ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 5, 10, true, &animation);
+		//ECS::GetComponent<Sprite>(entity).SetUVs(vec2(1.f, 3.f), vec2(3.f, 1.f));
+		
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 20, 40);
+
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 100.f));
+	
 		auto& tempSpr = ECS::GetComponent<Sprite>(entity);
 		auto& tempPhsBody = ECS::GetComponent<PhysicsBody>(entity);
 
