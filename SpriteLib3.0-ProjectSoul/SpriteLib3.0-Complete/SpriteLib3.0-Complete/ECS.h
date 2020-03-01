@@ -11,6 +11,7 @@
 #include "PhysicsBody.h"
 #include "VerticalScroll.h"
 #include "HorizontalScroll.h"
+#include"HealthBar.h"
 
 
 class ECS abstract

@@ -371,17 +371,6 @@ void Game::KeyboardDown()
 	//Look at base Scene class for more info.
 	m_activeScene->KeyboardDown();
 
-	/*if (Input::GetKey(Key::Z))
-	{
-		static float value = 0;
-		if (value < 45)
-		{
-			value += 0.001;
-			m_register->get<Camera>(EntityIdentifier::MainCamera()).Zoom(value);
-		}
-
-	}*/
-
 	//Jump
 	if (Input::GetKeyDown(Key::Space))
 	{

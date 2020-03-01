@@ -84,14 +84,14 @@ void RenderingSystem::Update(entt::registry* reg)
 		}
 	}
 	{
-		//auto view = reg->view<HealthBar>();
-		//for (auto entity : view)
-		//{
-		//	//Grabs a reference to the Camera component (in x entity)
-		//	auto& bar = view.get(entity);
-		//	//std::cout << "Enitity Number" << std::to_string(entity) << ":";
-		//	bar.DisplayHealth();
-		//}
+		auto view = reg->view<HealthBar>();
+		for (auto entity : view)
+		{
+			//Grabs a reference to the Camera component (in x entity)
+			auto& bar = view.get(entity);
+			
+				
+		}
 	}
 }
 
