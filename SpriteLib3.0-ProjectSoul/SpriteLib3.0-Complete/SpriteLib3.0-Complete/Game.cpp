@@ -184,6 +184,12 @@ void Game::Update()
 				m_isDashing = false;
 			}
 	}
+
+	auto& player2 = m_register->get<Transform>(6);
+
+	auto& player = m_register->get<Transform>(EntityIdentifier::MainPlayer());
+
+	player2.SetPosition(player.GetPosition());
 }
 
 void Game::GUI()
@@ -347,8 +353,9 @@ void Game::KeyboardHold()
 		//Apply force for movement
 		if (direction.Length() > 0)
 		{
-			if (m_isPlayerOnGround && !m_isDashing)
+			if (m_isPlayerOnGround && !m_isDashing) 
 				m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
+				
 			else
 				m_playerBody->ApplyForce(b2Vec2(direction.x * force, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
 		}
@@ -440,7 +447,6 @@ void Game::KeyboardDown()
 	{
 		float force = 4000;
 		MagnetPull();
-		//m_playerBody->ApplyForce(b2Vec2(1 * force, 10 * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
 	}
 }
 

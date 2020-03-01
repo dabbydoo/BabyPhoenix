@@ -156,10 +156,10 @@ void Room::CreateMainPlayer()
 		ECS::AttachComponent<PhysicsBody>(entity);
 		ECS::AttachComponent<HealthBar>(entity);
 
+		ECS::GetComponent<HealthBar>(entity).SetMaxHealth(3.f);
+
 		string filename = "entire_sheet.png";
 		ECS::AttachComponent<AnimationController>(entity);
-
-		ECS::GetComponent<HealthBar>(entity).SetMaxHealth(3.f);
 
 		auto movement = File::LoadJSON("entire_sheet.json");
 
@@ -182,13 +182,12 @@ void Room::CreateMainPlayer()
 		animation.AddAnimation(movement["Falling_Right"]);
 		animation.AddAnimation(movement["Falling_Left"]);
 
-		animation.SetActiveAnim(0);
-
+	
 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 10, 20, true, &animation);
 
 		//Player position
-		vec3 position(80.f, 70.f, 50.f);
+		vec3 position(1.f, 1.f, 50.f);
 
 		ECS::GetComponent<Transform>(entity).SetPosition(position);
 
@@ -214,6 +213,8 @@ void Room::CreateMainPlayer()
 
 		//Set gravity scale
 		body->SetGravityScale(7);
+
+		sprite.GetSizeScale();
 
 		//Construct box collider 
 		phsBody = PhysicsBody(body, float(sprite.GetWidth()), float(sprite.GetHeight()),
@@ -252,12 +253,65 @@ void Room::CreateMainPlayer()
 		b2Fixture* leftSensorFixture = body->CreateFixture(&fixtureDef);
 		leftSensorFixture->SetUserData((void*)SIDESENSOR);
 
+		animation.SetActiveAnim(0);
+
+
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit()|EntityIdentifier::healthBarBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Main Player");
 		ECS::SetIsMainPlayer(entity, true);
 
 		
+	}
+
+	{
+	//Creates entity
+	auto entity = ECS::CreateEntity();
+	
+
+	//Add components
+	ECS::AttachComponent<Sprite>(entity);
+	ECS::AttachComponent<Transform>(entity);
+	ECS::AttachComponent<HealthBar>(entity);
+
+	string filename = "entire_sheet.png";
+	ECS::AttachComponent<AnimationController>(entity);
+
+	ECS::GetComponent<HealthBar>(entity).SetMaxHealth(3.f);
+
+	auto movement = File::LoadJSON("entire_sheet.json");
+
+	auto& animation = ECS::GetComponent<AnimationController>(entity);
+
+	animation.InitUVs("entire_sheet.png");
+
+	animation.AddAnimation(movement["Idle_Right"]);
+	animation.AddAnimation(movement["Idle_Left"]);
+	animation.AddAnimation(movement["Walk_Right"]);
+	animation.AddAnimation(movement["Walk_Left"]);
+	animation.AddAnimation(movement["Run_Right"]);
+	animation.AddAnimation(movement["Run_Left"]);
+	animation.AddAnimation(movement["Dash_Right"]);
+	animation.AddAnimation(movement["Dash_Left"]);
+	animation.AddAnimation(movement["Jump_Begin_Right"]);
+	animation.AddAnimation(movement["Jump_Begin_Left"]);
+	animation.AddAnimation(movement["Jump_End_Right"]);
+	//animation.AddAnimation(movement["Jump_End_Left"]);
+	animation.AddAnimation(movement["Falling_Right"]);
+	animation.AddAnimation(movement["Falling_Left"]);
+
+	animation.SetActiveAnim(0);
+
+
+	ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 10, 20, true, &animation);
+
+	//Player position
+	vec3 position(1.f, 1.f, 50.f);
+
+	ECS::GetComponent<Transform>(entity).SetPosition(position);
+
+	unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
+	ECS::SetUpIdentifier(entity, bitHolder, "Mr");
 	}
 
 }
