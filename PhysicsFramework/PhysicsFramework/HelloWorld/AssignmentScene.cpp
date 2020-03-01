@@ -60,7 +60,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 480, 270);
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, -10.f));
 
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "bgImage");
 	}
 
@@ -87,7 +87,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		phsBody = PhysicsBody(groundBody, float(bgEntity.GetWidth()), thickness,
 			vec2(0.f, -bgEntity.GetHeight() / 2 -	 (thickness / 2)), false);
 
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Ground");
 
 	}
@@ -115,7 +115,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		phsBody = PhysicsBody(groundBody, float(bgEntity.GetWidth()), thickness,
 			vec2(0.f, bgEntity.GetHeight() / 2 + (thickness / 2)), false);
 
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Ceiling");
 
 	}
@@ -142,7 +142,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 
 		phsBody = PhysicsBody(wallBody, thickness, bgEntity.GetHeight(), vec2(-bgEntity.GetWidth() / 2 - (thickness / 2), 0.f), false);
 
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "LeftWall");
 
 	}
@@ -169,7 +169,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 
 		phsBody = PhysicsBody(wallBody, thickness, bgEntity.GetHeight(), vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
 
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "RightWall");
 	}
 
@@ -185,42 +185,39 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		ECS::AttachComponent<PhysicsBody>(entity);
 		ECS::AttachComponent<HealthBar>(entity);
 
-
-		string filename = "box.png";
-
-//		string filename = "entire_sheet.png";
-		//ECS::AttachComponent<AnimationController>(entity);
+		string filename = "entire_sheet.png";
+		ECS::AttachComponent<AnimationController>(entity);
 
 		ECS::GetComponent<HealthBar>(entity).SetMaxHealth(3.f);
 
-		//auto movement = File::LoadJSON("entire_sheet.json");
+		auto movement = File::LoadJSON("entire_sheet.json");
 
-		//auto& animation = ECS::GetComponent<AnimationController>(entity);
+		auto& animation = ECS::GetComponent<AnimationController>(entity);
 
-	//	animation.InitUVs("entire_sheet.png");
+		animation.InitUVs("entire_sheet.png");
 
-	//	animation.AddAnimation(movement["Idle_Right"]);
-	//	animation.AddAnimation(movement["Idle_Left"]);
-	//	animation.AddAnimation(movement["Walk_Right"]);
-	//	animation.AddAnimation(movement["Walk_Left"]);
-	//	animation.AddAnimation(movement["Run_Right"]);
-	//	animation.AddAnimation(movement["Run_Left"]);
-	//	animation.AddAnimation(movement["Dash_Right"]);
-	//	animation.AddAnimation(movement["Dash_Left"]);
-	//	animation.AddAnimation(movement["Jump_Begin_Right"]);
-	//	animation.AddAnimation(movement["Jump_Begin_Left"]);
-	//	animation.AddAnimation(movement["Jump_End_Right"]);
-	////	animation.AddAnimation(movement["Jump_End_Left"]);
-	//	animation.AddAnimation(movement["Falling_Right"]);
-	//	animation.AddAnimation(movement["Falling_Left"]);
+		animation.AddAnimation(movement["Idle_Right"]);
+		animation.AddAnimation(movement["Idle_Left"]);
+		animation.AddAnimation(movement["Walk_Right"]);
+		animation.AddAnimation(movement["Walk_Left"]);
+		animation.AddAnimation(movement["Run_Right"]);
+		animation.AddAnimation(movement["Run_Left"]);
+		animation.AddAnimation(movement["Dash_Right"]);
+		animation.AddAnimation(movement["Dash_Left"]);
+		animation.AddAnimation(movement["Jump_Begin_Right"]);
+		animation.AddAnimation(movement["Jump_Begin_Left"]);
+		animation.AddAnimation(movement["Jump_End_Right"]);
+	//	animation.AddAnimation(movement["Jump_End_Left"]);
+		animation.AddAnimation(movement["Falling_Right"]);
+		animation.AddAnimation(movement["Falling_Left"]);
 
-	//	animation.SetActiveAnim(0);
+		animation.SetActiveAnim(8);
 
 
-		//ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 5, 10, true, &animation);
-		//ECS::GetComponent<Sprite>(entity).SetUVs(vec2(1.f, 3.f), vec2(3.f, 1.f));
+		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 20, 40, true, &animation);
+		ECS::GetComponent<Sprite>(entity).SetUVs(vec2(1.f, 3.f), vec2(3.f, 1.f));
 		
-		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 20, 40);
+		//ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 20, 40);
 
 		ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 100.f));
 	
@@ -283,7 +280,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		leftSensorFixture->SetUserData((void*)SIDESENSOR);
 
 		//Sets up the Identifier
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Main Player");
 		ECS::SetIsMainPlayer(entity, true);
 	}
@@ -321,7 +318,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		tempPhsBody.SetGravity(true);
 
 		//Sets up the Identifier
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Box1");
 	}
 
@@ -359,7 +356,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		tempPhsBody.SetGravity(true);
 
 		//Sets up the Identifier
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Box2");
 	}
 
@@ -399,7 +396,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		tempPhsBody.SetGravity(true);
 
 		//Sets up the Identifier
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Box3");
 	}
 
@@ -439,7 +436,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		tempPhsBody.SetGravity(true);
 
 		//Sets up the Identifier
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Box4");
 	}
 
@@ -479,7 +476,7 @@ void AssignmentScene::InitScene(float windowWidth, float windowHeight)
 		tempPhsBody.SetGravity(true);
 
 		//Sets up the Identifier
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Box4");
 	}
 	
