@@ -13,10 +13,10 @@ void HorizontalScroll::Update()
 	//Reset camera position within scroll limit
 	//Right
 	if (m_focus->GetPosition().x > rightScrollLimit)
-		m_focus->SetPositionX(rightScrollLimit);
+		m_cam->SetPositionX(rightScrollLimit);
 	//Left
 	if (m_focus->GetPosition().x < leftScrollLimit)
-		m_focus->SetPositionX(leftScrollLimit);
+		m_cam->SetPositionX(leftScrollLimit);
 
 	//Above focus
 	if (m_focus->GetPosition().x > (m_cam->m_localPosition.x + m_offset))

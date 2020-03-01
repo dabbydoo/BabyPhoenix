@@ -185,11 +185,6 @@ void Game::Update()
 			}
 	}
 
-	auto& player2 = m_register->get<Transform>(6);
-
-	auto& player = m_register->get<Transform>(EntityIdentifier::MainPlayer());
-
-	player2.SetPosition(player.GetPosition());
 }
 
 void Game::GUI()
