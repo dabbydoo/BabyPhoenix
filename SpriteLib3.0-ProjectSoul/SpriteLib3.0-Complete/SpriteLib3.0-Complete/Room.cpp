@@ -20,15 +20,20 @@ void Room::InitScene(float windowWidth, float windowHeight)
 	if (m_name == "Start")
 	{
 		string platformPNG = "platform.png";
-		CreateBackground("Start.png", vec2(480 / 1.3, 270 / 1.3));
+
+		CreateBackground("Start.png", vec2(480 / 4.5, 270 / 4.5));
+		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
+
 		CreateRoomBoundary();
 		
+		CreateEdge(b2Vec2(-bgEntity.GetWidth() / 2, -29), b2Vec2(bgEntity.GetWidth() / 2, -29), GROUND);
 
-		CreatePlatform(platformPNG, vec2(40, 7), vec2(-50, -30));
-
-		CreatePlatform(platformPNG, vec2(40, 7), vec2(-90, -50));
 		CreateMainPlayer();
-		
+
+		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
+
+		//CreatePlatform(platformPNG, vec2(40, 7), vec2(-50, -30));
+		//CreatePlatform(platformPNG, vec2(40, 7), vec2(0, 0));
 	}
 
 
@@ -45,6 +50,7 @@ void Room::CreateCamera(float windowWidth, float windowHeight)
 
 	//Creates Camera Entity
 	auto entity = ECS::CreateEntity();
+
 	//EntityIdentifier::MainCamera(entity);
 
 	//Creates new orthographic camera
@@ -223,7 +229,7 @@ void Room::CreateMainPlayer()
 
 		b2PolygonShape shape;
 		b2FixtureDef fixtureDef;
-
+		
 		//Create foot sensor
 		shape.SetAsBox(float(sprite.GetWidth()) * (2.3f / 5.f), float(sprite.GetHeight()) * (1.f / 10.f), b2Vec2(0, -float(sprite.GetHeight()) / 2.5f), 0);
 		fixtureDef.shape = &shape;
@@ -326,3 +332,16 @@ void Room::CreateMagnet(string fileName, vec2 size, vec2 position)
 	unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 	ECS::SetUpIdentifier(entity, bitHolder, "Magnet");
 }
+
+void Room::CreateEdge(b2Vec2 point1, b2Vec2 point2, fixtureName fixtureName)
+{
+	b2BodyDef bodyDef;
+	b2Body* body = m_physicsWorld->CreateBody(&bodyDef);
+
+	b2EdgeShape shape;
+	shape.Set(b2Vec2(point1), b2Vec2(point2));
+	
+	b2Fixture* fixture;
+	fixture = body->CreateFixture(&shape, 0.0f);
+	fixture->SetUserData((void*)fixtureName);
+} 
