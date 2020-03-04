@@ -183,11 +183,13 @@ void Room::CreateMainPlayer()
 		animation.AddAnimation(movement["Jump_Begin_Right"]);
 		animation.AddAnimation(movement["Jump_Begin_Left"]);
 		animation.AddAnimation(movement["Jump_End_Right"]);
-		//animation.AddAnimation(movement["Jump_End_Left"]);
+		animation.AddAnimation(movement["Jump_End_Left"]);
 		animation.AddAnimation(movement["Falling_Right"]);
 		animation.AddAnimation(movement["Falling_Left"]);
 
 		animation.SetActiveAnim(0);
+
+		
 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 10, 20, true, &animation);
 

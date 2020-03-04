@@ -4,6 +4,18 @@
 #include "BackEnd.h"
 #include "Room.h"
 
+enum Anim {
+	IDLE,
+	WALK=2,
+	RUN=4,
+	DASH=6,
+	JUMP_BEGIN=8,
+	JUMP_END=10,
+	FALL=12,
+
+
+};
+
 //Our main class for running our game
 class Game
 {
@@ -117,6 +129,9 @@ private:
 	bool m_isPlayerOnCollision = false; //player collide
 	bool m_isPlayerHeadCollide = false; //player head sensor collides
 	bool m_isPlayerSideCollide = false; //player side sensor collides
+
+	//the direction of the character 0/false is right || || 1/true is left
+	bool m_character_direction = false;
 
 	//Player gravity scale
 	float m_playerGravity = 7;

@@ -133,6 +133,8 @@ void Game::Update()
 		}
 	}
 
+	cout << " " <<m_playerBody->GetLinearVelocity().y << endl;
+
 	//End of Dash 
 	if (m_isDashing)
 	{
@@ -246,10 +248,10 @@ void Game::GamepadInput()
 			tempCon->SetStickDeadZone(0.1f);
 
 			//If the controller is connected, we run the different input types
+			GamepadStick(tempCon);
 			GamepadStroke(tempCon);
 			GamepadUp(tempCon);
 			GamepadDown(tempCon);
-			GamepadStick(tempCon);
 			GamepadTrigger(tempCon);
 		}
 	}
@@ -259,6 +261,7 @@ void Game::GamepadStroke(XInputController * con)
 {
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
+
 	m_activeScene->GamepadStroke(con);
 }
 
@@ -267,6 +270,9 @@ void Game::GamepadUp(XInputController * con)
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
 	m_activeScene->GamepadUp(con);
+
+
+
 }
 
 void Game::GamepadDown(XInputController * con)
@@ -274,6 +280,27 @@ void Game::GamepadDown(XInputController * con)
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
 	m_activeScene->GamepadDown(con);
+	
+	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	if (con->IsButtonPressed(Buttons::A)) {
+		if (m_isPlayerOnGround)
+		{
+			
+			animation.SetActiveAnim(m_character_direction+JUMP_BEGIN);
+			float impulse = m_playerBody->GetMass() * 50; //Adjust to change height of jump
+			m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
+			m_isPlayerOnGround = false;
+			animation.GetAnimation(m_character_direction + JUMP_END).Reset();
+			
+		}
+	}
+	//
+	if (animation.GetAnimation(m_character_direction + JUMP_BEGIN).GetAnimationDone() && m_playerBody->GetLinearVelocity().y < 0.f) {
+		animation.SetActiveAnim(m_character_direction + JUMP_END);
+		animation.GetAnimation(m_character_direction + JUMP_BEGIN).Reset();
+	}
+			
 }
 
 void Game::GamepadStick(XInputController * con)
@@ -281,22 +308,85 @@ void Game::GamepadStick(XInputController * con)
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
 	m_activeScene->GamepadStick(con);
-
 	Stick sticks[2];
+
 	con->GetSticks(sticks);
-	if (sticks[0].x < -0.1f) {
-		printf("Left Pointing\n");
+
+	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	
+		if (con->IsButtonPressed(Buttons::START))
+			exit(0);
+
+		//Movement direction 
+			b2Vec2 direction = b2Vec2(0.f, 0.f);
+
+			float force = 40000;
+			float velocity = 30; //Change for player velocity on ground
+
+			//Apply force for movement
+			if (m_isPlayerOnGround) {
+				animation.SetActiveAnim(m_character_direction+IDLE);
+
+				//right run
+				if (sticks[0].x >= 0.7f && sticks[0].x <= 1.f)
+				{
+					direction += b2Vec2(1, 0);
+					m_character_direction = false;
+					animation.SetActiveAnim(m_character_direction +RUN);
+
+
+				}
+
+				//left run
+				else if (sticks[0].x <= -0.7f && sticks[0].x >= -1.f)
+				{
+					direction = b2Vec2(-1, 0);
+					m_character_direction = true;
+					animation.SetActiveAnim(m_character_direction + RUN);
+
+				}
+
+				//right walk 
+				else if (sticks[0].x >= 0.2f && sticks[0].x < 0.7f) {
+					direction += b2Vec2(0.5, 0);
+					m_character_direction = false;
+					animation.SetActiveAnim(m_character_direction + WALK);
+				}
+
+				//left walk
+				else if (sticks[0].x <= -0.2f && sticks[0].x >= -.7f)
+				{
+					direction = b2Vec2(-0.5f, 0);
+					m_character_direction = true;
+					animation.SetActiveAnim(m_character_direction + WALK);
+
+				}
+				if (direction.Length() > 0)
+					m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
+			
+				if(sticks[0].x < 0.2f && sticks[0].x > -0.2f)
+					m_playerBody->SetLinearVelocity(b2Vec2(0, m_playerBody->GetLinearVelocity().y));
+			}
+		
+	else if (!m_isPlayerOnGround)
+	{
+	 if (sticks[0].x >= 0.2f && sticks[0].x < 0.7f) {
+				direction += b2Vec2(0.5, 0);
+				m_character_direction = false;		
+			}
+
+			//left walk
+	else if (sticks[0].x <= -0.2f && sticks[0].x >= -.7f)
+			{
+				direction = b2Vec2(-0.5f, 0);
+				m_character_direction = true;
+
+			}
+	 m_playerBody->ApplyForce(b2Vec2(direction.x * force, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
+
 	}
-	if (sticks[0].x > 0.1f) {
-		printf("Right Pointing\n");
-	}
-	if (sticks[0].y < -0.1f) {
-		printf("Down Pointing\n");
-	}
-	if (sticks[0].y > 0.1f) {
-		printf("Up Pointing\n");
-	}
-	system("cls");
+	
 }
 
 void Game::GamepadTrigger(XInputController * con)
@@ -333,17 +423,13 @@ void Game::KeyboardHold()
 		float force = 40000;
 		float velocity = 30; //Change for player velocity on ground
 
-		if (Input::GetKey(Key::L)) {
-			ECS::GetComponent<Sprite>(EntityIdentifier::MainPlayer()).SetHeight(10);
-		}
-
 		//Left 
 		if (Input::GetKey(Key::A))
 			direction = b2Vec2(-1, 0);
 
 		//Right
 		if (Input::GetKey(Key::D))
-			direction += b2Vec2(1, 0);
+			direction = b2Vec2(1, 0);
 
 		//Apply force for movement
 		if (direction.Length() > 0)
@@ -359,7 +445,7 @@ void Game::KeyboardHold()
 		if (Input::GetKey(Key::A) && Input::GetKey(Key::D))
 		{
 			if (m_isPlayerOnGround && !m_isDashing)
-				m_playerBody->SetLinearVelocity(b2Vec2(0, direction.y * velocity * Timer::time));
+				m_playerBody->SetLinearVelocity(b2Vec2(0, direction.y * velocity));
 			else
 				m_playerBody->ApplyForce(b2Vec2(0, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
 		}
