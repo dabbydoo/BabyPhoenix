@@ -12,8 +12,6 @@ enum Anim {
 	JUMP_BEGIN=8,
 	JUMP_END=10,
 	FALL=12,
-
-
 };
 
 //Our main class for running our game
@@ -86,6 +84,8 @@ public:
 	float RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction);
 
 	void MagnetPull();
+
+	vec2 ConvertToGl(vec2 clickCoord);
 private:
 	//The window
 	Window *m_window = nullptr;

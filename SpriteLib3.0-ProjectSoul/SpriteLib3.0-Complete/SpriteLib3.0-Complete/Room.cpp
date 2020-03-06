@@ -28,14 +28,31 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		
 		CreateEdge(b2Vec2(-bgEntity.GetWidth() / 2, -29), b2Vec2(bgEntity.GetWidth() / 2, -29), GROUND);
 
-		CreateMainPlayer();
-
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 
 		//CreatePlatform(platformPNG, vec2(40, 7), vec2(-50, -30));
 		//CreatePlatform(platformPNG, vec2(40, 7), vec2(0, 0));
 	}
 
+	if (m_name == "Tutorial")
+	{
+
+		string platformPNG = "platform.png";
+
+		CreateBackground("tutorial.png", vec2(480 / 3, 270 / 3));
+		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
+
+		CreateRoomBoundary();
+
+		CreateEdge(b2Vec2(-bgEntity.GetWidth() / 2, -32), b2Vec2(bgEntity.GetWidth() / 2, -32), GROUND);
+
+		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(60);
+
+		//CreatePlatform(platformPNG, vec2(40, 7), vec2(-50, -30));
+		//CreatePlatform(platformPNG, vec2(40, 7), vec2(0, 0));
+	}
+
+	CreateMainPlayer();
 
 	//Set camera scroll focus to  main player
 	ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
@@ -188,8 +205,6 @@ void Room::CreateMainPlayer()
 		animation.AddAnimation(movement["Falling_Left"]);
 
 		animation.SetActiveAnim(0);
-
-		
 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 10, 20, true, &animation);
 
