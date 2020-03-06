@@ -1,0 +1,43 @@
+#include "Character.h"
+
+unsigned int Character::getEntityID()
+{
+	return m_entity;
+}
+
+int Character::getHealth()
+{
+	return ECS::GetComponent<HealthBar>(m_entity).GetHealth();
+}
+
+int Character::getUI()
+{
+	return 0;
+}
+
+b2Body* Character::getBody()
+{
+	return ECS::GetComponent<PhysicsBody>(m_entity).GetBody();
+}
+
+void Character::setEntityID(unsigned int entity)
+{
+	m_entity = entity;
+}
+
+void Character::field_of_view()
+{
+}
+
+void Player::field_of_view()
+{
+}
+
+void Player::magnetPull()
+{
+}
+
+void Enemy::field_of_view()
+{
+}
+

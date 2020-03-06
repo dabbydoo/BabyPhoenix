@@ -11,6 +11,8 @@ void Scene::Unload()
 	if (m_sceneReg != nullptr)
 	{
 		delete m_sceneReg;
+		delete m_physicsWorld;
+		m_physicsWorld = nullptr;
 		m_sceneReg = nullptr;
 	}
 }

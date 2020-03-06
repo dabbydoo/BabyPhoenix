@@ -38,6 +38,12 @@ void Game::InitGame()
 
 	//Creates a new scene.
 	//Replace this with your own scene.
+	
+	/* Menu scenes
+	m_scenes.push_back(new Room("Menu"));
+	m_scenes.push_back(new Room("Pause_Menu"));
+	*/
+
 	m_scenes.push_back(new Room("Start"));
 	m_scenes.push_back(new Room("Tutorial"));
 
