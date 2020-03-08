@@ -203,7 +203,7 @@ void Room::CreateMainPlayer()
 		animation.AddAnimation(movement["Jump_End_Left"]);
 		animation.AddAnimation(movement["Falling_Right"]);
 		animation.AddAnimation(movement["Falling_Left"]);
-		animation.AddAnimation(movement["Flinch_Right"]);
+	    animation.AddAnimation(movement["Flinch_Right"]);
 		animation.AddAnimation(movement["Flinch_Left"]);
 		animation.AddAnimation(movement["Death_Right"]);
 		animation.AddAnimation(movement["Death_Left"]);
@@ -241,10 +241,8 @@ void Room::CreateMainPlayer()
 		//Set gravity scale
 		body->SetGravityScale(7);
 
-		sprite.GetSizeScale();
-
 		//Construct box collider 
-		phsBody = PhysicsBody(body, float(sprite.GetWidth()), float(sprite.GetHeight()),
+		phsBody = PhysicsBody(body, float(sprite.GetWidth()), float(sprite.GetHeight()*0.9),
 			vec2(0.f, 0.f), false, 2.5f);
 
 
