@@ -73,7 +73,7 @@ void Game::InitGame()
 bool Game::Run()
 {
 	//Frames per second
-	const int FPS = 30;
+	const int FPS = 60;
 	const int frameDelay = 1000 / FPS;
 
 	Uint32 frameStart;
@@ -140,8 +140,6 @@ void Game::Update()
 			m_dashCounter = 1;
 		}
 	}
-
-	cout << " " <<m_playerBody->GetLinearVelocity().y << endl;
 
 	//End of Dash 
 	if (m_isDashing)
@@ -294,13 +292,11 @@ void Game::GamepadDown(XInputController * con)
 	if (con->IsButtonPressed(Buttons::A)) {
 		if (m_isPlayerOnGround)
 		{
-			
 			animation.SetActiveAnim(m_character_direction+JUMP_BEGIN);
 			float impulse = m_playerBody->GetMass() * 50; //Adjust to change height of jump
 			m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
 			m_isPlayerOnGround = false;
 			animation.GetAnimation(m_character_direction + JUMP_END).Reset();
-			
 		}
 	}
 	//
@@ -333,7 +329,7 @@ void Game::GamepadStick(XInputController * con)
 
 	//Apply force for movement
 	if (m_isPlayerOnGround) {
-	if(animation.GetAnimation(m_character_direction + JUMP_END).GetAnimationDone())
+	
 		animation.SetActiveAnim(m_character_direction + IDLE);
 
 		//right run
