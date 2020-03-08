@@ -203,6 +203,11 @@ void Room::CreateMainPlayer()
 		animation.AddAnimation(movement["Jump_End_Left"]);
 		animation.AddAnimation(movement["Falling_Right"]);
 		animation.AddAnimation(movement["Falling_Left"]);
+		animation.AddAnimation(movement["Flinch_Right"]);
+		animation.AddAnimation(movement["Flinch_Left"]);
+		animation.AddAnimation(movement["Death_Right"]);
+		animation.AddAnimation(movement["Death_Left"]);
+
 
 		animation.SetActiveAnim(0);
 

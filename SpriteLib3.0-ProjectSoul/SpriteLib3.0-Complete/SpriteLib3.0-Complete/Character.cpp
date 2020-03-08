@@ -10,6 +10,21 @@ int Character::getHealth()
 	return ECS::GetComponent<HealthBar>(m_entity).GetHealth();
 }
 
+auto Character::getAnimation()
+{
+	return ECS::GetComponent<AnimationController>(m_entity);
+}
+
+auto Character::getSprite()
+{
+	return ECS::GetComponent<Sprite>(m_entity);
+}
+
+Character* Character::getCharacter()
+{
+	return this;
+}
+
 int Character::getUI()
 {
 	return 0;
@@ -23,18 +38,6 @@ b2Body* Character::getBody()
 void Character::setEntityID(unsigned int entity)
 {
 	m_entity = entity;
-}
-
-void Character::field_of_view()
-{
-}
-
-void Player::field_of_view()
-{
-}
-
-void Player::magnetPull()
-{
 }
 
 void Enemy::field_of_view()

@@ -66,12 +66,14 @@ void Game::InitGame()
 	//Get player body
 	m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
 	rayCastCallBack.SetGame(this);
+
+	
 }
 
 bool Game::Run()
 {
 	//Frames per second
-	const int FPS = 60;
+	const int FPS = 30;
 	const int frameDelay = 1000 / FPS;
 
 	Uint32 frameStart;
@@ -331,6 +333,7 @@ void Game::GamepadStick(XInputController * con)
 
 	//Apply force for movement
 	if (m_isPlayerOnGround) {
+	if(animation.GetAnimation(m_character_direction + JUMP_END).GetAnimationDone())
 		animation.SetActiveAnim(m_character_direction + IDLE);
 
 		//right run
@@ -477,10 +480,6 @@ void Game::KeyboardDown()
 		}
 	}
 
-	if (animation.GetAnimation(m_character_direction + JUMP_BEGIN).GetAnimationDone() && m_playerBody->GetLinearVelocity().y < 0.f) {
-		animation.SetActiveAnim(m_character_direction + JUMP_END);
-		animation.GetAnimation(m_character_direction + JUMP_BEGIN).Reset();
-	}
 
 	//Dash direction
 	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1)
@@ -631,8 +630,12 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	//Check if Player footsensor begin collision with ground or platform 
 	if ((f1 == FOOTSENSOR && (f2 == GROUND || f2 == PLATFORM))
 		|| ((f2 == FOOTSENSOR) && (f1 == GROUND || f1 == PLATFORM)))
+	{
+		auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 		m_isPlayerOnGround = true;
 
+		animation.SetActiveAnim(m_character_direction+JUMP_END);
+	}
 	//Check if Player sidesensor begin collision with wall 
 	if ((f1 == SIDESENSOR && f2 == WALL)
 		|| ((f2 == SIDESENSOR) && f1 == WALL))
