@@ -66,6 +66,8 @@ void Game::InitGame()
 	//Get player body
 	m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
 	rayCastCallBack.SetGame(this);
+
+	
 }
 
 bool Game::Run()
@@ -138,8 +140,6 @@ void Game::Update()
 			m_dashCounter = 1;
 		}
 	}
-
-	cout << " " <<m_playerBody->GetLinearVelocity().y << endl;
 
 	//End of Dash 
 	if (m_isDashing)
@@ -292,13 +292,11 @@ void Game::GamepadDown(XInputController * con)
 	if (con->IsButtonPressed(Buttons::A)) {
 		if (m_isPlayerOnGround)
 		{
-			
 			animation.SetActiveAnim(m_character_direction+JUMP_BEGIN);
 			float impulse = m_playerBody->GetMass() * 50; //Adjust to change height of jump
 			m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
 			m_isPlayerOnGround = false;
 			animation.GetAnimation(m_character_direction + JUMP_END).Reset();
-			
 		}
 	}
 	//
@@ -331,6 +329,7 @@ void Game::GamepadStick(XInputController * con)
 
 	//Apply force for movement
 	if (m_isPlayerOnGround) {
+	
 		animation.SetActiveAnim(m_character_direction + IDLE);
 
 		//right run
@@ -477,10 +476,6 @@ void Game::KeyboardDown()
 		}
 	}
 
-	if (animation.GetAnimation(m_character_direction + JUMP_BEGIN).GetAnimationDone() && m_playerBody->GetLinearVelocity().y < 0.f) {
-		animation.SetActiveAnim(m_character_direction + JUMP_END);
-		animation.GetAnimation(m_character_direction + JUMP_BEGIN).Reset();
-	}
 
 	//Dash direction
 	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1)
@@ -631,8 +626,12 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	//Check if Player footsensor begin collision with ground or platform 
 	if ((f1 == FOOTSENSOR && (f2 == GROUND || f2 == PLATFORM))
 		|| ((f2 == FOOTSENSOR) && (f1 == GROUND || f1 == PLATFORM)))
+	{
+		auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 		m_isPlayerOnGround = true;
 
+		animation.SetActiveAnim(m_character_direction+JUMP_END);
+	}
 	//Check if Player sidesensor begin collision with wall 
 	if ((f1 == SIDESENSOR && f2 == WALL)
 		|| ((f2 == SIDESENSOR) && f1 == WALL))

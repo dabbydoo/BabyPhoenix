@@ -14,8 +14,7 @@ public:
 	Room(string name);
 
 	void InitScene(float windowWidth, float windowHeight) override;
-
-
+	
 private:
 	void CreateCamera(float windowWidth, float windowHeight);
 	void CreateBackground(string fileName, vec2 size);

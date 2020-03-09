@@ -6,6 +6,7 @@
 #include "Xinput.h"
 #include <SDL2/SDL.h>
 #include "PhysicsBody.h"
+#include"Character.h"
 
 class Scene
 {

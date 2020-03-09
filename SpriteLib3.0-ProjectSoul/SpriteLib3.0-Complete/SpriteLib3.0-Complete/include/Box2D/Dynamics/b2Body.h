@@ -40,10 +40,10 @@ enum b2BodyType
 {
 	b2_staticBody = 0,
 	b2_kinematicBody,
-	b2_dynamicBody
+	b2_dynamicBody,
 
 	// TODO_ERIN
-	//b2_bulletBody,
+	b2_bulletBody
 };
 
 /// A body definition holds all the data needed to construct a rigid body.
@@ -388,7 +388,10 @@ public:
 
 	/// Dump this body to a log file
 	void Dump();
-
+	
+	// This is used to prevent connected bodies from colliding.
+	// It may lie, depending on the collideConnected flag.
+	bool ShouldCollide(const b2Body* other) const;
 private:
 
 	friend class b2World;
@@ -427,9 +430,7 @@ private:
 	void SynchronizeFixtures();
 	void SynchronizeTransform();
 
-	// This is used to prevent connected bodies from colliding.
-	// It may lie, depending on the collideConnected flag.
-	bool ShouldCollide(const b2Body* other) const;
+	
 
 	void Advance(float32 t);
 
