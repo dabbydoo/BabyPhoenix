@@ -129,6 +129,17 @@ void Game::Update()
 	//Update Physics System
 	PhysicsSystem::Update(m_register, m_activeScene->GetPhysicsWorld());
 
+	if (m_changeScene)
+	{
+		if (m_activeScene->GetName() == "Start")
+			ChangeRoom(TUTORIAL);
+		m_changeScene = false;
+		//m_isDashing = false;
+		//m_isPlayerJumping = false;
+		//m_isPlayerOnCollision = false;
+		//m_isPlayerOnGround = false;
+	}
+
 	//Updates the active scene
 	m_activeScene->Update();
 
@@ -181,6 +192,7 @@ void Game::Update()
 			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
 			m_playerBody->SetGravityScale(m_playerGravity);
 			m_isDashing = false;
+			//m_isPlayerOnCollision = false;
 		}
 
 		//End dash when foot sensor collides with (ground or platform) OR time of dash reached
@@ -772,15 +784,12 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL))
 		m_isPlayerOnCollision = true;
 
-	//Check if Player sidesensor end collision with wall
+	//Check if player collides with doorway
 	if ((f1 == SIDESENSOR && f2 == DOORWAY)
 		|| ((f2 == SIDESENSOR) && f1 == DOORWAY))
-	{
-		if(m_activeScene->GetName() == "Start")
-			ChangeRoom(TUTORIAL);
-		/*if (m_activeScene->GetName() == "Tutorial");
-			ChangeRoom(STARTING);*/
-	}
+		m_changeScene = true;
+		
+	
 }
 
 void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)

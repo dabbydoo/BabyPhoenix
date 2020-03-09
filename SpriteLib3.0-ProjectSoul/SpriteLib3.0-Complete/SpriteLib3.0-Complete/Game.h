@@ -145,6 +145,8 @@ private:
 	//Player gravity scale
 	float m_playerGravity = 7;
 
+	bool m_changeScene = false;
+
 	//Player body
 	b2Body* m_playerBody;
 };
