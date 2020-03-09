@@ -192,7 +192,7 @@ void Game::Update()
 			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
 			m_playerBody->SetGravityScale(m_playerGravity);
 			m_isDashing = false;
-			//m_isPlayerOnCollision = false;
+			m_isPlayerOnCollision = false;
 		}
 
 		//End dash when foot sensor collides with (ground or platform) OR time of dash reached

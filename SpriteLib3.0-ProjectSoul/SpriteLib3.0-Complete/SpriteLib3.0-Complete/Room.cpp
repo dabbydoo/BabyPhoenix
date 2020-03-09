@@ -27,12 +27,13 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		
 		//Ground
 		CreateEdge(b2Vec2(-bgEntity.GetWidth() / 2, -28), b2Vec2(bgEntity.GetWidth() / 2, -28), GROUND);
-
+		
 		//Doorway
 		//CreateDoorWay()
 		//CreateEdge(b2Vec2(40, -12.63), b2Vec2(40, -28.96), DOORWAY);
 		//CreatePlatform(platformPNG, vec2(40, 7), vec2(0, 0));
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
+		CreateMainPlayer(vec3(-17, -4, 50));
 		
 	}
 
@@ -46,7 +47,45 @@ void Room::InitScene(float windowWidth, float windowHeight)
 
 		CreateRoomBoundary();
 
-		CreateEdge(b2Vec2(-bgEntity.GetWidth() / 2, -32), b2Vec2(bgEntity.GetWidth() / 2, -32), GROUND);
+		CreateEdge(b2Vec2(-79, -31.48), b2Vec2(-57.96, -31.48), GROUND);
+
+		CreateEdge(b2Vec2(-56.48, -31.48), b2Vec2(-56.70, -21.85), GROUND);
+
+		CreateEdge(b2Vec2(-56.70, -21.85), b2Vec2(-52.41, -15.93), GROUND);
+
+		CreateEdge(b2Vec2(-52.41, -15.93), b2Vec2(-49.52, -13.41), GROUND);
+
+		CreateEdge(b2Vec2(-49.52, -13.41), b2Vec2(-43.74, -25.78), GROUND);
+
+		CreateEdge(b2Vec2(-43, -30.52), b2Vec2(-22.04, -30.22), GROUND);
+
+		CreateEdge(b2Vec2(-19.44, -30.30), b2Vec2(-18.33, -12.96), GROUND);
+
+		CreateEdge(b2Vec2(-18.33, -12.96), b2Vec2(-14.19, -15.33), GROUND);
+
+		CreateEdge(b2Vec2(-14.19, -15.33), b2Vec2(-11.07, -28.89), GROUND);
+
+		CreateEdge(b2Vec2(-9.74, -28.15), b2Vec2(18.19, -28.15), GROUND);
+
+		CreateEdge(b2Vec2(18.85, -28.22), b2Vec2(18.78, -10.59), GROUND);
+
+		CreateEdge(b2Vec2(18.78, -10.59), b2Vec2(26.78, -20.96), GROUND);
+
+		CreateEdge(b2Vec2(26.78, -20.96), b2Vec2(31, -23.41), GROUND);
+
+		CreateEdge(b2Vec2(31, -23.41), b2Vec2(51.74, -23.63), GROUND);
+
+		CreateEdge(b2Vec2(51.89, -24.44), b2Vec2(49.44, 1.63), GROUND);
+
+		CreateEdge(b2Vec2(49.44, 1.63), b2Vec2(56.48, 10.89), GROUND);
+
+		CreateEdge(b2Vec2(56.48, 10.89), b2Vec2(62.26, -4.59), GROUND);
+
+		CreateEdge(b2Vec2(62.26, -4.59), b2Vec2(61.96, -36.74), GROUND);
+
+		CreateEdge(b2Vec2(61.96, -36.74), b2Vec2(78.93, -36.74), GROUND);
+
+		
 
 		//Doorway
 		//CreateEdge(b2Vec2(-74, 32.07), b2Vec2(-74, -16), DOORWAY);
@@ -55,9 +94,10 @@ void Room::InitScene(float windowWidth, float windowHeight)
 
 		//CreatePlatform(platformPNG, vec2(40, 7), vec2(-50, -30));
 		//CreatePlatform(platformPNG, vec2(40, 7), vec2(0, 0));
+		CreateMainPlayer(vec3(-67, -20, 50));
 	}
 
-	CreateMainPlayer();
+	
 
 	//Set camera scroll focus to  main player
 	ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
@@ -170,7 +210,7 @@ void Room::CreateRoomBoundary()
 	ECS::SetUpIdentifier(entity, bitHolder, "RoomBoundary");
 }
 
-void Room::CreateMainPlayer()
+void Room::CreateMainPlayer(vec3 position)
 {
 	//Main Player
 	{
@@ -219,7 +259,7 @@ void Room::CreateMainPlayer()
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 10, 20, true, &animation);
 
 		//Player position
-		vec3 position(1.f, 1.f, 50.f);
+		vec3 position(position.x, position.y, position.z);
 
 		ECS::GetComponent<Transform>(entity).SetPosition(position);
 
