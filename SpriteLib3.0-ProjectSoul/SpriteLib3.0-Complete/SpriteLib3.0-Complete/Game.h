@@ -16,7 +16,8 @@ enum Anim {
 
 enum RoomName {
 	STARTING,
-	TUTORIAL
+	HALLWAY,
+	STORAGE
 };
 
 //Our main class for running our game

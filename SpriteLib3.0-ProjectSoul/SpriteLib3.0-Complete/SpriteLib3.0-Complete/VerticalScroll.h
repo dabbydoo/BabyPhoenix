@@ -1,4 +1,4 @@
-#ifndef __VERTICALSCROLL_H__
+     #ifndef __VERTICALSCROLL_H__
 #define __VERTICALSCROLL_H__
 
 #include "Camera.h"

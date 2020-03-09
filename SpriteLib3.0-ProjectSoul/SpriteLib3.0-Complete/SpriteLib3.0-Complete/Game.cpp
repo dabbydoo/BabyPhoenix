@@ -46,6 +46,7 @@ void Game::InitGame()
 
 	m_scenes.push_back(new Room("Start"));
 	m_scenes.push_back(new Room("Tutorial"));
+	m_scenes.push_back(new Room("Storage"));
 	
 	//Sets active scene reference to our scene
 	m_activeScene = m_scenes[0];
@@ -132,8 +133,15 @@ void Game::Update()
 	if (m_changeScene)
 	{
 		if (m_activeScene->GetName() == "Start")
-			ChangeRoom(TUTORIAL);
-		m_changeScene = false;
+		{
+			ChangeRoom(HALLWAY);
+			m_changeScene = false;
+		}
+		if (m_activeScene->GetName() == "Hallway")
+		{
+			ChangeRoom(STORAGE);
+			m_changeScene = false;
+		}
 		//m_isDashing = false;
 		//m_isPlayerJumping = false;
 		//m_isPlayerOnCollision = false;
@@ -144,13 +152,7 @@ void Game::Update()
 	m_activeScene->Update();
 
 	//Update if player can dash. (Check if player on ground)
-	if (m_playerBody->GetLinearVelocity().y < .1f)
-	{
-		//Resets dash to 1 when player grounded
-		if (m_isPlayerOnGround && !m_isDashing) {
-			m_dashCounter = 1;
-		}
-	}
+	 
 
 	//End of Dash 
 	if (m_isDashing)
@@ -553,7 +555,7 @@ void Game::KeyboardDown()
 	{
 		m_activeScene->Unload();
 		//Sets active scene reference to our scene
-		m_activeScene = m_scenes[1];
+		m_activeScene = m_scenes[2];
 
 		m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
 
