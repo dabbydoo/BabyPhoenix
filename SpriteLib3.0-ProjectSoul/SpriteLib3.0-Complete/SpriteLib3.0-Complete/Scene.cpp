@@ -14,6 +14,8 @@ void Scene::Unload()
 		delete m_physicsWorld;
 		m_physicsWorld = nullptr;
 		m_sceneReg = nullptr;
+
+		m_physicsWorld = new b2World(m_gravity);
 	}
 }
 

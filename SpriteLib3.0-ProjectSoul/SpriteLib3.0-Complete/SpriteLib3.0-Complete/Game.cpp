@@ -46,7 +46,7 @@ void Game::InitGame()
 
 	m_scenes.push_back(new Room("Start"));
 	m_scenes.push_back(new Room("Tutorial"));
-
+	
 	//Sets active scene reference to our scene
 	m_activeScene = m_scenes[0];
 
@@ -185,12 +185,14 @@ void Game::Update()
 
 		//End dash when foot sensor collides with (ground or platform) OR time of dash reached
 		if (m_isPlayerOnGround)
+		{
 			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime || !m_initDashOnGround)
 			{
 				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
 				m_playerBody->SetGravityScale(m_playerGravity);
 				m_isDashing = false;
 			}
+		}
 	}
 
 }
@@ -369,8 +371,11 @@ void Game::GamepadStick(XInputController * con)
 		if (direction.Length() > 0)
 			m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
 
-		if (sticks[0].x < 0.2f && sticks[0].x > -0.2f)
-			m_playerBody->SetLinearVelocity(b2Vec2(0, m_playerBody->GetLinearVelocity().y));
+		if (!m_isDashing)
+		{
+			if (sticks[0].x < 0.2f && sticks[0].x > -0.2f)
+				m_playerBody->SetLinearVelocity(b2Vec2(0, m_playerBody->GetLinearVelocity().y));
+		}
 	}
 		
 		
@@ -414,44 +419,96 @@ void Game::KeyboardHold()
 	//Look at base Scene class for more info.
 	m_activeScene->KeyboardHold();
 
+	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	b2Vec2 velocity2 = m_playerBody->GetLinearVelocity();
+
 	//Player Movement 
 	{
+		
 
 		if (Input::GetKey(Key::Escape))
 			exit(0);
 
 		//Movement direction 
-		b2Vec2 direction = b2Vec2(0.f, 0.f);
+		//b2Vec2 direction = b2Vec2(0.f, 0.f);
 
-		float force = 40000;
-		float velocity = 30; //Change for player velocity on ground
+		//float force = 40000;
+		//float velocity = 30; //Change for player velocity on ground
 
-		//Left 
-		if (Input::GetKey(Key::A))
-			direction = b2Vec2(-1, 0);
-
-		//Right
-		if (Input::GetKey(Key::D))
-			direction = b2Vec2(1, 0);
-
-		//Apply force for movement
-		if (direction.Length() > 0)
+		if (!m_isDashing)
 		{
-			if (m_isPlayerOnGround && !m_isDashing) 
-				m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
-				
-			else
-				m_playerBody->ApplyForce(b2Vec2(direction.x * force, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
+			if (m_isPlayerOnGround)
+				animation.SetActiveAnim(m_character_direction + IDLE);
+
+			//Left 
+			if (Input::GetKey(Key::A) && !Input::GetKey(Key::D))
+			{
+				m_character_direction = true;
+
+				if(m_isPlayerOnGround)
+					animation.SetActiveAnim(RUN + m_character_direction);
+
+				velocity2.x = -20;
+				m_playerBody->SetLinearVelocity(velocity2);
+			}
+
+			//Right
+			if (Input::GetKey(Key::D) && !Input::GetKey(Key::A))
+			{
+				m_character_direction = false;
+
+				if (m_isPlayerOnGround)
+					animation.SetActiveAnim(RUN + m_character_direction);
+
+				velocity2.x = 20;
+				m_playerBody->SetLinearVelocity(velocity2);
+			}
+
+			if (Input::GetKey(Key::A) && Input::GetKey(Key::D))
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, m_playerBody->GetLinearVelocity().y));
+			}
 		}
 
-		//Stop x movement when player moves both left and right simultaneously
-		if (Input::GetKey(Key::A) && Input::GetKey(Key::D))
-		{
-			if (m_isPlayerOnGround && !m_isDashing)
-				m_playerBody->SetLinearVelocity(b2Vec2(0, direction.y * velocity));
-			else
-				m_playerBody->ApplyForce(b2Vec2(0, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
-		}
+		//if (!m_isDashing && !m_isPlayerOnGround)
+		//{
+	
+		//	//Left 
+		//	if (Input::GetKey(Key::A) && !Input::GetKey(Key::D))
+		//	{
+		//		m_character_direction = true;
+		//		velocity2.x = -20;
+		//	}
+
+		//	//Right
+		//	if (Input::GetKey(Key::D) && !Input::GetKey(Key::A))
+		//	{
+		//		m_character_direction = false;
+		//		velocity2.x = 20;
+		//	}
+		//	m_playerBody->SetLinearVelocity(velocity2);
+		//}
+
+
+		////Apply force for movement
+		//if (direction.Length() > 0)
+		//{
+		//	if (m_isPlayerOnGround && !m_isDashing) 
+		//		m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
+		//		
+		//	else
+		//		m_playerBody->ApplyForce(b2Vec2(direction.x * force, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
+		//}
+
+		////Stop x movement when player moves both left and right simultaneously
+		//if (Input::GetKey(Key::A) && Input::GetKey(Key::D))
+		//{
+		//	if (m_isPlayerOnGround && !m_isDashing)
+		//		m_playerBody->SetLinearVelocity(b2Vec2(0, direction.y * velocity));
+		//	else
+		//		m_playerBody->ApplyForce(b2Vec2(0, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
+		//}
 
 	}
 }
@@ -461,19 +518,70 @@ void Game::KeyboardDown()
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
 	m_activeScene->KeyboardDown();
+
 	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	b2Vec2 velocity2 = m_playerBody->GetLinearVelocity();
 
 	//Jump
 	if (Input::GetKeyDown(Key::Space))
 	{
 		if (m_isPlayerOnGround)
 		{
-			animation.SetActiveAnim(m_character_direction + JUMP_BEGIN);
-			float impulse = m_playerBody->GetMass() * 80; //Adjust to change height of jump
-			m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
+			animation.SetActiveAnim(m_character_direction + JUMP_BEGIN);			
+			velocity2.y = 50;
+			m_playerBody->SetLinearVelocity(velocity2);
+			m_isPlayerJumping = true;
 			m_isPlayerOnGround = false;
 			animation.GetAnimation(m_character_direction + JUMP_END).Reset();
 		}
+	}
+
+	if (Input::GetKeyDown(Key::RightArrow))
+	{
+		m_activeScene->Unload();
+		//Sets active scene reference to our scene
+		m_activeScene = m_scenes[1];
+
+		m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
+
+		//Sets m_register to point to the register in the active scene
+		m_register = m_activeScene->GetScene();
+
+		BackEnd::SetWindowName(m_activeScene->GetName());
+
+		PhysicsSystem::Init();
+
+		//Set contact listener
+		listener.SetGame(this);
+		m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
+
+		//Get player body
+		m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
+		rayCastCallBack.SetGame(this);
+	}
+	if (Input::GetKeyDown(Key::LeftArrow))
+	{
+		m_activeScene->Unload();
+		//Sets active scene reference to our scene
+		m_activeScene = m_scenes[0];
+
+		m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
+
+		//Sets m_register to point to the register in the active scene
+		m_register = m_activeScene->GetScene();
+
+		BackEnd::SetWindowName(m_activeScene->GetName());
+
+		PhysicsSystem::Init();
+
+		//Set contact listener
+		listener.SetGame(this);
+		m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
+
+		//Get player body
+		m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
+		rayCastCallBack.SetGame(this);
 	}
 
 
@@ -481,7 +589,7 @@ void Game::KeyboardDown()
 	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1)
 	{
 		b2Vec2 direction = b2Vec2(0.f, 0.f);
-		float magnitude = 250000.f;
+		float magnitude = 80.f;
 
 		//Dash Up
 		if (Input::GetKey(Key::W)) {
@@ -522,7 +630,8 @@ void Game::KeyboardDown()
 			//Apply impulse
 			m_playerBody->SetGravityScale(0);
 			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
-			m_playerBody->ApplyLinearImpulse(direction, m_playerBody->GetWorldCenter(), true);
+			m_playerBody->SetLinearVelocity(direction);
+			//m_playerBody->ApplyLinearImpulse(direction, m_playerBody->GetWorldCenter(), true);
 			m_isDashing = true;
 			m_initDashTime = clock();
 			m_dashCounter = 0;
@@ -589,6 +698,13 @@ void Game::MouseClick(SDL_MouseButtonEvent evnt)
 	//Look at base Scene class for more info.
 	m_activeScene->MouseClick(evnt);
 
+	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
+	{
+		vec2 clickedPoint = ConvertToGl(vec2(float(evnt.x), float(evnt.y)));
+		cout << "x: " << clickedPoint.x << endl;
+		cout << "Y: " << clickedPoint.y << endl;
+	}
+
 	if (m_guiActive)
 	{
 		ImGui::GetIO().MousePos = ImVec2(float(evnt.x), float(evnt.y));
@@ -631,6 +747,10 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		m_isPlayerOnGround = true;
 
 		animation.SetActiveAnim(m_character_direction+JUMP_END);
+		animation.GetAnimation(m_character_direction + JUMP_BEGIN).Reset();
+
+		if (m_isPlayerJumping)
+			m_isPlayerJumping = false;
 	}
 	//Check if Player sidesensor begin collision with wall 
 	if ((f1 == SIDESENSOR && f2 == WALL)
@@ -651,6 +771,16 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL)
 		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL))
 		m_isPlayerOnCollision = true;
+
+	//Check if Player sidesensor end collision with wall
+	if ((f1 == SIDESENSOR && f2 == DOORWAY)
+		|| ((f2 == SIDESENSOR) && f1 == DOORWAY))
+	{
+		if(m_activeScene->GetName() == "Start")
+			ChangeRoom(TUTORIAL);
+		/*if (m_activeScene->GetName() == "Tutorial");
+			ChangeRoom(STARTING);*/
+	}
 }
 
 void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
@@ -751,4 +881,28 @@ vec2 Game::ConvertToGl(vec2 clickCoord)
 	clickedPoint = clickedPoint + vec2(tempCam.GetPositionX(), tempCam.GetPositionY());
 
 	return clickedPoint;
+}
+
+void Game::ChangeRoom(RoomName room)
+{
+	m_activeScene->Unload();
+	//Sets active scene reference to our scene
+	m_activeScene = m_scenes[1];
+
+	m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
+
+	//Sets m_register to point to the register in the active scene
+	m_register = m_activeScene->GetScene();
+
+	BackEnd::SetWindowName(m_activeScene->GetName());
+
+	PhysicsSystem::Init();
+
+	//Set contact listener
+	listener.SetGame(this);
+	m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
+
+	//Get player body
+	m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
+	rayCastCallBack.SetGame(this);
 }

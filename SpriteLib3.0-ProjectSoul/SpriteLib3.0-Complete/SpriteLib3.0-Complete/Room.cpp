@@ -20,18 +20,20 @@ void Room::InitScene(float windowWidth, float windowHeight)
 	if (m_name == "Start")
 	{
 		string platformPNG = "platform.png";
-
 		CreateBackground("Start.png", vec2(480 / 4.5, 270 / 4.5));
 		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
 
 		CreateRoomBoundary();
 		
-		CreateEdge(b2Vec2(-bgEntity.GetWidth() / 2, -29), b2Vec2(bgEntity.GetWidth() / 2, -29), GROUND);
+		//Ground
+		CreateEdge(b2Vec2(-bgEntity.GetWidth() / 2, -28), b2Vec2(bgEntity.GetWidth() / 2, -28), GROUND);
 
-		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
-
-		//CreatePlatform(platformPNG, vec2(40, 7), vec2(-50, -30));
+		//Doorway
+		//CreateDoorWay()
+		//CreateEdge(b2Vec2(40, -12.63), b2Vec2(40, -28.96), DOORWAY);
 		//CreatePlatform(platformPNG, vec2(40, 7), vec2(0, 0));
+		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
+		
 	}
 
 	if (m_name == "Tutorial")
@@ -45,6 +47,9 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		CreateRoomBoundary();
 
 		CreateEdge(b2Vec2(-bgEntity.GetWidth() / 2, -32), b2Vec2(bgEntity.GetWidth() / 2, -32), GROUND);
+
+		//Doorway
+		//CreateEdge(b2Vec2(-74, 32.07), b2Vec2(-74, -16), DOORWAY);
 
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(60);
 
@@ -154,7 +159,7 @@ void Room::CreateRoomBoundary()
 
 	//Right Wall 
 	{
-		bodyDef.userData = ((void*)WALL);
+		bodyDef.userData = ((void*)DOORWAY);
 		body = m_physicsWorld->CreateBody(&bodyDef);
 
 		phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
@@ -353,7 +358,7 @@ void Room::CreateMagnet(string fileName, vec2 size, vec2 position)
 	ECS::SetUpIdentifier(entity, bitHolder, "Magnet");
 }
 
-void Room::CreateEdge(b2Vec2 point1, b2Vec2 point2, fixtureName fixtureName)
+void Room::CreateEdge(b2Vec2 point1, b2Vec2 point2, fixtureName fixtureName, bool sensor)
 {
 	b2BodyDef bodyDef;
 	b2Body* body = m_physicsWorld->CreateBody(&bodyDef);
@@ -363,5 +368,29 @@ void Room::CreateEdge(b2Vec2 point1, b2Vec2 point2, fixtureName fixtureName)
 	
 	b2Fixture* fixture;
 	fixture = body->CreateFixture(&shape, 0.0f);
+	fixture->SetSensor(sensor);
 	fixture->SetUserData((void*)fixtureName);
-} 
+}
+
+void Room::CreateDoorWay(b2Vec2 position)
+{
+	auto entity = ECS::CreateEntity();
+	float thickness = 5;
+
+	ECS::AttachComponent<Transform>(entity);
+	ECS::AttachComponent<PhysicsBody>(entity);
+
+	auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+	b2Body* body;
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_staticBody;
+	bodyDef.position.Set(0.f, 0.f);
+	bodyDef.userData = ((void*)WALL);
+	body = m_physicsWorld->CreateBody(&bodyDef);
+
+	phsBody = PhysicsBody(body, 5,10,
+		vec2(0.f , 0.f), false);
+}
+
+

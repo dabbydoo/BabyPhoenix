@@ -14,6 +14,11 @@ enum Anim {
 	FALL=12,
 };
 
+enum RoomName {
+	STARTING,
+	TUTORIAL
+};
+
 //Our main class for running our game
 class Game
 {
@@ -86,6 +91,8 @@ public:
 	void MagnetPull();
 
 	vec2 ConvertToGl(vec2 clickCoord);
+
+	void ChangeRoom(RoomName room);
 private:
 	//The window
 	Window *m_window = nullptr;
@@ -121,6 +128,8 @@ private:
 
 	//Flag for if player on ground
 	bool m_isPlayerOnGround = false;
+
+	bool m_isPlayerJumping = false;
 
 	//Flag for if player on wall
 	bool m_isPlayerOnWall = false;
