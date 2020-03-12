@@ -494,6 +494,8 @@ void Room::InitScene(float windowWidth, float windowHeight)
 			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
 				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
 		}
+		CreateMagnet("magnetTemp.PNG", vec2(2, 2), vec2(3.17, 0.72));
+		CreateMagnet("magnetTemp.PNG", vec2(2, 2), vec2(31.90, 0.72));
 		CreateMainPlayer(10 / 1.9, 20 / 1.9, vec3(-48, -23, 50));
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
