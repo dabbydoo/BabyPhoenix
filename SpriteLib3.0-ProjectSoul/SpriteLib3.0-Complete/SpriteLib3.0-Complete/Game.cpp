@@ -45,7 +45,7 @@ void Game::InitGame()
 	*/
 
 	m_scenes.push_back(new Room("Start"));
-	m_scenes.push_back(new Room("Tutorial"));
+	m_scenes.push_back(new Room("Hallway"));
 	m_scenes.push_back(new Room("Storage"));
 	
 	//Sets active scene reference to our scene
@@ -131,19 +131,20 @@ void Game::Update()
 
 	
 
-	/*if (m_changeScene)
-	{
+	if (m_changeScene)
 		if (m_activeScene->GetName() == "Start")
 		{
 			ChangeRoom(HALLWAY);
 			m_changeScene = false;
 		}
+	if (m_changeScene)
 		if (m_activeScene->GetName() == "Hallway")
 		{
 			ChangeRoom(STORAGE);
 			m_changeScene = false;
 		}
-	}*/
+		
+	
 	
 	if (m_isMagnetInRange)
 	{
@@ -390,8 +391,6 @@ void Game::KeyboardHold()
 
 	//Player Movement 
 	{
-		
-
 		if (Input::GetKey(Key::Escape))
 			exit(0);
 
@@ -494,7 +493,7 @@ void Game::KeyboardDown()
 		if (m_isPlayerOnGround)
 		{
 			animation.SetActiveAnim(m_character_direction + JUMP_BEGIN);			
-			velocity2.y = 50;
+			velocity2.y =40;
 			m_playerBody->SetLinearVelocity(velocity2);
 			m_isPlayerJumping = true;
 			m_isPlayerOnGround = false;
@@ -555,7 +554,7 @@ void Game::KeyboardDown()
 	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1)
 	{
 		b2Vec2 direction = b2Vec2(0.f, 0.f);
-		float magnitude = 80.f;
+		float magnitude = 50.f;
 
 		//Dash Up
 		if (Input::GetKey(Key::W)) {
@@ -580,7 +579,6 @@ void Game::KeyboardDown()
 		//Start Dashing
 		if (direction.Length() > 0)
 		{
-
 			//Flag whether initial dash position on ground
 			if (m_isPlayerOnGround)
 				m_initDashOnGround = true;
@@ -598,7 +596,6 @@ void Game::KeyboardDown()
 			m_playerBody->SetGravityScale(0);
 			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
 			m_playerBody->SetLinearVelocity(direction);
-			//m_playerBody->ApplyLinearImpulse(direction, m_playerBody->GetWorldCenter(), true);
 			m_isDashing = true;
 			m_initDashTime = clock();
 			m_dashCounter = 0;
@@ -775,7 +772,10 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	//Check if player collides with doorway
 	if ((f1 == SIDESENSOR && f2 == DOORWAY)
 		|| ((f2 == SIDESENSOR) && f1 == DOORWAY))
+	{
 		m_changeScene = true;
+
+	}
 
 	
 	
@@ -995,7 +995,7 @@ void Game::ChangeRoom(RoomName room)
 {
 	m_activeScene->Unload();
 	//Sets active scene reference to our scene
-	m_activeScene = m_scenes[1];
+	m_activeScene = m_scenes[room];
 
 	m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
 
