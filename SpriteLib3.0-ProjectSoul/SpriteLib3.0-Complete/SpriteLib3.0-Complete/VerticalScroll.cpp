@@ -13,10 +13,10 @@ void VerticalScroll::Update()
 	//Reset camera position within scroll limit
 	//Top
 	if (m_focus->GetPosition().y > topScrollLimit)
-		m_cam->SetPositionY(topScrollLimit);
+		m_cam->SetPosition(vec3(m_cam->GetPosition().x, topScrollLimit, m_cam->GetPosition().z));
 	//Bottom
 	if (m_focus->GetPosition().y < bottomScrollLimit)
-		m_cam->SetPositionY(bottomScrollLimit);
+		m_cam->SetPosition(vec3(m_cam->GetPosition().x, bottomScrollLimit, m_cam->GetPosition().z));
 
 	//Above focus
 	if (m_focus->GetPosition().y > (m_cam->m_localPosition.y + m_offset))

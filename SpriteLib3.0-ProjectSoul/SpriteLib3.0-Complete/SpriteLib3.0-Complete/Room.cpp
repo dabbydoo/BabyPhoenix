@@ -19,6 +19,7 @@ void Room::InitScene(float windowWidth, float windowHeight)
 
 	if (m_name == "Start")
 	{
+
 		string platformPNG = "platform.png";
 		CreateBackground("Start.png", vec2(480 / 4.5, 270 / 4.5));
 		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
@@ -27,13 +28,15 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		
 		//Ground
 		CreateEdge(b2Vec2(-bgEntity.GetWidth() / 2, -28), b2Vec2(bgEntity.GetWidth() / 2, -28), GROUND);
-		
+		CreateMagnet(platformPNG, vec2(4, 4), vec2(20, 5));
+		CreateMagnet(platformPNG, vec2(4, 4), vec2(-10, 5));
 		//Doorway
 		//CreateDoorWay()
 		//CreateEdge(b2Vec2(40, -12.63), b2Vec2(40, -28.96), DOORWAY);
 		//CreatePlatform(platformPNG, vec2(40, 7), vec2(0, 0));
+		//	ECS::GetComponent<Camera>(EntityIdentifier::MainCamera())->SetPositionX(leftScrollLimit);
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
-		CreateMainPlayer(vec3(-43, -19, 50));
+		CreateMainPlayer(vec3(-43, -20, 50));
 		
 	}
 
@@ -397,7 +400,6 @@ void Room::InitScene(float windowWidth, float windowHeight)
 	if (m_name == "Storage")
 	{
 		CreateBackground("Latest Version 2.png", vec2(480 / 4.5, 270 / 4.5));
-
 		auto entity = ECS::CreateEntity();
 		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
 		float thickness = 5;
@@ -715,7 +717,7 @@ void Room::CreateRoomBoundary()
 
 	//Right Wall 
 	{
-		bodyDef.userData = ((void*)DOORWAY);
+		bodyDef.userData = ((void*)WALL);
 		body = m_physicsWorld->CreateBody(&bodyDef);
 
 		phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
@@ -901,13 +903,14 @@ void Room::CreateMagnet(string fileName, vec2 size, vec2 position)
 	b2Body* body;
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_staticBody;
+	
 	bodyDef.position.Set(float32(position.x), float32(position.y));
 
 	bodyDef.userData = ((void*)MAGNET);
 	body = m_physicsWorld->CreateBody(&bodyDef);
 
 	phsBody = PhysicsBody(body, float(sprite.GetWidth()), float(sprite.GetHeight()),
-		vec2(0.f, 0.f), true);
+		vec2(0.f, 0.f), true, MAGNET, true);
 
 	//Sets up the Identifier
 	unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();

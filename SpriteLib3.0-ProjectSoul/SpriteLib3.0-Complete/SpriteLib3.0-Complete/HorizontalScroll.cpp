@@ -9,14 +9,13 @@ void HorizontalScroll::Update()
 	auto width = ECS::GetComponent<Sprite>(background).GetWidth();
 	float rightScrollLimit = (m_cam->GetOrthoSize().x - m_cam->GetOrthoSize().w) / 2 * m_cam->GetAspect() + (width / 2 - m_scrollCorrection);
 	float leftScrollLimit = (m_cam->GetOrthoSize().x - m_cam->GetOrthoSize().w) / -2 * m_cam->GetAspect() - (width / 2 - m_scrollCorrection);
-
+	
 	//Reset camera position within scroll limit
 	//Right
 	if (m_focus->GetPosition().x > rightScrollLimit)
-		m_cam->SetPositionX(rightScrollLimit);
-	//Left
+		m_cam->SetPosition(vec3(rightScrollLimit, m_cam->GetPosition().y, m_cam->GetPosition().z));
 	if (m_focus->GetPosition().x < leftScrollLimit)
-		m_cam->SetPositionX(leftScrollLimit);
+		m_cam->SetPosition(vec3(leftScrollLimit, m_cam->GetPosition().y, m_cam->GetPosition().z));
 
 	//Above focus
 	if (m_focus->GetPosition().x > (m_cam->m_localPosition.x + m_offset))

@@ -74,13 +74,50 @@ PhysicsBody::PhysicsBody(b2Body * body, float width, float height, vec2 centerOf
 	b2FixtureDef tempFixture;
 	tempFixture.shape = &tempShape;
 	tempFixture.density = density;
-	tempFixture.friction = 0.1f;
+	tempFixture.friction = 0;//0.1f;
 
 	//Create fixture and set fixture UserData same as body UserData
 	m_body = body;
 	b2Fixture* bodyFixture = m_body->CreateFixture(&tempFixture);
 	bodyFixture->SetUserData((void*)body->GetUserData());
 
+	m_body = body;
+	m_bodyType = BodyType::BOX;
+
+	m_width = width;
+	m_height = height;
+
+	m_centerOffset = centerOffset;
+	m_bottomLeft = vec2(centerOffset.x - (width / 2.f), centerOffset.y - (height / 2.f));
+	m_bottomRight = vec2(centerOffset.x + (width / 2.f), centerOffset.y - (height / 2.f));
+	m_topLeft = vec2(centerOffset.x - (width / 2.f), centerOffset.y + (height / 2.f));
+	m_topRight = vec2(centerOffset.x + (width / 2.f), centerOffset.y + (height / 2.f));
+
+	m_dynamic = isDynamic;
+
+	InitBody();
+}
+
+PhysicsBody::PhysicsBody(b2Body* body, float width, float height, vec2 centerOffset, bool isDynamic, int fixtureUserData, bool isSensor)
+{
+	//Bodies don't reference a shape by themselves
+	//they need a shape that has been linked to a fixture
+	//in order to have a shape
+	b2PolygonShape tempShape;
+	tempShape.SetAsBox(float32(width / 2.f), float32(height / 2.f),
+		b2Vec2(float32(centerOffset.x), float32(centerOffset.y)), float32(0.f));
+
+	//Creates the actual fixture (aka, shape, mass, etc);
+	b2FixtureDef tempFixture;
+	tempFixture.shape = &tempShape;
+	tempFixture.density = 1.f;
+	tempFixture.friction = 0.1f;
+	tempFixture.isSensor = isSensor;
+	//Create fixture and set fixture UserData same as body UserData
+	m_body = body;
+	b2Fixture* bodyFixture = m_body->CreateFixture(&tempFixture);
+	bodyFixture->SetUserData((void*)fixtureUserData);
+	
 	m_body = body;
 	m_bodyType = BodyType::BOX;
 

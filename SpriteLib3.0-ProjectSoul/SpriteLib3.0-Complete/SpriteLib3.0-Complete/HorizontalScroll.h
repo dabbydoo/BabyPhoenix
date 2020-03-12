@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "ECS.h"
 
+
 class HorizontalScroll
 {
 public:
@@ -31,7 +32,7 @@ private:
 	float m_offset = 0;
 
 	//Scroll correction
-	float m_scrollCorrection = 1;
+	float m_scrollCorrection = 0;
 };
 
 //Sends vertical scrolling camera TO json file

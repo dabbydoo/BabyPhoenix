@@ -41,6 +41,8 @@ public:
 	//Constructs a box collider
 	PhysicsBody(b2Body* body, float width, float height, vec2 centerOffset, bool isDynamic, float density = 1.f);
 
+	PhysicsBody(b2Body* body, float width, float height, vec2 centerOffset, bool isDynamic, int fixtureUserData, bool isSensor = false);
+
 	void DeleteBody();
 
 	//Initializes body for drawing

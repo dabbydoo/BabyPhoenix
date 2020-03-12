@@ -53,13 +53,14 @@ public:
 	}
 
 	//Fixture call back
-	float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction)
+	float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction)
 	{
-		b2Body* body = fixture->GetBody();
-		void* userData = body->GetUserData();
+		//b2Body* body = fixture->GetBody();
+		fixture->GetUserData();
+		void* userData = fixture->GetUserData();//body->GetUserData();
 		
 		//Ignore callbacks
-		if ((int)userData == 1 || (int)userData == 2 || (int)userData == 3 || (int)userData == 4)
+		if ((int)userData == PLAYER || (int)userData == FOOTSENSOR || (int)userData == HEADSENSOR || (int)userData == SIDESENSOR)
 		{
 			return -1.f;
 		}

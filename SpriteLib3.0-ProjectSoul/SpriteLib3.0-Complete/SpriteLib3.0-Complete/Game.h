@@ -3,6 +3,7 @@
 
 #include "BackEnd.h"
 #include "Room.h"
+#include "Projectile.h"
 
 enum Anim {
 	IDLE,
@@ -89,11 +90,17 @@ public:
 	//Ray collision
 	float RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction);
 
-	void MagnetPull();
+	void DashUpdate();
+
+	void MagnetScan();
 
 	vec2 ConvertToGl(vec2 clickCoord);
 
 	void ChangeRoom(RoomName room);
+
+	void ShootBullet(float velocity);
+	void ProjectileUpdate();
+
 private:
 	//The window
 	Window *m_window = nullptr;
@@ -128,7 +135,7 @@ private:
 	b2Vec2 m_initVelocity;
 
 	//Flag for if player on ground
-	bool m_isPlayerOnGround = false;
+	bool m_isPlayerOnGround = true;
 
 	bool m_isPlayerJumping = false;
 
@@ -150,7 +157,20 @@ private:
 
 	//Player body
 	b2Body* m_playerBody;
+
+	bool m_isBulletHit = false;
+	unsigned int m_bulletHitUserData;
+
+	//Magnet
+	bool m_isMagnetInRange = false;
+	float m_closestMagnetDistance;
+	bool m_magnetCollision = false;
+
+	b2Fixture* m_closestMagnet;
+	
 };
+
+
 
 
 

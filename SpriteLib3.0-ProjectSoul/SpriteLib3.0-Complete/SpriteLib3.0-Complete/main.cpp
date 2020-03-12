@@ -8,7 +8,7 @@ int main()
 	Game theGame;
 	SoundManager::init("./assets/sounds/");
 	Sound2D _test("Sound.wav", "group1");
-	_test.play();
+	//_test.play();
 
 	//Initialize the game
 	theGame.InitGame();

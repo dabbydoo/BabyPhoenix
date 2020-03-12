@@ -124,13 +124,14 @@ void Game::Update()
 {
 	//Update timer
 	Timer::Update();
+	//Update Physics System
+	PhysicsSystem::Update(m_register, m_activeScene->GetPhysicsWorld());
 	//Update the backend
 	BackEnd::Update(m_register);
 
-	//Update Physics System
-	PhysicsSystem::Update(m_register, m_activeScene->GetPhysicsWorld());
+	
 
-	if (m_changeScene)
+	/*if (m_changeScene)
 	{
 		if (m_activeScene->GetName() == "Start")
 		{
@@ -142,73 +143,25 @@ void Game::Update()
 			ChangeRoom(STORAGE);
 			m_changeScene = false;
 		}
-		//m_isDashing = false;
-		//m_isPlayerJumping = false;
-		//m_isPlayerOnCollision = false;
-		//m_isPlayerOnGround = false;
+	}*/
+	
+	if (m_isMagnetInRange)
+	{
+		int x = m_closestMagnet->GetBody()->GetPosition().x;
+		int y = m_closestMagnet->GetBody()->GetPosition().y;
+
+		cout << "MagnetinRange at  X: " << x << "  Y: " << y << endl;;
+		
 	}
+	ProjectileUpdate();
+	if(!m_magnetCollision)
+		MagnetScan();
+	DashUpdate();
 
 	//Updates the active scene
 	m_activeScene->Update();
 
-	//Update if player can dash. (Check if player on ground)
-	 
-
-	//End of Dash 
-	if (m_isDashing)
-	{
-		//**ADJUST DASH LENGTH HERE**
-		float dashTime = .3;
-
-		//End dash when head sensor collides with platform 
-		if (m_isPlayerHeadCollide)
-		{
-			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
-			m_playerBody->SetGravityScale(m_playerGravity);
-			m_isDashing = false;
-		}
-
-		//End dash when side sensor collides with wall OR time of dash reached
-		if (m_isPlayerOnWall)
-			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime || !m_initDashOnWall)
-			{
-				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
-				m_playerBody->SetGravityScale(m_playerGravity);
-				m_isDashing = false;
-			}
-
-		//End dash when side sensor collides with platform OR time of dash reached
-		if (m_isPlayerSideCollide)
-		{
-			if (abs(m_initVelocity.x) > 0.001 || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
-			{
-				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
-				m_playerBody->SetGravityScale(m_playerGravity);
-				m_isDashing = false;
-			}
-		}
-
-		//End dash when player collides with anything but (ground or platform) OR time of dash reached
-		if (m_isPlayerOnCollision || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
-		{
-			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
-			m_playerBody->SetGravityScale(m_playerGravity);
-			m_isDashing = false;
-			m_isPlayerOnCollision = false;
-		}
-
-		//End dash when foot sensor collides with (ground or platform) OR time of dash reached
-		if (m_isPlayerOnGround)
-		{
-			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime || !m_initDashOnGround)
-			{
-				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
-				m_playerBody->SetGravityScale(m_playerGravity);
-				m_isDashing = false;
-			}
-		}
-	}
-
+	
 }
 
 void Game::GUI()
@@ -553,49 +506,50 @@ void Game::KeyboardDown()
 
 	if (Input::GetKeyDown(Key::RightArrow))
 	{
-		m_activeScene->Unload();
-		//Sets active scene reference to our scene
-		m_activeScene = m_scenes[2];
+		//m_activeScene->Unload();
+		////Sets active scene reference to our scene
+		//m_activeScene = m_scenes[2];
 
-		m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
+		//m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
 
-		//Sets m_register to point to the register in the active scene
-		m_register = m_activeScene->GetScene();
+		////Sets m_register to point to the register in the active scene
+		//m_register = m_activeScene->GetScene();
 
-		BackEnd::SetWindowName(m_activeScene->GetName());
+		//BackEnd::SetWindowName(m_activeScene->GetName());
 
-		PhysicsSystem::Init();
+		//PhysicsSystem::Init();
 
-		//Set contact listener
-		listener.SetGame(this);
-		m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
+		////Set contact listener
+		//listener.SetGame(this);
+		//m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
 
-		//Get player body
-		m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
-		rayCastCallBack.SetGame(this);
+		////Get player body
+		//m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
+		//rayCastCallBack.SetGame(this);
+		ShootBullet(50);
 	}
 	if (Input::GetKeyDown(Key::LeftArrow))
 	{
-		m_activeScene->Unload();
-		//Sets active scene reference to our scene
-		m_activeScene = m_scenes[0];
+		//m_activeScene->Unload();
+		////Sets active scene reference to our scene
+		//m_activeScene = m_scenes[0];
 
-		m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
+		//m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
 
-		//Sets m_register to point to the register in the active scene
-		m_register = m_activeScene->GetScene();
+		////Sets m_register to point to the register in the active scene
+		//m_register = m_activeScene->GetScene();
 
-		BackEnd::SetWindowName(m_activeScene->GetName());
+		//BackEnd::SetWindowName(m_activeScene->GetName());
 
-		PhysicsSystem::Init();
+		//PhysicsSystem::Init();
 
-		//Set contact listener
-		listener.SetGame(this);
-		m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
+		////Set contact listener
+		//listener.SetGame(this);
+		//m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
 
-		//Get player body
-		m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
-		rayCastCallBack.SetGame(this);
+		////Get player body
+		//m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
+		//rayCastCallBack.SetGame(this);
 	}
 
 
@@ -642,6 +596,7 @@ void Game::KeyboardDown()
 				m_initDashOnWall = false;
 
 			//Apply impulse
+
 			m_playerBody->SetGravityScale(0);
 			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
 			m_playerBody->SetLinearVelocity(direction);
@@ -656,8 +611,36 @@ void Game::KeyboardDown()
 	
 	if (Input::GetKey(Key::Enter))
 	{
-		float force = 4000;
-		MagnetPull();
+		m_playerBody->SetGravityScale(0);
+		if (m_isMagnetInRange /*&& !distanceReached*/)
+		{
+			bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5 && (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y < 0.5);
+			float speed = 50;
+			b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
+
+			velocity.Normalize();
+			//if(!distanceReached)
+				m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
+			
+			if (m_magnetCollision)
+			{
+				
+				//m_playerBody->SetTransform(b2Vec2(m_closestMagnet->GetBody()->GetPosition().x, m_closestMagnet->GetBody()->GetPosition().y), m_playerBody->GetAngle());
+
+			}
+			if (distanceReached)
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_magnetCollision = true;
+			}
+		}
+		
+
+	}
+	if (Input::GetKeyUp(Key::Enter))
+	{
+		m_magnetCollision = false;
+		m_playerBody->SetGravityScale(7);
 	}
 }
 
@@ -782,15 +765,21 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		m_isPlayerSideCollide = true;
 
 	//Check if Player begin collision with any entity that isn't a ground, platform, or wall
-	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL)
-		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL))
+	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL && f2 != MAGNET)
+		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL && f1 != MAGNET))
 		m_isPlayerOnCollision = true;
+
+	//Check if player collides with magnet
+	if ((f1 == PLAYER && f2 == MAGNET)
+		|| ((f2 == PLAYER) && f1 == MAGNET))
+		m_magnetCollision = true;
 
 	//Check if player collides with doorway
 	if ((f1 == SIDESENSOR && f2 == DOORWAY)
 		|| ((f2 == SIDESENSOR) && f1 == DOORWAY))
 		m_changeScene = true;
-		
+
+	
 	
 }
 
@@ -823,41 +812,151 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		m_isPlayerSideCollide = false;
 
 	//Check if Player end collision with any entity that isn't a ground, platform, or wall
-	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL)
-		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL))
+	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL && f2 != MAGNET)
+		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL && f1 != MAGNET))
 		m_isPlayerOnCollision = false;
+
+	//Check if player end collision with magnet
+	if ((f1 == PLAYER && f2 == MAGNET)
+		|| ((f2 == PLAYER) && f1 == MAGNET))
+		m_magnetCollision = false;
+
+	if (f1 == BULLET && f2 != PLAYER && f2 != SIDESENSOR)
+	{
+		m_isBulletHit = true;
+		m_bulletHitUserData = (unsigned int)fixtureA->GetBody()->GetUserData();
+	}
+	if (f2 == BULLET && f1 != PLAYER && f1 != SIDESENSOR)
+	{
+		m_isBulletHit = true;
+		m_bulletHitUserData = (unsigned int)fixtureB->GetBody()->GetUserData();
+	}
 }
 
 float Game::RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction)
 {
-	cout << "Fixture: " << (int)fixture->GetUserData() << "  Fraction: " << fraction << endl;
+	//cout << "Fixture: " << (int)fixture->GetUserData() << "  Fraction: " << fraction << endl;
+	//Record both fixture data
+
+	int f = (int)fixture->GetUserData();
+	b2Vec2 fixturePoint = point;
+	b2Vec2 playerPoint = m_playerBody->GetPosition();
+	//float distance = fraction;
+ 
+
+	float angleDeg = atan((fixturePoint.y - playerPoint.y) / (fixturePoint.x - playerPoint.x)) * 180.0f / b2_pi;
+
+	if (f == MAGNET)
+	{
+		if (fraction < m_closestMagnetDistance)
+		{
+			m_closestMagnetDistance = fraction;
+			m_closestMagnet = fixture;
+		}
+		//cout << "Angle: " << angleDeg << "  Fraction: " << fraction << endl;
+	}
+
+
+	if (m_closestMagnetDistance <= 1)
+		m_isMagnetInRange = true;
+	else
+		m_isMagnetInRange = false;
+	
 	return 0.0f;
 }
 
-void Game::MagnetPull()
+void Game::DashUpdate()
+{
+	//Update if player can dash. (Check if player on ground)
+	 //Resets dash to 1 when player grounded
+	if (m_isPlayerOnGround && !m_isDashing)
+	{
+		m_dashCounter = 1;
+	}
+
+	//End of Dash 
+	if (m_isDashing)
+	{
+		//**ADJUST DASH LENGTH HERE**
+		float dashTime = .3;
+
+		//End dash when head sensor collides with platform 
+		if (m_isPlayerHeadCollide)
+		{
+			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+			m_playerBody->SetGravityScale(m_playerGravity);
+			m_isDashing = false;
+		}
+
+		//End dash when side sensor collides with wall OR time of dash reached
+		if (m_isPlayerOnWall)
+			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime || !m_initDashOnWall)
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_playerBody->SetGravityScale(m_playerGravity);
+				m_isDashing = false;
+			}
+
+		//End dash when side sensor collides with platform OR time of dash reached
+		if (m_isPlayerSideCollide)
+		{
+			if (abs(m_initVelocity.x) > 0.001 || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_playerBody->SetGravityScale(m_playerGravity);
+				m_isDashing = false;
+			}
+		}
+
+		//End dash when player collides with anything but (ground or platform) OR time of dash reached
+		if (m_isPlayerOnCollision || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
+		{
+			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+			m_playerBody->SetGravityScale(m_playerGravity);
+			m_isDashing = false;
+			m_isPlayerOnCollision = false;
+		}
+
+		//End dash when foot sensor collides with (ground or platform) OR time of dash reached
+		if (m_isPlayerOnGround)
+		{
+			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime || !m_initDashOnGround)
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_playerBody->SetGravityScale(m_playerGravity);
+				m_isDashing = false;
+			}
+		}
+
+	}
+}
+
+void Game::MagnetScan()
 {
 	b2Vec2 point1(m_playerBody->GetPosition());
 	RayCastClosestCallback callback;
-	float distance = 80.f;
+	float distance = 40.f;
 	float angleRAD = 0;
 	b2Fixture* fixture = NULL;
 	b2Vec2 fixturePoint, fixtureNormal;
 	float fraction = 0;
 
-	for (int angleDEG = 5; angleDEG <= 175; ++angleDEG)
+	//2 means no magnet in range
+	m_closestMagnetDistance = 2;
+
+	//Reset closest magnet
+	m_closestMagnet = NULL;
+
+	//Magnet scanning 360 degrees
+	for (int angleDEG = 0; angleDEG <= 360; ++angleDEG)
 	{
 		angleRAD = angleDEG * b2_pi / 180.0f;
 
 		b2Vec2 d(distance * cosf(angleRAD), distance * sinf(angleRAD));
+
 		b2Vec2 point2 = point1 + d;
 
-		m_activeScene->GetPhysicsWorld().RayCast(&callback, point1, point2);
-
-		if (callback.m_hit)
-		{
-			//callback.ReportFixture(fixture, fixturePoint, fixtureNormal, fraction);
-			cout << "rayHitAngle: " << angleDEG << endl;
-		}
+		m_activeScene->GetPhysicsWorld().RayCast(&callback, point1, point2);	
 	}
 }
 
@@ -916,4 +1015,65 @@ void Game::ChangeRoom(RoomName room)
 	//Get player body
 	m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
 	rayCastCallBack.SetGame(this);
+}
+
+void Game::ShootBullet(float velocity)
+{
+	string fileName = "box.png";
+
+	//Creates entity
+	auto entity = ECS::CreateEntity();
+	
+	//Add components
+	ECS::AttachComponent<Sprite>(entity);
+	ECS::AttachComponent<Transform>(entity);
+	ECS::AttachComponent<PhysicsBody>(entity);
+
+	//Set camera scroll focus to  main player
+	ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+	ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+
+	ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 1, 1);
+	ECS::GetComponent<Transform>(entity).SetPosition(vec3(m_playerBody->GetPosition().x + 5, m_playerBody->GetPosition().y, 50.f));
+
+	
+	auto& tempSpr = ECS::GetComponent<Sprite>(entity);
+	auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+	//Create physics body
+	b2Body* body;
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+	
+	
+	bodyDef.position.Set(m_playerBody->GetPosition().x + 5, m_playerBody->GetPosition().y);
+	
+	//Body user data is same as entityID
+	bodyDef.userData = ((void*)entity);
+
+	
+	body = m_activeScene->GetPhysicsWorld().CreateBody(&bodyDef);
+	body->SetGravityScale(0);
+
+	body->IsBullet();
+	 
+	phsBody = PhysicsBody(body, float(tempSpr.GetWidth()), float(tempSpr.GetHeight()),
+		vec2(0.f, 0.f), true, BULLET, true);
+
+	body->GetFixtureList()->SetRestitution(100);
+	body->SetLinearVelocity(b2Vec2(velocity, 0));
+	
+	//Sets up the Identifier
+	unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+	ECS::SetUpIdentifier(entity, bitHolder, "Bullet");
+}
+
+void Game::ProjectileUpdate()
+{
+	if (m_isBulletHit)
+	{
+		ECS::GetComponent<PhysicsBody>(m_bulletHitUserData).DeleteBody();
+		ECS::DestroyEntity(m_bulletHitUserData);
+		m_isBulletHit = false;
+	}
 }

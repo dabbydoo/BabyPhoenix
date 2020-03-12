@@ -5,7 +5,7 @@
 using namespace std;
 
 //fixture name
-enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY};
+enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY, BULLET};
 
 
 class Room : public Scene
@@ -14,7 +14,7 @@ public:
 	Room(string name);
 
 	void InitScene(float windowWidth, float windowHeight) override;
-
+	
 	void Update() override
 	{}
 	
