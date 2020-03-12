@@ -149,8 +149,6 @@ void Game::Update()
 	{
 		int x = m_closestMagnet->GetBody()->GetPosition().x;
 		int y = m_closestMagnet->GetBody()->GetPosition().y;
-
-		cout << "MagnetinRange at  X: " << x << "  Y: " << y << endl;;
 		
 	}
 	ProjectileUpdate();
