@@ -7,8 +7,8 @@ int main()
 	//Create the Game
 	Game theGame;
 	SoundManager::init("./assets/sounds/");
-	Sound2D _test("Sound.wav", "group1");
-	//_test.play();
+	Sound2D _test("ChronoRuin.wav", "group1");
+	_test.play();
 
 	//Initialize the game
 	theGame.InitGame();

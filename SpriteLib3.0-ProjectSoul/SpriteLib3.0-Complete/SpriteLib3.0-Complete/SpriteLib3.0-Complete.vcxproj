@@ -144,6 +144,7 @@
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="ECS.h" />
     <ClInclude Include="EffectManager.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="EntityIdentifier.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="Game.h" />
@@ -198,6 +199,7 @@
     <ClCompile Include="CameraSystem.cpp" />
     <ClCompile Include="ECS.cpp" />
     <ClCompile Include="EffectManager.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EntityIdentifier.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="Game.cpp" />
