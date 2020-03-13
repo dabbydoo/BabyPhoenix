@@ -33,8 +33,8 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		CreateDoorWay(b2Vec2(53, -20));
 
 		//Magnet
-		/*CreateMagnet(platformPNG, vec2(4, 4), vec2(20, 5));
-		CreateMagnet(platformPNG, vec2(4, 4), vec2(-10, 5));*/
+		CreateMagnet(vec2(4, 4), vec2(20, 5));
+		CreateMagnet(vec2(4, 4), vec2(-10, 5));
 
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 		CreateMainPlayer(10, 20, vec3(-43, -18, 50));
@@ -494,8 +494,9 @@ void Room::InitScene(float windowWidth, float windowHeight)
 			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
 				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
 		}
-		CreateMagnet("magnetTemp.PNG", vec2(2, 2), vec2(3.17, 0.72));
-		CreateMagnet("magnetTemp.PNG", vec2(2, 2), vec2(31.90, 0.72));
+		CreateMagnet(vec2(2, 2), vec2(3.17, 0.72));
+		//CreateMagnet("magnetTemp.PNG", vec2(2, 2), vec2(31.90 , 0.72));
+		CreateDestructable("enemy.PNG", vec2(4, 4), vec2(39, -22));
 		CreateMainPlayer(10 / 1.9, 20 / 1.9, vec3(-48, -23, 50));
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
@@ -563,7 +564,6 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
 	
-	
 	//Set camera scroll focus to  main player
 	ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
 	ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
@@ -593,7 +593,6 @@ void Room::CreateCamera(float windowWidth, float windowHeight)
 	ECS::GetComponent<HorizontalScroll>(entity).SetCam(&ECS::GetComponent<Camera>(entity));
 
 	ECS::GetComponent<VerticalScroll>(entity).SetCam(&ECS::GetComponent<Camera>(entity));
-
 
 	//Sets up the Identifier
 	unsigned int bitHolder2 = EntityIdentifier::VertScrollCameraBit() | EntityIdentifier::HoriScrollCameraBit() | EntityIdentifier::CameraBit();
@@ -718,7 +717,6 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 		animation.AddAnimation(movement["Death_Right"]);
 		animation.AddAnimation(movement["Death_Left"]);
 
-
 		animation.SetActiveAnim(0);
 
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, width, height, true, &animation);
@@ -752,10 +750,8 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 		body->SetGravityScale(7);
 
 		//Construct box collider 
-		phsBody = PhysicsBody(body, float(sprite.GetWidth()), float(sprite.GetHeight()*0.9),
+		phsBody = PhysicsBody(body, 10, 20,
 			vec2(0.f, 0.f), false, 2.5f);
-
-
 
 		b2PolygonShape shape;
 		b2FixtureDef fixtureDef;
@@ -791,11 +787,8 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit()|EntityIdentifier::healthBarBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Main Player");
-		ECS::SetIsMainPlayer(entity, true);
-
-		
+		ECS::SetIsMainPlayer(entity, true);	
 	}
-
 }
 
 void Room::CreatePlatform(string fileName, vec2 size, vec2 position)
@@ -831,10 +824,12 @@ void Room::CreatePlatform(string fileName, vec2 size, vec2 position)
 	ECS::SetUpIdentifier(entity, bitHolder, "Platform");
 }
 
-void Room::CreateMagnet(string fileName, vec2 size, vec2 position)
+void Room::CreateMagnet(vec2 size, vec2 position)
 {
 	//Creates entity
 	auto entity = ECS::CreateEntity();
+
+	string fileName = "platformPNG";
 
 	//Add components
 	ECS::AttachComponent<Sprite>(entity);
@@ -878,23 +873,51 @@ void Room::CreateEdge(b2Vec2 point1, b2Vec2 point2, fixtureName fixtureName, boo
 	fixture->SetUserData((void*)fixtureName);
 }
 
-void Room::CreateDoorWay(b2Vec2 position)
+void Room::CreateDestructable(string fileName, vec2 size, vec2 position)
 {
-	//string fileName = "box.png";
-
 	//Creates entity
 	auto entity = ECS::CreateEntity();
 
 	//Add components
-	//ECS::AttachComponent<Sprite>(entity);
+	ECS::AttachComponent<Sprite>(entity);
 	ECS::AttachComponent<Transform>(entity);
 	ECS::AttachComponent<PhysicsBody>(entity);
 
-	//ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 1, 1);
+	ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, size.x, size.y);
+	ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 50.f));
+
+	auto& tempSpr = ECS::GetComponent<Sprite>(entity);
+	auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+	//Create physics body
+	b2Body* body;
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_staticBody;
+	bodyDef.position.Set(float32(position.x), float32(position.y));
+
+	bodyDef.userData = ((void*)entity);
+	//bodyDef.userData = ((void*)BREAKABLE);
+	body = m_physicsWorld->CreateBody(&bodyDef);
+
+	phsBody = PhysicsBody(body, float(tempSpr.GetWidth()), float(tempSpr.GetHeight()),
+		vec2(0.f, 0.f), true, BREAKABLE, false);
+
+	//Sets up the Identifier
+	unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+	ECS::SetUpIdentifier(entity, bitHolder, "Breakable");
+}
+
+void Room::CreateDoorWay(b2Vec2 position)
+{
+	//Creates entity
+	auto entity = ECS::CreateEntity();
+
+	//Add components
+	ECS::AttachComponent<Transform>(entity);
+	ECS::AttachComponent<PhysicsBody>(entity);
+
 	ECS::GetComponent<Transform>(entity).SetPosition(vec3(0, 0, 49));
 
-
-	//auto& tempSpr = ECS::GetComponent<Sprite>(entity);
 	auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
 
 	//Create physics body
@@ -902,42 +925,22 @@ void Room::CreateDoorWay(b2Vec2 position)
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
 
-
+	//Set position of doorway
 	bodyDef.position.Set(position.x, position.y);
 
 	//Body user data is same as entityID
 	bodyDef.userData = ((void*)entity);
 
-	
 	body = m_physicsWorld->CreateBody(&bodyDef);
 	body->SetGravityScale(0);
 
+	//Create collider
 	phsBody = PhysicsBody(body, 0.5f, 20.f,
 		vec2(0.f, 0.f), true, DOORWAY, true);
 
 	//Sets up the Identifier
 	unsigned int bitHolder = EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 	ECS::SetUpIdentifier(entity, bitHolder, "Doorway");
-
-	/*auto entity = ECS::CreateEntity();
-	float thickness = 5;
-
-	ECS::AttachComponent<Transform>(entity);
-	ECS::AttachComponent<PhysicsBody>(entity);
-
-	auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
-
-	b2Body* body;
-	b2BodyDef bodyDef;
-	bodyDef.type = b2_staticBody;
-	bodyDef.position.Set(0.f, 0.f);
-	bodyDef.userData = ((void*)WALL);
-	body = m_physicsWorld->CreateBody(&bodyDef);
-
-	phsBody = PhysicsBody(body, 5,10,
-		vec2(0.f , 0.f), false);*/
-
-
 }
 
 

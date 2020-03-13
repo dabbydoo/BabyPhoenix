@@ -129,8 +129,6 @@ void Game::Update()
 	//Update the backend
 	BackEnd::Update(m_register);
 
-	
-
 	if (m_changeScene)
 		if (m_activeScene->GetName() == "Start")
 		{
@@ -145,18 +143,13 @@ void Game::Update()
 		}
 		
 	
-	
-	if (m_isMagnetInRange)
-	{
-		int x = m_closestMagnet->GetBody()->GetPosition().x;
-		int y = m_closestMagnet->GetBody()->GetPosition().y;
-		
-	}
 	ProjectileUpdate();
-	if(!m_magnetCollision)
-		MagnetScan();
+	BreakableUpdate();
 	DashUpdate();
 
+	if(!m_moveToMagnet && !m_magnetCollision)
+		MagnetScan();
+	
 	//Updates the active scene
 	m_activeScene->Update();
 
@@ -391,19 +384,11 @@ void Game::KeyboardHold()
 
 	//Player Movement 
 	{
-		if (Input::GetKey(Key::Escape))
-			exit(0);
-
-		//Movement direction 
-		//b2Vec2 direction = b2Vec2(0.f, 0.f);
-
-		//float force = 40000;
-		//float velocity = 30; //Change for player velocity on ground
-
 		if (!m_isDashing)
 		{
 			if (m_isPlayerOnGround)
 				animation.SetActiveAnim(m_character_direction + IDLE);
+
 
 			//Left 
 			if (Input::GetKey(Key::A) && !Input::GetKey(Key::D))
@@ -434,46 +419,6 @@ void Game::KeyboardHold()
 				m_playerBody->SetLinearVelocity(b2Vec2(0, m_playerBody->GetLinearVelocity().y));
 			}
 		}
-
-		//if (!m_isDashing && !m_isPlayerOnGround)
-		//{
-	
-		//	//Left 
-		//	if (Input::GetKey(Key::A) && !Input::GetKey(Key::D))
-		//	{
-		//		m_character_direction = true;
-		//		velocity2.x = -20;
-		//	}
-
-		//	//Right
-		//	if (Input::GetKey(Key::D) && !Input::GetKey(Key::A))
-		//	{
-		//		m_character_direction = false;
-		//		velocity2.x = 20;
-		//	}
-		//	m_playerBody->SetLinearVelocity(velocity2);
-		//}
-
-
-		////Apply force for movement
-		//if (direction.Length() > 0)
-		//{
-		//	if (m_isPlayerOnGround && !m_isDashing) 
-		//		m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
-		//		
-		//	else
-		//		m_playerBody->ApplyForce(b2Vec2(direction.x * force, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
-		//}
-
-		////Stop x movement when player moves both left and right simultaneously
-		//if (Input::GetKey(Key::A) && Input::GetKey(Key::D))
-		//{
-		//	if (m_isPlayerOnGround && !m_isDashing)
-		//		m_playerBody->SetLinearVelocity(b2Vec2(0, direction.y * velocity));
-		//	else
-		//		m_playerBody->ApplyForce(b2Vec2(0, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
-		//}
-
 	}
 }
 
@@ -486,6 +431,9 @@ void Game::KeyboardDown()
 	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 
 	b2Vec2 velocity2 = m_playerBody->GetLinearVelocity();
+
+	if (Input::GetKeyDown(Key::Escape))
+		exit(0);
 
 	//Jump
 	if (Input::GetKeyDown(Key::Space))
@@ -501,54 +449,15 @@ void Game::KeyboardDown()
 		}
 	}
 
+	//Shoot bullet
 	if (Input::GetKeyDown(Key::RightArrow))
 	{
-		//m_activeScene->Unload();
-		////Sets active scene reference to our scene
-		//m_activeScene = m_scenes[2];
-
-		//m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
-
-		////Sets m_register to point to the register in the active scene
-		//m_register = m_activeScene->GetScene();
-
-		//BackEnd::SetWindowName(m_activeScene->GetName());
-
-		//PhysicsSystem::Init();
-
-		////Set contact listener
-		//listener.SetGame(this);
-		//m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
-
-		////Get player body
-		//m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
-		//rayCastCallBack.SetGame(this);
 		ShootBullet(50);
 	}
 	if (Input::GetKeyDown(Key::LeftArrow))
 	{
-		//m_activeScene->Unload();
-		////Sets active scene reference to our scene
-		//m_activeScene = m_scenes[0];
-
-		//m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
-
-		////Sets m_register to point to the register in the active scene
-		//m_register = m_activeScene->GetScene();
-
-		//BackEnd::SetWindowName(m_activeScene->GetName());
-
-		//PhysicsSystem::Init();
-
-		////Set contact listener
-		//listener.SetGame(this);
-		//m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
-
-		////Get player body
-		//m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
-		//rayCastCallBack.SetGame(this);
+		ShootBullet(-50);
 	}
-
 
 	//Dash direction
 	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1)
@@ -591,8 +500,7 @@ void Game::KeyboardDown()
 			else
 				m_initDashOnWall = false;
 
-			//Apply impulse
-
+			//Set velocity
 			m_playerBody->SetGravityScale(0);
 			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
 			m_playerBody->SetLinearVelocity(direction);
@@ -601,41 +509,27 @@ void Game::KeyboardDown()
 			m_dashCounter = 0;
 			m_initVelocity = m_playerBody->GetLinearVelocity();
 		}
-
 	}
 	
 	if (Input::GetKey(Key::Enter))
-	{
-		m_playerBody->SetGravityScale(0);
-		if (m_isMagnetInRange /*&& !distanceReached*/)
+	{		
+		if (m_isMagnetInRange)
 		{
-			bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5 && (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y < 0.5);
-			float speed = 50;
-			b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
+			m_moveToMagnet = true;
+			bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5 
+				&& (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y) < 0.5;
 
-			velocity.Normalize();
-			//if(!distanceReached)
+			if (!distanceReached)
+			{
+				float speed = 50;
+				b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
+				velocity.Normalize();
+				m_playerBody->SetGravityScale(0);
 				m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
-			
-			if (m_magnetCollision)
-			{
-				
-				//m_playerBody->SetTransform(b2Vec2(m_closestMagnet->GetBody()->GetPosition().x, m_closestMagnet->GetBody()->GetPosition().y), m_playerBody->GetAngle());
-
 			}
-			if (distanceReached)
-			{
-				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
-				m_magnetCollision = true;
-			}
+			else
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
 		}
-		
-
-	}
-	if (Input::GetKeyUp(Key::Enter))
-	{
-		m_magnetCollision = false;
-		m_playerBody->SetGravityScale(7);
 	}
 }
 
@@ -657,6 +551,14 @@ void Game::KeyboardUp()
 	if (Input::GetKeyUp(Key::P))
 	{
 		PhysicsBody::SetDraw(!PhysicsBody::GetDraw());
+	}
+
+	//Stop moving towards magnet
+	if (Input::GetKeyUp(Key::Enter))
+	{
+		m_moveToMagnet = false;
+		m_playerBody->SetGravityScale(m_playerGravity);
+		m_playerBody->ApplyForce(b2Vec2(0, -0.01), m_playerBody->GetWorldCenter(), true);
 	}
 
 	//Set linear velocity of x to zero when A or D key is up and is not dashing
@@ -744,6 +646,7 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		if (m_isPlayerJumping)
 			m_isPlayerJumping = false;
 	}
+
 	//Check if Player sidesensor begin collision with wall 
 	if ((f1 == SIDESENSOR && f2 == WALL)
 		|| ((f2 == SIDESENSOR) && f1 == WALL))
@@ -772,11 +675,31 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	//Check if player collides with doorway
 	if ((f1 == SIDESENSOR && f2 == DOORWAY)
 		|| ((f2 == SIDESENSOR) && f1 == DOORWAY))
-	{
 		m_changeScene = true;
 
+	//Breakable collision
+	if (f1 == BULLET && f2 == BREAKABLE)
+	{
+		m_isBroken = true;
+		m_breakableUserData = (unsigned int)fixtureB->GetBody()->GetUserData();
+	}
+	if (f2 == BULLET && f1 == BREAKABLE)
+	{
+		m_isBroken = true;
+		m_breakableUserData = (unsigned int)fixtureA->GetBody()->GetUserData();
 	}
 
+	//Bullet collision
+	if (f1 == BULLET && f2 != PLAYER && f2 != SIDESENSOR)
+	{
+		m_isBulletHit = true;
+		m_bulletHitUserData = (unsigned int)fixtureA->GetBody()->GetUserData();
+	}
+	if (f2 == BULLET && f1 != PLAYER && f1 != SIDESENSOR)
+	{
+		m_isBulletHit = true;
+		m_bulletHitUserData = (unsigned int)fixtureB->GetBody()->GetUserData();
+	}
 	
 	
 }
@@ -819,31 +742,20 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		|| ((f2 == PLAYER) && f1 == MAGNET))
 		m_magnetCollision = false;
 
-	if (f1 == BULLET && f2 != PLAYER && f2 != SIDESENSOR)
-	{
-		m_isBulletHit = true;
-		m_bulletHitUserData = (unsigned int)fixtureA->GetBody()->GetUserData();
-	}
-	if (f2 == BULLET && f1 != PLAYER && f1 != SIDESENSOR)
-	{
-		m_isBulletHit = true;
-		m_bulletHitUserData = (unsigned int)fixtureB->GetBody()->GetUserData();
-	}
+	
 }
 
 float Game::RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction)
 {
 	//cout << "Fixture: " << (int)fixture->GetUserData() << "  Fraction: " << fraction << endl;
-	//Record both fixture data
-
+	//Record fixture data
 	int f = (int)fixture->GetUserData();
 	b2Vec2 fixturePoint = point;
 	b2Vec2 playerPoint = m_playerBody->GetPosition();
-	//float distance = fraction;
  
-
 	float angleDeg = atan((fixturePoint.y - playerPoint.y) / (fixturePoint.x - playerPoint.x)) * 180.0f / b2_pi;
 
+	//Get closest magnet fixture and the distance
 	if (f == MAGNET)
 	{
 		if (fraction < m_closestMagnetDistance)
@@ -854,7 +766,7 @@ float Game::RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction)
 		//cout << "Angle: " << angleDeg << "  Fraction: " << fraction << endl;
 	}
 
-
+	//Flagging magnet in range
 	if (m_closestMagnetDistance <= 1)
 		m_isMagnetInRange = true;
 	else
@@ -1032,8 +944,11 @@ void Game::ShootBullet(float velocity)
 	ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
 
 	ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 1, 1);
-	ECS::GetComponent<Transform>(entity).SetPosition(vec3(m_playerBody->GetPosition().x + 5, m_playerBody->GetPosition().y, 50.f));
 
+	if(velocity > 0)
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(m_playerBody->GetPosition().x + 5, m_playerBody->GetPosition().y, 50.f));
+	else
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(m_playerBody->GetPosition().x - 5, m_playerBody->GetPosition().y, 50.f));
 	
 	auto& tempSpr = ECS::GetComponent<Sprite>(entity);
 	auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
@@ -1043,8 +958,10 @@ void Game::ShootBullet(float velocity)
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
 	
-	
-	bodyDef.position.Set(m_playerBody->GetPosition().x + 5, m_playerBody->GetPosition().y);
+	if (velocity > 0)
+		bodyDef.position.Set(m_playerBody->GetPosition().x + 5, m_playerBody->GetPosition().y);
+	else
+		bodyDef.position.Set(m_playerBody->GetPosition().x - 5, m_playerBody->GetPosition().y);
 	
 	//Body user data is same as entityID
 	bodyDef.userData = ((void*)entity);
@@ -1073,5 +990,18 @@ void Game::ProjectileUpdate()
 		ECS::GetComponent<PhysicsBody>(m_bulletHitUserData).DeleteBody();
 		ECS::DestroyEntity(m_bulletHitUserData);
 		m_isBulletHit = false;
+	}
+}
+
+void Game::BreakableUpdate()
+{
+	if (m_isBroken)
+	{
+		ECS::GetComponent<PhysicsBody>(m_breakableUserData).DeleteBody();
+		ECS::DestroyEntity(m_breakableUserData);
+		m_isBroken = false;
+		//Set camera scroll focus to  main player
+		ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+		ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
 	}
 }

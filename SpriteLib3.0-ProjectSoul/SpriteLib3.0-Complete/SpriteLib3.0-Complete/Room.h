@@ -5,7 +5,7 @@
 using namespace std;
 
 //fixture name
-enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY, BULLET};
+enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY, BULLET, BREAKABLE};
 
 
 class Room : public Scene
@@ -24,13 +24,13 @@ private:
 	void CreateRoomBoundary();
 	void CreateMainPlayer(int width, int height, vec3 position);
 	void CreatePlatform(string fileName, vec2 size, vec2 position);
-	void CreateMagnet(string fileName, vec2 size, vec2 position);
+	void CreateMagnet(vec2 size, vec2 position);
 	void CreateEdge(b2Vec2 point1, b2Vec2 point2, fixtureName fixtureName, bool sensor = false);
-
+	void CreateDestructable(string fileName, vec2 size, vec2 position);
 	void CreateDoorWay(b2Vec2 position);
 
 
-	
+	vector<Enemy> enemies;
 
 	unsigned int m_background;
 

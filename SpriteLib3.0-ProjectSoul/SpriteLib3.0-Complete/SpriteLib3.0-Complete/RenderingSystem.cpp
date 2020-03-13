@@ -14,23 +14,6 @@ void RenderingSystem::Update(entt::registry* reg)
 	EffectManager::ClearBuffers();
 
 	{
-		//Creates a view of all entities consisting of both
-		//*Sprite AND Transform
-		auto view = reg->view<Sprite, Transform>();
-
-		//Loops through all the entities within view
-		for (auto entity : view)
-		{
-			//Grabs a reference to the Sprite component (in x entity)
-			Sprite& spr = view.get<Sprite>(entity);
-			//Updates the height and width of the unit plane, to match the width and height of the Sprite
-			view.get<Transform>(entity).SetScale(vec3(float(spr.GetWidth()), float(spr.GetHeight()), 1.f));
-			//Updates the transform of x entity
-			view.get<Transform>(entity).Update();
-		}
-	}
-
-	{
 		//Creates a view consisting of all entityies containing horizontal scroll
 		auto view = reg->view<HorizontalScroll>();
 
@@ -57,6 +40,23 @@ void RenderingSystem::Update(entt::registry* reg)
 
 			//Updates the camera
 			scroll.Update();
+		}
+	}
+
+	{
+		//Creates a view of all entities consisting of both
+		//*Sprite AND Transform
+		auto view = reg->view<Sprite, Transform>();
+
+		//Loops through all the entities within view
+		for (auto entity : view)
+		{
+			//Grabs a reference to the Sprite component (in x entity)
+			Sprite& spr = view.get<Sprite>(entity);
+			//Updates the height and width of the unit plane, to match the width and height of the Sprite
+			view.get<Transform>(entity).SetScale(vec3(float(spr.GetWidth()), float(spr.GetHeight()), 1.f));
+			//Updates the transform of x entity
+			view.get<Transform>(entity).Update();
 		}
 	}
 

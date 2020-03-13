@@ -90,17 +90,26 @@ public:
 	//Ray collision
 	float RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction);
 
+	//Dash Update
 	void DashUpdate();
 
+	//Scan for magnet
 	void MagnetScan();
 
+	//Convert mouse clicked to world coord
 	vec2 ConvertToGl(vec2 clickCoord);
 
+	//Change room sccene
 	void ChangeRoom(RoomName room);
 
+	//Shoot bullet
 	void ShootBullet(float velocity);
+
+	//Projectile update
 	void ProjectileUpdate();
 
+	//Breakable update
+	void BreakableUpdate();
 private:
 	//The window
 	Window *m_window = nullptr;
@@ -153,19 +162,25 @@ private:
 	//Player gravity scale
 	float m_playerGravity = 7;
 
+	//Scene
 	bool m_changeScene = false;
 
 	//Player body
 	b2Body* m_playerBody;
 
+	//Bullet
 	bool m_isBulletHit = false;
 	unsigned int m_bulletHitUserData;
+
+	//Breakable 
+	bool m_isBroken = false;
+	unsigned int m_breakableUserData;
 
 	//Magnet
 	bool m_isMagnetInRange = false;
 	float m_closestMagnetDistance;
 	bool m_magnetCollision = false;
-
+	bool m_moveToMagnet = false;
 	b2Fixture* m_closestMagnet;
 	
 };
