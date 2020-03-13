@@ -1,0 +1,32 @@
+{
+  "Health_0": {
+    "Frame0": [ 1.0, 88.0, 396.0, 1.0 ],
+    "NumFrames": 1,
+    "Repeating": false,
+    "SecsPerFrame": 0
+  },
+  "Health_1": {
+    "Frame0": [ 398.0, 88.0, 793.0, 1.0 ],
+    "NumFrames": 1,
+    "Repeating": false,
+    "SecsPerFrame": 0
+  },
+  "Health_2": {
+    "Frame0": [ 795.0, 88.0, 1190.0, 1.0 ],
+    "NumFrames": 1,
+    "Repeating": false,
+    "SecsPerFrame": 0
+  },
+  "Health_3": {
+    "Frame0": [ 1192.0, 88.0, 1587.0, 1.0 ],
+    "NumFrames": 1,
+    "Repeating": false,
+    "SecsPerFrame": 0
+  },
+  "Health_4": {
+    "Frame0": [ 1589.0, 88.0, 1984.0, 1.0 ],
+    "NumFrames": 1,
+    "Repeating": false,
+    "SecsPerFrame": 0
+  }
+}

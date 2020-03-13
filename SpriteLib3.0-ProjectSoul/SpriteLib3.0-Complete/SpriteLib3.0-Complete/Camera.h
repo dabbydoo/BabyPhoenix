@@ -114,6 +114,7 @@ protected:
 	
 	//Holds the orthographic size
 	//*Left, Right, Bottom, Top
+	//                        x     y    z    w
 	vec4 m_orthoSize = vec4(-100, 100, -100, 100);
 	vec4 m_orthoPos = vec4(-100, 100, -100, 100);
 	//Holds the FOV

@@ -89,6 +89,8 @@ void RenderingSystem::Update(entt::registry* reg)
 		{
 			//Grabs a reference to the Camera component (in x entity)
 			auto& bar = view.get(entity);
+
+			bar.Update();
 			
 				
 		}

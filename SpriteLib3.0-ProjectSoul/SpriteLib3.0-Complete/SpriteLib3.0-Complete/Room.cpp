@@ -691,6 +691,9 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 
 		string filename = "entire_sheet.png";
 		ECS::AttachComponent<AnimationController>(entity);
+		
+		ECS::GetComponent<HealthBar>(entity).SetCam();
+		ECS::GetComponent<HealthBar>(entity).DrawHUD();
 
 		auto movement = File::LoadJSON("entire_sheet.json");
 

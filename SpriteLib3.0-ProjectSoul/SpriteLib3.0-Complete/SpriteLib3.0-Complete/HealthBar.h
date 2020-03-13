@@ -1,5 +1,6 @@
 #pragma once
 #include "JSON.h"
+#include "Camera.h"
 class HealthBar
 {
 
@@ -8,13 +9,21 @@ public:
 	HealthBar(float health);
 	~HealthBar();
 
+	void DrawHUD();
+
+	void SetCam();
+
 	void DisplayHealth();
 	float GetHealth() const;
 	void SetHealth(float health);
 	void SetMaxHealth(float health);
+
+	void Update();
 private:
-	float m_health = 0.f;
-	float m_max_h = 0.f;
+	int m_health = 0.f;
+	int m_max_h = 0.f;
+	unsigned healthEntity = 0, soulFillerEntity = 0, iconEntity = 0, gunEntity = 0;
+	Camera *m_cam;
 };
 inline void to_json(nlohmann::json& j, const HealthBar& bar) {
 	j["Health"] = bar.GetHealth();

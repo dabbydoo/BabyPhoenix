@@ -67,8 +67,6 @@ void Game::InitGame()
 	//Get player body
 	m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
 	rayCastCallBack.SetGame(this);
-
-	
 }
 
 bool Game::Run()

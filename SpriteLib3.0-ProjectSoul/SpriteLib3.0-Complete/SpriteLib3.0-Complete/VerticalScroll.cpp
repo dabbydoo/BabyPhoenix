@@ -1,5 +1,9 @@
 #include "VerticalScroll.h"
 
+#include<iostream>
+
+using namespace std;
+
 VerticalScroll::VerticalScroll()
 {
 }
@@ -7,6 +11,8 @@ VerticalScroll::VerticalScroll()
 void VerticalScroll::Update()
 {
 	auto height = ECS::GetComponent<Sprite>(background).GetHeight();
+
+ 
 	float topScrollLimit = (m_cam->GetOrthoSize().z - m_cam->GetOrthoSize().y) / 2 + (height / 2 - m_scrollCorrection);
 	float bottomScrollLimit = (m_cam->GetOrthoSize().z - m_cam->GetOrthoSize().y) / -2 - (height / 2 - m_scrollCorrection);
 
