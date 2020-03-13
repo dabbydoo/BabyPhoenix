@@ -41,13 +41,13 @@ void HealthBar::DrawHUD()
 
 		animation.SetActiveAnim(this->GetHealth());
 
-		ECS::GetComponent<Sprite>(healthEntity).LoadSprite(filename, 26, 6, true, &animation);
+		ECS::GetComponent<Sprite>(healthEntity).LoadSprite(filename, 19, 4, true, &animation);
 
 		//HealthBar position
 		
-		auto position = vec3(m_cam->GetPosition().x - 14, m_cam->GetPosition().y + 13, 99);
+		auto helthPos = vec3(m_cam->GetPosition().x - 14, m_cam->GetPosition().y + 15, 99);
 
-		ECS::GetComponent<Transform>(healthEntity).SetPosition(position);
+		ECS::GetComponent<Transform>(healthEntity).SetPosition(helthPos);
 
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit()| EntityIdentifier::AnimationBit();
@@ -76,11 +76,13 @@ void HealthBar::DrawHUD()
 
 		animation.SetActiveAnim(0);
 
-		ECS::GetComponent<Sprite>(iconEntity).LoadSprite(filename, 10, 10, true, &animation);
+		ECS::GetComponent<Sprite>(iconEntity).LoadSprite(filename, 7, 8, true, &animation);
 
 		//Icon position
 
-		ECS::GetComponent<Transform>(iconEntity).SetPosition(ECS::GetComponent<Transform>(healthEntity).GetPosition());
+		auto iconPos = vec3(m_cam->GetPosition().x - 33, m_cam->GetPosition().y + 15, 99);
+
+		ECS::GetComponent<Transform>(iconEntity).SetPosition(iconPos);
 
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::AnimationBit();
@@ -89,15 +91,9 @@ void HealthBar::DrawHUD()
 	}
 }
 
-void HealthBar::SetCam()
+void HealthBar::GetCam()
 {
 	m_cam = &ECS::GetComponent<Camera>(EntityIdentifier::MainCamera());
-}
-
-void HealthBar::DisplayHealth()
-{
-	//std::cout << "Health: " << std::to_string((m_health*100.f)) << "%" << std::endl;
-
 }
 
 float HealthBar::GetHealth() const
@@ -118,8 +114,9 @@ void HealthBar::SetMaxHealth(float health)
 
 void HealthBar::Update()
 {
-	auto position = vec3(m_cam->GetPosition().x-14, m_cam->GetPosition().y+13, 99);
+	auto helthPos = vec3(m_cam->GetPosition().x - 20, m_cam->GetPosition().y + 14, 99);
+	auto iconPos = vec3(m_cam->GetPosition().x - 34, m_cam->GetPosition().y + 15, 99);
 
-	ECS::GetComponent<Transform>(healthEntity).SetPosition(position);
-	//ECS::GetComponent<Transform>(iconEntity).SetPosition(vec3(position.x+5,position.y,position.z));
+	ECS::GetComponent<Transform>(healthEntity).SetPosition(helthPos);
+	ECS::GetComponent<Transform>(iconEntity).SetPosition(iconPos);
 }

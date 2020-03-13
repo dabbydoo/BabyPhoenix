@@ -11,9 +11,8 @@ public:
 
 	void DrawHUD();
 
-	void SetCam();
+	void GetCam();
 
-	void DisplayHealth();
 	float GetHealth() const;
 	void SetHealth(float health);
 	void SetMaxHealth(float health);
