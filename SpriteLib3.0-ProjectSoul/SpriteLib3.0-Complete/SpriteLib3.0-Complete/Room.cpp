@@ -753,7 +753,7 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 		body->SetGravityScale(7);
 
 		//Construct box collider 
-		phsBody = PhysicsBody(body, 10, 20,
+		phsBody = PhysicsBody(body, float(sprite.GetWidth()), float(sprite.GetHeight() * 0.9),
 			vec2(0.f, 0.f), false, 2.5f);
 
 		b2PolygonShape shape;
