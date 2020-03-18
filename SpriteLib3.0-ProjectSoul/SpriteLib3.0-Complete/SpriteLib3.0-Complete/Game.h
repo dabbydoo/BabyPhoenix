@@ -11,8 +11,13 @@ enum Anim {
 	RUN=4,
 	DASH=6,
 	JUMP_BEGIN=8,
-	JUMP_END=10,
-	FALL=12,
+	JUMP_MIDDLE=10,
+	JUMP_END=12,
+	FALL=14,
+	FLINCH=16,
+	DEATH=18,
+	SHOOT=20,
+	
 };
 
 enum RoomName {

@@ -86,6 +86,7 @@ public:
 	void GetTriggers(Triggers &triggers);
 	float GetStickDeadZone();
 	float GetTriggerDeadZone();
+	int GetIndex();
 
 private:
 	int m_index;

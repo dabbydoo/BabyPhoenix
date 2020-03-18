@@ -701,24 +701,28 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 
 		animation.InitUVs("entire_sheet.png");
 
-		animation.AddAnimation(movement["Idle_Right"]);
+		animation.AddAnimation(movement["Idle_Right"]); //0
 		animation.AddAnimation(movement["Idle_Left"]);
-		animation.AddAnimation(movement["Walk_Right"]);
+		animation.AddAnimation(movement["Walk_Right"]); //2
 		animation.AddAnimation(movement["Walk_Left"]);
-		animation.AddAnimation(movement["Run_Right"]);
+		animation.AddAnimation(movement["Run_Right"]);//4
 		animation.AddAnimation(movement["Run_Left"]);
-		animation.AddAnimation(movement["Dash_Right"]);
+		animation.AddAnimation(movement["Dash_Right"]);//6
 		animation.AddAnimation(movement["Dash_Left"]);
-		animation.AddAnimation(movement["Jump_Begin_Right"]);
+		animation.AddAnimation(movement["Jump_Begin_Right"]); //8
 		animation.AddAnimation(movement["Jump_Begin_Left"]);
-		animation.AddAnimation(movement["Jump_End_Right"]);
+		animation.AddAnimation(movement["Jump_Middle_Right"]); //10
+		animation.AddAnimation(movement["Jump_Middle_Left"]);
+		animation.AddAnimation(movement["Jump_End_Right"]);// 12
 		animation.AddAnimation(movement["Jump_End_Left"]);
-		animation.AddAnimation(movement["Falling_Right"]);
+		animation.AddAnimation(movement["Falling_Right"]);// 14
 		animation.AddAnimation(movement["Falling_Left"]);
-	    animation.AddAnimation(movement["Flinch_Right"]);
+	    animation.AddAnimation(movement["Flinch_Right"]);//16
 		animation.AddAnimation(movement["Flinch_Left"]);
-		animation.AddAnimation(movement["Death_Right"]);
+		animation.AddAnimation(movement["Death_Right"]);//18
 		animation.AddAnimation(movement["Death_Left"]);
+		animation.AddAnimation(movement["Gun_Shoot_Right"]);//20
+		animation.AddAnimation(movement["Gun_Shoot_Left"]);
 
 		animation.SetActiveAnim(0);
 

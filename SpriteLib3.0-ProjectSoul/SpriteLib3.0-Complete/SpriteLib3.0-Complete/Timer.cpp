@@ -22,7 +22,7 @@ void Timer::Update()
 	lastClock = currentClock;
 	//Creates a new current clock at the current clock time
 	currentClock = clock();
-	//Gets the difference betweent he last clock and the current clock
+	//Gets the difference between the last clock and the current clock
 	//Then divides it by Clocks per second (via multiplying 1.f/CLOCKS_PER_SEC)
 	deltaTime = (currentClock - lastClock) * ONE_OVER_CLOCKS_PER_SEC;
 	//Adds delta time to the total time passed (since last reset)

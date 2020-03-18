@@ -207,6 +207,11 @@ float XInputController::GetTriggerDeadZone()
 	return m_deadZoneTrigger;
 }
 
+int XInputController::GetIndex()
+{
+	return m_index;
+}
+
 XInputManager::XInputManager()
 {
 	//Starting index

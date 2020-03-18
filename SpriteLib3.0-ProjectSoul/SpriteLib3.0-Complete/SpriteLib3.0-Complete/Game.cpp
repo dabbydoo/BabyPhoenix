@@ -192,20 +192,16 @@ void Game::AcceptInput()
 	//Just calls all the other input functions 
 	GamepadInput();
 
-	KeyboardHold();
-	KeyboardDown();
-	KeyboardUp();
-
-	//Resets the key flags
-	//Must be done once per frame for input to work
-	Input::ResetKeys();
 }
 
 void Game::GamepadInput()
 {
 	XInputController* tempCon;
+
+	bool is_contected = false;
+	
 	//Gamepad button stroked (pressed)
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i<3; i++)
 	{
 		if (XInputManager::ControllerConnected(i))
 		{
@@ -218,7 +214,25 @@ void Game::GamepadInput()
 			GamepadUp(tempCon);
 			GamepadDown(tempCon);
 			GamepadTrigger(tempCon);
+
+			is_contected = true;
+
 		}
+
+		else {
+			is_contected = false;
+		}
+	}
+
+	if (!is_contected) {
+
+		KeyboardHold();
+		KeyboardDown();
+		KeyboardUp();
+
+		//Resets the key flags
+		//Must be done once per frame for input to work
+		Input::ResetKeys();
 	}
 }
 
@@ -249,19 +263,26 @@ void Game::GamepadDown(XInputController * con)
 	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 
 	if (con->IsButtonPressed(Buttons::A)) {
+		//to do the animation first
 		if (m_isPlayerOnGround)
 		{
 			animation.SetActiveAnim(m_character_direction+JUMP_BEGIN);
-			float impulse = m_playerBody->GetMass() * 50; //Adjust to change height of jump
-			m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
-			m_isPlayerOnGround = false;
 			animation.GetAnimation(m_character_direction + JUMP_END).Reset();
 		}
 	}
-	//
-	if (animation.GetAnimation(m_character_direction + JUMP_BEGIN).GetAnimationDone() && m_playerBody->GetLinearVelocity().y < 0.f) {
-		animation.SetActiveAnim(m_character_direction + JUMP_END);
+
+	if (animation.GetAnimation(m_character_direction + JUMP_BEGIN).GetAnimationDone()) {
+		float impulse = m_playerBody->GetMass() * 50; //Adjust to change height of jump
+		m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
+		m_isPlayerOnGround = false;
+		animation.SetActiveAnim(m_character_direction + JUMP_MIDDLE);
 		animation.GetAnimation(m_character_direction + JUMP_BEGIN).Reset();
+	}
+
+
+	if (animation.GetAnimation(m_character_direction + JUMP_MIDDLE).GetAnimationDone() && m_isPlayerOnGround) {
+		animation.SetActiveAnim(m_character_direction + JUMP_END);
+		animation.GetAnimation(m_character_direction + JUMP_MIDDLE).Reset();
 	}
 			
 }
@@ -289,7 +310,8 @@ void Game::GamepadStick(XInputController * con)
 	//Apply force for movement
 	if (m_isPlayerOnGround) {
 	
-		animation.SetActiveAnim(m_character_direction + IDLE);
+		if (sticks[0].x <= 0.2f && sticks[0].x > -0.2f)
+			animation.SetActiveAnim(m_character_direction + IDLE);
 
 		//right run
 		if (sticks[0].x >= 0.7f && sticks[0].x <= 1.f)
@@ -323,8 +345,8 @@ void Game::GamepadStick(XInputController * con)
 			direction = b2Vec2(-0.5f, 0);
 			m_character_direction = true;
 			animation.SetActiveAnim(m_character_direction + WALK);
-
 		}
+
 		if (direction.Length() > 0)
 			m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
 
@@ -385,7 +407,7 @@ void Game::KeyboardHold()
 		if (!m_isDashing)
 		{
 			if (m_isPlayerOnGround)
-				animation.SetActiveAnim(m_character_direction + IDLE);
+			//	animation.SetActiveAnim(m_character_direction + IDLE);
 
 
 			//Left 

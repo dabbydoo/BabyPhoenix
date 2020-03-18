@@ -76,7 +76,11 @@ void HealthBar::DrawHUD()
 
 		animation.SetActiveAnim(0);
 
+
 		ECS::GetComponent<Sprite>(iconEntity).LoadSprite(filename, 7, 8, true, &animation);
+
+		ECS::GetComponent<Sprite>(iconEntity).LoadSprite(filename, 7, 7, true, &animation);
+
 
 		//Icon position
 
@@ -114,9 +118,16 @@ void HealthBar::SetMaxHealth(float health)
 
 void HealthBar::Update()
 {
+
 	auto helthPos = vec3(m_cam->GetPosition().x - 20, m_cam->GetPosition().y + 14, 99);
 	auto iconPos = vec3(m_cam->GetPosition().x - 34, m_cam->GetPosition().y + 15, 99);
 
 	ECS::GetComponent<Transform>(healthEntity).SetPosition(helthPos);
 	ECS::GetComponent<Transform>(iconEntity).SetPosition(iconPos);
+
+	auto position = vec3(m_cam->GetPosition().x-17, m_cam->GetPosition().y+16, 99);
+
+	ECS::GetComponent<Transform>(healthEntity).SetPosition(position);
+	ECS::GetComponent<Transform>(iconEntity).SetPosition(vec3(position.x-14,position.y,position.z));
+
 }
