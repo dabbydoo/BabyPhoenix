@@ -219,9 +219,6 @@ void Game::GamepadInput()
 
 		}
 
-		else {
-			is_contected = false;
-		}
 	}
 
 	if (!is_contected) {
@@ -254,24 +251,29 @@ void Game::GamepadUp(XInputController * con)
 
 }
 
-void Game::GamepadDown(XInputController * con)
+void Game::GamepadDown(XInputController* con)
 {
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
 	m_activeScene->GamepadDown(con);
-	
+
 	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 
-	if (con->IsButtonPressed(Buttons::A)) {
+	{	static bool has_jumped = false;
+
+	if (con->IsButtonPressed(Buttons::A))
 		//to do the animation first
 		if (m_isPlayerOnGround)
-		{
-			animation.SetActiveAnim(m_character_direction+JUMP_BEGIN);
-			animation.GetAnimation(m_character_direction + JUMP_END).Reset();
-		}
-	}
+			has_jumped = true;
 
+
+
+	if (has_jumped) {
+		animation.SetActiveAnim(m_character_direction + JUMP_BEGIN);
+		animation.GetAnimation(m_character_direction + JUMP_END).Reset();
+	}
 	if (animation.GetAnimation(m_character_direction + JUMP_BEGIN).GetAnimationDone()) {
+		has_jumped = false;
 		float impulse = m_playerBody->GetMass() * 50; //Adjust to change height of jump
 		m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
 		m_isPlayerOnGround = false;
@@ -284,9 +286,70 @@ void Game::GamepadDown(XInputController * con)
 		animation.SetActiveAnim(m_character_direction + JUMP_END);
 		animation.GetAnimation(m_character_direction + JUMP_MIDDLE).Reset();
 	}
-			
-}
+	}
 
+	//DASH
+	{
+		if (con->IsButtonStroked(Buttons::B)) {
+
+			b2Vec2 direction = b2Vec2(0.f, 0.f);
+			float magnitude = 50.f;
+
+
+			Stick sticks[2];
+
+			con->GetSticks(sticks);
+
+			//right
+			if (sticks[0].x >= 0.7f && sticks[0].x <= 1.f) {
+				direction = b2Vec2((direction.x + magnitude), direction.y);
+				m_character_direction = false;
+			}
+			//left
+			else if (sticks[0].x <= -0.7f && sticks[0].x >= -1.f) {
+				direction = b2Vec2((direction.x - magnitude), direction.y);
+				m_character_direction = true;
+			}
+			//up
+			if (sticks[0].y >= 0.7f && sticks[0].y <= 1.f) {
+				direction = b2Vec2(direction.x, (direction.y + magnitude));
+				m_character_direction = false;
+			}
+			//down
+			else if (sticks[0].y <= -0.7f && sticks[0].y >= -1.f) {
+				direction = b2Vec2(direction.x, (direction.y - magnitude));
+				m_character_direction = true;
+			}
+			animation.SetActiveAnim(m_character_direction + DASH);
+
+			//Start Dashing
+			if (direction.Length() > 0)
+			{
+				//Flag whether initial dash position on ground
+				if (m_isPlayerOnGround)
+					m_initDashOnGround = true;
+				else
+					m_initDashOnGround = false;
+
+				//Flag whether initial dash position on wall
+				if (m_isPlayerOnWall)
+					m_initDashOnWall = true;
+				else
+					m_initDashOnWall = false;
+
+				//Set velocity
+				m_playerBody->SetGravityScale(0);
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_playerBody->SetLinearVelocity(direction);
+				m_isDashing = true;
+				m_initDashTime = clock();
+				m_dashCounter = 0;
+				m_initVelocity = m_playerBody->GetLinearVelocity();
+			}
+		}
+	}
+}
+	
 void Game::GamepadStick(XInputController * con)
 {
 	//Active scene now captures this input and can use it
@@ -307,8 +370,9 @@ void Game::GamepadStick(XInputController * con)
 	float force = 40000;
 	float velocity = 30; //Change for player velocity on ground
 
+
 	//Apply force for movement
-	if (m_isPlayerOnGround) {
+	if (m_isPlayerOnGround && !m_isDashing) {
 	
 		if (sticks[0].x <= 0.2f && sticks[0].x > -0.2f)
 			animation.SetActiveAnim(m_character_direction + IDLE);
@@ -384,11 +448,17 @@ void Game::GamepadTrigger(XInputController * con)
 
 	Triggers triggers;
 	con->GetTriggers(triggers);
-	if (triggers.RT > 0.5f && triggers.RT < 0.8f) {
-		printf("Half Press\n");
-	}
-	if (triggers.RT > 0.5f && triggers.RT < 0.8f) {
-		printf("Full Press\n");
+
+	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	if (triggers.RT > 0.3f) {
+		
+		animation.SetActiveAnim(m_character_direction+SHOOT);
+
+		if (m_character_direction)
+			ShootBullet(-50);
+		else
+			ShootBullet(50);
 	}
 }
 
@@ -407,7 +477,7 @@ void Game::KeyboardHold()
 		if (!m_isDashing)
 		{
 			if (m_isPlayerOnGround)
-			//	animation.SetActiveAnim(m_character_direction + IDLE);
+			animation.SetActiveAnim(m_character_direction + IDLE);
 
 
 			//Left 
@@ -493,6 +563,7 @@ void Game::KeyboardDown()
 		//Dash Left
 		if (Input::GetKey(Key::A)) {
 			direction = b2Vec2((direction.x - magnitude), direction.y);
+			m_character_direction = true;
 		}
 
 		//Dash Down
@@ -503,7 +574,10 @@ void Game::KeyboardDown()
 		//Dash Right
 		if (Input::GetKey(Key::D)) {
 			direction = b2Vec2((direction.x + magnitude), direction.y);
+			m_character_direction = false;
 		}
+
+		animation.SetActiveAnim(m_character_direction + DASH);
 
 		//Start Dashing
 		if (direction.Length() > 0)

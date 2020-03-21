@@ -30,6 +30,7 @@ private:
 	void CreateDoorWay(b2Vec2 position);
 
 
+
 	vector<Enemy> enemies;
 
 	unsigned int m_background;

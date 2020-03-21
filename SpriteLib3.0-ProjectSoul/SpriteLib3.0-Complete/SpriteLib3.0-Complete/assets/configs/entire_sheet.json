@@ -71,14 +71,14 @@
     "Frame1": [ 8947.0, 293.0, 9087.0, 1.0 ],
     "NumFrames": 2,
     "Repeating": false,
-    "SecsPerFrame": 0.1499999940395355
+    "SecsPerFrame": 0.3499999940395355
   },
   "Gun_Shoot_Right": {
     "Frame0": [ 9089.0, 293.0, 9229.0, 1.0 ],
     "Frame1": [ 9231.0, 293.0, 9373.0, 1.0 ],
     "NumFrames": 2,
     "Repeating": false,
-    "SecsPerFrame": 0.1499999940395355
+    "SecsPerFrame": 0.3499999940395355
   },
   "Death_Left": {
     "Frame0": [ 1421.0, 293.0, 1561.0, 1.0 ],
@@ -149,7 +149,7 @@
     "Frame3": [ 12071.0, 293.0, 12211.0, 1.0 ],
     "NumFrames": 4,
     "Repeating": false,
-    "SecsPerFrame": 0.15
+    "SecsPerFrame": 0.10
   },
   "Jump_Middle_Left": {
     "Frame0": [ 13633.0, 293.0, 13773.0, 1.0 ],
@@ -165,7 +165,7 @@
     "Frame3": [ 12639.0, 293.0, 12779.0, 1.0 ],
     "NumFrames": 4,
     "Repeating": false,
-    "SecsPerFrame": 0.15
+    "SecsPerFrame": 0.10
   },
   "Jump_Middle_Right": {
     "Frame0": [ 13917.0, 293.0, 14057.0, 1.0 ],
