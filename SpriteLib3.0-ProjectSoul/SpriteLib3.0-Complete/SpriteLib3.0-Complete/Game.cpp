@@ -122,6 +122,7 @@ void Game::Update()
 {
 	//Update timer
 	Timer::Update();
+	
 	//Update Physics System
 	PhysicsSystem::Update(m_register, m_activeScene->GetPhysicsWorld());
 	//Update the backend
