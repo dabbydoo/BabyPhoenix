@@ -4,21 +4,9 @@
 #include "BackEnd.h"
 #include "Room.h"
 #include "Projectile.h"
+#include"Start.h"
 
-enum Anim {
-	IDLE,
-	WALK=2,
-	RUN=4,
-	DASH=6,
-	JUMP_BEGIN=8,
-	JUMP_MIDDLE=10,
-	JUMP_END=12,
-	FALL=14,
-	FLINCH=16,
-	DEATH=18,
-	SHOOT=20,
-	
-};
+
 
 enum RoomName {
 	STARTING,
@@ -115,6 +103,32 @@ public:
 
 	//Breakable update
 	void BreakableUpdate();
+
+	// ACCESSING THIS IN THE ROOM 
+
+	//Flag for if player on ground
+	bool m_isPlayerOnGround = true;
+
+	bool m_isPlayerJumping = false;
+
+	//Flag for if player on wall
+	bool m_isPlayerOnWall = false;
+
+	//Collision flags
+	bool m_isPlayerOnCollision = false; //player collide
+	bool m_isPlayerHeadCollide = false; //player head sensor collides
+	bool m_isPlayerSideCollide = false; //player side sensor collides
+
+	clock_t m_initDashTime; //Initial Player position when dash starts
+	int m_dashCounter = 1; //Dash counter
+
+	bool m_initDashOnGround = true; //Flag for if initial dash started on ground
+	bool m_initDashOnWall = false; //Flag for if initial dash started on the wall
+	bool m_isDashing = false; //Flag for if currently dashing
+
+	b2Vec2 m_initVelocity;
+
+	bool m_character_direction = false;
 private:
 	//The window
 	Window *m_window = nullptr;
@@ -137,35 +151,11 @@ private:
 
 	XInputManager input;
 
-	//Dashing
-	clock_t m_initDashTime; //Initial Player position when dash starts
-	int m_dashCounter = 1; //Dash counter
-
-	bool m_initDashOnGround = true; //Flag for if initial dash started on ground
-	bool m_initDashOnWall = false; //Flag for if initial dash started on the wall
-	bool m_isDashing = false; //Flag for if currently dashing
-
-	//Initial velocity
-	b2Vec2 m_initVelocity;
-
-	//Flag for if player on ground
-	bool m_isPlayerOnGround = true;
-
-	bool m_isPlayerJumping = false;
-
-	//Flag for if player on wall
-	bool m_isPlayerOnWall = false;
-
-	//Collision flags
-	bool m_isPlayerOnCollision = false; //player collide
-	bool m_isPlayerHeadCollide = false; //player head sensor collides
-	bool m_isPlayerSideCollide = false; //player side sensor collides
-
-	//the direction of the character 0/false is right || || 1/true is left
-	bool m_character_direction = false;
-
 	//Player gravity scale
 	float m_playerGravity = 7;
+
+	//the direction of the character 0/false is right || || 1/true is left
+	
 
 	//Scene
 	bool m_changeScene = false;

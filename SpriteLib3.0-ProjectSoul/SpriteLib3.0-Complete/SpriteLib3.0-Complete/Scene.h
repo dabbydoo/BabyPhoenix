@@ -7,6 +7,7 @@
 #include <SDL2/SDL.h>
 #include "PhysicsBody.h"
 #include"Character.h"
+#include"Game.h"
 
 class Scene
 {
@@ -23,7 +24,9 @@ public:
 	//init, as each scene's contents will be different
 	virtual void InitScene(float windowWidth, float windowHeight);
 
-	virtual void Update() {}
+	virtual void Update(Game* game) { };
+
+	virtual vec2 ConvertToGl(vec2 clickCoord);
 
 	//Gamepad Input
 	//Because these are virtual you can override them in your inherited classes.

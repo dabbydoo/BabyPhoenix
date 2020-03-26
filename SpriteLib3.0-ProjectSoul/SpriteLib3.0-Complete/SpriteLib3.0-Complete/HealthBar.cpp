@@ -123,6 +123,10 @@ void HealthBar::Update()
 	auto helthPos = vec3(m_cam->GetPosition().x - 20, m_cam->GetPosition().y + 14, 99);
 	auto iconPos = vec3(m_cam->GetPosition().x - 34, m_cam->GetPosition().y + 15, 99);
 
+	auto& animation = ECS::GetComponent<AnimationController>(healthEntity);
+
+	animation.SetActiveAnim(this->GetHealth());
+
 	ECS::GetComponent<Transform>(healthEntity).SetPosition(helthPos);
 	ECS::GetComponent<Transform>(iconEntity).SetPosition(iconPos);
 

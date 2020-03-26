@@ -44,9 +44,11 @@ void Game::InitGame()
 	m_scenes.push_back(new Room("Pause_Menu"));
 	*/
 
+	//m_scenes.push_back(new Start("Menu"));
 	m_scenes.push_back(new Room("Start"));
 	m_scenes.push_back(new Room("Hallway"));
 	m_scenes.push_back(new Room("Storage"));
+
 	
 	//Sets active scene reference to our scene
 	m_activeScene = m_scenes[0];
@@ -142,15 +144,13 @@ void Game::Update()
 		}
 		
 	
-	ProjectileUpdate();
-	BreakableUpdate();
-	DashUpdate();
+	
 
 	if(!m_moveToMagnet && !m_magnetCollision)
 		MagnetScan();
 	
 	//Updates the active scene
-	m_activeScene->Update();
+	m_activeScene->Update(this);
 
 	
 }
@@ -258,97 +258,6 @@ void Game::GamepadDown(XInputController* con)
 	//Look at base Scene class for more info.
 	m_activeScene->GamepadDown(con);
 
-	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
-
-	{	static bool has_jumped = false;
-
-	if (con->IsButtonPressed(Buttons::A))
-		//to do the animation first
-		if (m_isPlayerOnGround)
-			has_jumped = true;
-
-
-
-	if (has_jumped) {
-		animation.SetActiveAnim(m_character_direction + JUMP_BEGIN);
-		animation.GetAnimation(m_character_direction + JUMP_END).Reset();
-	}
-	if (animation.GetAnimation(m_character_direction + JUMP_BEGIN).GetAnimationDone()) {
-		has_jumped = false;
-		float impulse = m_playerBody->GetMass() * 50; //Adjust to change height of jump
-		m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
-		m_isPlayerOnGround = false;
-		animation.SetActiveAnim(m_character_direction + JUMP_MIDDLE);
-		animation.GetAnimation(m_character_direction + JUMP_BEGIN).Reset();
-	}
-
-
-	if (animation.GetAnimation(m_character_direction + JUMP_MIDDLE).GetAnimationDone() && m_isPlayerOnGround) {
-		animation.SetActiveAnim(m_character_direction + JUMP_END);
-		animation.GetAnimation(m_character_direction + JUMP_MIDDLE).Reset();
-	}
-	}
-
-	//DASH
-	{
-		if (con->IsButtonStroked(Buttons::B)) {
-
-			b2Vec2 direction = b2Vec2(0.f, 0.f);
-			float magnitude = 50.f;
-
-
-			Stick sticks[2];
-
-			con->GetSticks(sticks);
-
-			//right
-			if (sticks[0].x >= 0.7f && sticks[0].x <= 1.f) {
-				direction = b2Vec2((direction.x + magnitude), direction.y);
-				m_character_direction = false;
-			}
-			//left
-			else if (sticks[0].x <= -0.7f && sticks[0].x >= -1.f) {
-				direction = b2Vec2((direction.x - magnitude), direction.y);
-				m_character_direction = true;
-			}
-			//up
-			if (sticks[0].y >= 0.7f && sticks[0].y <= 1.f) {
-				direction = b2Vec2(direction.x, (direction.y + magnitude));
-				m_character_direction = false;
-			}
-			//down
-			else if (sticks[0].y <= -0.7f && sticks[0].y >= -1.f) {
-				direction = b2Vec2(direction.x, (direction.y - magnitude));
-				m_character_direction = true;
-			}
-			animation.SetActiveAnim(m_character_direction + DASH);
-
-			//Start Dashing
-			if (direction.Length() > 0)
-			{
-				//Flag whether initial dash position on ground
-				if (m_isPlayerOnGround)
-					m_initDashOnGround = true;
-				else
-					m_initDashOnGround = false;
-
-				//Flag whether initial dash position on wall
-				if (m_isPlayerOnWall)
-					m_initDashOnWall = true;
-				else
-					m_initDashOnWall = false;
-
-				//Set velocity
-				m_playerBody->SetGravityScale(0);
-				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
-				m_playerBody->SetLinearVelocity(direction);
-				m_isDashing = true;
-				m_initDashTime = clock();
-				m_dashCounter = 0;
-				m_initVelocity = m_playerBody->GetLinearVelocity();
-			}
-		}
-	}
 }
 	
 void Game::GamepadStick(XInputController * con)
@@ -356,89 +265,7 @@ void Game::GamepadStick(XInputController * con)
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
 	m_activeScene->GamepadStick(con);
-	Stick sticks[2];
 
-	con->GetSticks(sticks);
-
-	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
-
-	if (con->IsButtonPressed(Buttons::START))
-		exit(0);
-
-	//Movement direction 
-	b2Vec2 direction = b2Vec2(0.f, 0.f);
-
-	float force = 40000;
-	float velocity = 30; //Change for player velocity on ground
-
-
-	//Apply force for movement
-	if (m_isPlayerOnGround && !m_isDashing) {
-	
-		if (sticks[0].x <= 0.2f && sticks[0].x > -0.2f)
-			animation.SetActiveAnim(m_character_direction + IDLE);
-
-		//right run
-		if (sticks[0].x >= 0.7f && sticks[0].x <= 1.f)
-		{
-			direction += b2Vec2(1, 0);
-			m_character_direction = false;
-			animation.SetActiveAnim(m_character_direction + RUN);
-
-
-		}
-
-		//left run
-		else if (sticks[0].x <= -0.7f && sticks[0].x >= -1.f)
-		{
-			direction = b2Vec2(-1, 0);
-			m_character_direction = true;
-			animation.SetActiveAnim(m_character_direction + RUN);
-
-		}
-
-		//right walk 
-		else if (sticks[0].x >= 0.2f && sticks[0].x < 0.7f) {
-			direction += b2Vec2(0.5, 0);
-			m_character_direction = false;
-			animation.SetActiveAnim(m_character_direction + WALK);
-		}
-
-		//left walk
-		else if (sticks[0].x <= -0.2f && sticks[0].x >= -.7f)
-		{
-			direction = b2Vec2(-0.5f, 0);
-			m_character_direction = true;
-			animation.SetActiveAnim(m_character_direction + WALK);
-		}
-
-		if (direction.Length() > 0)
-			m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
-
-		if (!m_isDashing)
-		{
-			if (sticks[0].x < 0.2f && sticks[0].x > -0.2f)
-				m_playerBody->SetLinearVelocity(b2Vec2(0, m_playerBody->GetLinearVelocity().y));
-		}
-	}
-		
-		
-	else if (!m_isPlayerOnGround)
-	{
-		if (sticks[0].x >= 0.2f && sticks[0].x < 0.7f) {
-				direction += b2Vec2(0.5, 0);
-				m_character_direction = false;		
-		}
-
-			//left walk
-		else if (sticks[0].x <= -0.2f && sticks[0].x >= -.7f)
-		{
-				direction = b2Vec2(-0.5f, 0);
-				m_character_direction = true;
-
-		}
-		 m_playerBody->ApplyForce(b2Vec2(direction.x * force, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
-	}
 }
 
 void Game::GamepadTrigger(XInputController * con)
@@ -447,12 +274,11 @@ void Game::GamepadTrigger(XInputController * con)
 	//Look at base Scene class for more info.
 	m_activeScene->GamepadTrigger(con);
 
-	Triggers triggers;
-	con->GetTriggers(triggers);
-
 	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 
-	if (triggers.RT > 0.3f) {
+	// ADD THE SHOOT TO THE ROOM
+
+	if (con->IsButtonPressed(Buttons::RB)) {
 		
 		animation.SetActiveAnim(m_character_direction+SHOOT);
 
