@@ -1201,4 +1201,3 @@ void Room::Update(Game* game)
 	game->m_initVelocity = this->m_initVelocity;
 
 }
-
