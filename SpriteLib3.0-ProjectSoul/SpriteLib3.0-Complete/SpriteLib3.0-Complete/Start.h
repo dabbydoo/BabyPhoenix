@@ -9,7 +9,7 @@ public:
 
 	void InitScene(float windowWidth, float windowHeight) override;
 
-	void Update(Game* game);
+	void Update() override;
 
 	 void GamepadStroke(XInputController* con) override;
 	 void GamepadUp(XInputController* con) override;

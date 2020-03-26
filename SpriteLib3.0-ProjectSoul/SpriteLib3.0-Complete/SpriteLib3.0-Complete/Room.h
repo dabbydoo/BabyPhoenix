@@ -1,7 +1,6 @@
 #pragma once
 #include "Scene.h"
 #include <iostream>
-#include"Game.h"
 
 using namespace std;
 
@@ -30,8 +29,9 @@ public:
 
 	void InitScene(float windowWidth, float windowHeight) override;
 	
-	void Update(Game* game) override;
+	void Update() override;
 
+	void  SetGame(Game* _game)override;
 	
 
 	void setRoom(const Room room);
@@ -52,6 +52,9 @@ public:
 	bool can_dash = false, can_magent = false, can_shoot = false;
 
 private:
+
+	Game* game;
+
 	void CreateCamera(float windowWidth, float windowHeight);
 	void CreateBackground(string fileName, vec2 size);
 	void CreateRoomBoundary();

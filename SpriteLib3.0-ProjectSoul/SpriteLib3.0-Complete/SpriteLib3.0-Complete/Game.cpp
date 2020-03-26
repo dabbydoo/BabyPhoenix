@@ -66,6 +66,7 @@ void Game::InitGame()
 	listener.SetGame(this);
 	m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
 
+	m_activeScene->SetGame(this);
 	//Get player body
 	m_playerBody = m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
 	rayCastCallBack.SetGame(this);
@@ -149,8 +150,10 @@ void Game::Update()
 	if(!m_moveToMagnet && !m_magnetCollision)
 		MagnetScan();
 	
+	
+
 	//Updates the active scene
-	m_activeScene->Update(this);
+	m_activeScene->Update();
 
 	
 }

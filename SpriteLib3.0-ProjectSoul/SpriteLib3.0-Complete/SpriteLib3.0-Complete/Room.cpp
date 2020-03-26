@@ -1176,6 +1176,11 @@ void Room::MouseWheel(SDL_MouseWheelEvent evnt)
 {
 }
 
+void Room::SetGame(Game* _game)
+{
+	game = _game;
+}
+
 void Room::setRoom(Room room)
 {
 	this->can_dash = room.can_dash;
@@ -1184,7 +1189,7 @@ void Room::setRoom(Room room)
 }
 
 //the room's update function
-void Room::Update(Game* game)
+void Room::Update()
 {
 
 	game->ProjectileUpdate();

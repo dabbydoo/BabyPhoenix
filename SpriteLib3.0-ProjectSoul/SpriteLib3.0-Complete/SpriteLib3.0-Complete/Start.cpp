@@ -9,7 +9,7 @@ void Start::InitScene(float windowWidth, float windowHeight)
 {
 }
 
-void Start::Update(Game* game)
+void Start::Update()
 {
 }
 

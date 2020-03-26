@@ -20,25 +20,27 @@ public:
 	//Saves the scene
 	void SaveScene();
 
+	virtual void SetGame(Game* _game) = 0;
+
 	//Each scene will need to have a different
 	//init, as each scene's contents will be different
 	virtual void InitScene(float windowWidth, float windowHeight);
 
-	virtual void Update(Game* game) { };
+	virtual void Update() = 0;
 
 	virtual vec2 ConvertToGl(vec2 clickCoord);
 
 	//Gamepad Input
 	//Because these are virtual you can override them in your inherited classes.
 	//The same way you do for Update().
-	virtual void GamepadStroke(XInputController* con) { };
-	virtual void GamepadUp(XInputController* con) { };
-	virtual void GamepadDown(XInputController* con) { };
-	virtual void GamepadStick(XInputController* con) { };
-	virtual void GamepadTrigger(XInputController* con) { };
-	virtual void KeyboardHold() { };
-	virtual void KeyboardDown() { };
-	virtual void KeyboardUp() { };
+	virtual void GamepadStroke(XInputController* con) = 0;
+	virtual void GamepadUp(XInputController* con) = 0;
+	virtual void GamepadDown(XInputController* con) = 0;
+	virtual void GamepadStick(XInputController* con) = 0;
+	virtual void GamepadTrigger(XInputController* con) = 0;
+	virtual void KeyboardHold() = 0;
+	virtual void KeyboardDown() = 0;
+	virtual void KeyboardUp() = 0;
 
 	//Mouse Input
 	//Because these are virtual you can override them in your inherited classes.
