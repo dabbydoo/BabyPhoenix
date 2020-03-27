@@ -48,6 +48,8 @@ public:
 	//*Update the animation system
 	void Update();
 
+	void DrawPause();
+
 	//Runs the GUI
 	//*Uses ImGUI for this
 	void GUI();
@@ -88,6 +90,9 @@ public:
 	Scene* m_activeScene = nullptr;
 
 private:
+
+	unsigned int m_pauseID = 0;
+
 	//The window
 	Window *m_window = nullptr;
 	
@@ -112,6 +117,9 @@ private:
 	//Player gravity scale
 	float m_playerGravity = 7;
 	
+	//for pause
+	bool m_isPaused = false;
+	bool m_pause_drawn = false;
 
 	//Scene
 	bool m_changeScene = false;

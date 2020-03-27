@@ -44,7 +44,7 @@ public:
 
 	 bool* Player_Status()override
 	 {
-		 bool* player_status[9] = { &m_isPlayerOnGround ,  &m_isPlayerJumping , &m_isPlayerHeadCollide,  &m_isPlayerOnWall, &m_isPlayerOnCollision,  &m_isBroken, &m_magnetCollision,&m_isBulletHit,&m_isPlayerSideCollide };
+		 bool* player_status[9] = { &m_isPlayerOnGround ,  &m_isPlayerJumping , &m_isPlayerHeadCollide,  &m_isPlayerOnWall, &m_isPlayerOnCollision,  &m_isBroken, &m_magnetCollision, &m_isBulletHit, &m_isPlayerSideCollide };
 
 		 return player_status[0];
 	 }

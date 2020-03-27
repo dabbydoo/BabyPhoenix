@@ -150,6 +150,30 @@ void Game::Update()
 	
 }
 
+void Game::DrawPause()
+{
+	{
+		auto entity = ECS::CreateEntity();
+		m_pauseID = entity;
+
+		//Set camera scroll focus to  main player
+		ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+		ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+
+		ECS::AttachComponent<Sprite>(entity);
+		ECS::AttachComponent<Transform>(entity);
+		//ECS::AttachComponent<AnimationController>(entity);
+
+		string filename = "pause.png";
+
+		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).GetOrthoSize().y * 2.5, ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).GetOrthoSize().w * 2);
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).GetPositionX(), ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).GetPositionY(), 100));
+
+		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
+		ECS::SetUpIdentifier(entity, bitHolder, "Pause Menu");
+	}
+}
+
 void Game::GUI()
 {
 	UI::Start(BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight());
@@ -276,6 +300,10 @@ void Game::KeyboardHold()
 {
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
+
+	if (m_isPaused) 
+			return;
+
 	m_activeScene->KeyboardHold();
 
 }
@@ -284,6 +312,42 @@ void Game::KeyboardDown()
 {
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
+
+	if (Input::GetKeyDown(Key::Escape)&&!m_pause_drawn) {
+		DrawPause();
+		m_pause_drawn = true;
+	}
+
+	if (Input::GetKeyDown(Key::Escape)&& m_pause_drawn)
+	{
+			m_isPaused = !m_isPaused;
+
+		if (m_isPaused)
+		{
+			ECS::GetComponent<Transform>(m_pauseID).SetPositionZ(100.f);
+			
+		}
+
+		if (!m_isPaused)
+		{
+			ECS::GetComponent<Transform>(m_pauseID).SetPositionZ(1.f);
+		}
+	}
+
+	if (m_isPaused) {
+		if (Input::GetKeyDown(Key::S) || Input::GetKeyDown(Key::DownArrow)) {
+			//Goes down 
+			
+		}
+		if (Input::GetKeyDown(Key::W) || Input::GetKeyDown(Key::UpArrow)) {
+			//Goes Up
+
+		}
+		if (Input::GetKeyDown(Key::Enter)) {
+			//Changes the 
+		}
+		return;
+	}
 	m_activeScene->KeyboardDown();
 }
 
@@ -291,6 +355,10 @@ void Game::KeyboardUp()
 {
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
+
+	if (m_isPaused)
+		return;
+
 	m_activeScene->KeyboardUp();
 
 	if (Input::GetKeyUp(Key::F1))
@@ -438,13 +506,14 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	if (f1 == BULLET && f2 != PLAYER && f2 != SIDESENSOR)
 	{
 		status[7] = true;
-		m_activeScene->SetBulletHitUserData((unsigned int)fixtureB->GetBody()->GetUserData());
+		m_activeScene->SetBulletHitUserData((unsigned int)fixtureA->GetBody()->GetUserData());
+		cout << "Hit something"<<endl;
 	}
 	if (f2 == BULLET && f1 != PLAYER && f1 != SIDESENSOR)
 	{
 		status[7] = true;
-		m_activeScene->SetBulletHitUserData((unsigned int)fixtureA->GetBody()->GetUserData());
-		
+		m_activeScene->SetBulletHitUserData((unsigned int)fixtureB->GetBody()->GetUserData());
+		cout << "Hit Something" << endl;
 	}
 
 	//Check if player collides with doorway
