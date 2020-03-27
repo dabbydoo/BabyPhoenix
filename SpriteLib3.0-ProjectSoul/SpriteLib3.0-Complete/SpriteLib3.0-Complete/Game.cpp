@@ -136,7 +136,7 @@ void Game::Update()
 			m_changeScene = false;
 		}
 
-		if (m_activeScene->GetName() == "Hallway")
+		else if (m_activeScene->GetName() == "Hallway")
 		{
 			ChangeRoom(STORAGE);
 			m_changeScene = false;
@@ -496,19 +496,9 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 
 void Game::ChangeRoom(RoomName room)
 {
-	unsigned int roomNumber = 0;
-
-	for (int i = 0; i < m_scenes.size();i++) {
-		if (m_activeScene==m_scenes[i]) {
-			roomNumber = i;
-			break;
-		}
-}
+	m_scenes[room]->SetRoom(m_activeScene);
 
 	m_activeScene->Unload();
-	//Sets active scene reference to our scene
-
-	m_scenes[room]->SetRoom(m_scenes[roomNumber]);
 
 	m_activeScene = m_scenes[room];
 
