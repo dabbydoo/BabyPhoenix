@@ -21,8 +21,8 @@ public:
 	{
 		b2Fixture* fixtureA = contact->GetFixtureA();
 		b2Fixture* fixtureB = contact->GetFixtureB();
-
 		m_theGame->BeginCollision(fixtureA, fixtureB);
+
 	}
 
 	//EndContact listener

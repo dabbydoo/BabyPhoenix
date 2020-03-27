@@ -3,7 +3,8 @@
 
 #include "BackEnd.h"
 #include "Projectile.h"
-#include"Scene.h"
+#include"Room.h"
+#include"Start.h"
 
 
 enum RoomName {
@@ -74,59 +75,18 @@ public:
 	void MouseWheel(SDL_MouseWheelEvent evnt);
 
 	//Contact listener
+
 	//What happens at start of collision
 	void BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB);
 	//What happens at end of collision
 	void EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB);
-	//Ray collision
-	float RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction);
-
-	//Dash Update
-	void DashUpdate();
-
-	//Scan for magnet
-	void MagnetScan();
-
-	//Convert mouse clicked to world coord
-	vec2 ConvertToGl(vec2 clickCoord);
 
 	//Change room sccene
 	void ChangeRoom(RoomName room);
+	float RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction);
 
-	//Shoot bullet
-	void ShootBullet(float velocity);
+	Scene* m_activeScene = nullptr;
 
-	//Projectile update
-	void ProjectileUpdate();
-
-	//Breakable update
-	void BreakableUpdate();
-
-	// ACCESSING THIS IN THE ROOM 
-
-	//Flag for if player on ground
-	bool m_isPlayerOnGround = true;
-
-	bool m_isPlayerJumping = false;
-
-	//Flag for if player on wall
-	bool m_isPlayerOnWall = false;
-
-	//Collision flags
-	bool m_isPlayerOnCollision = false; //player collide
-	bool m_isPlayerHeadCollide = false; //player head sensor collides
-	bool m_isPlayerSideCollide = false; //player side sensor collides
-
-	clock_t m_initDashTime; //Initial Player position when dash starts
-	int m_dashCounter = 1; //Dash counter
-
-	bool m_initDashOnGround = true; //Flag for if initial dash started on ground
-	bool m_initDashOnWall = false; //Flag for if initial dash started on the wall
-	bool m_isDashing = false; //Flag for if currently dashing
-
-	b2Vec2 m_initVelocity;
-
-	bool m_character_direction = false;
 private:
 	//The window
 	Window *m_window = nullptr;
@@ -135,7 +95,7 @@ private:
 	entt::registry* m_register = nullptr;
 
 	//Scenes
-	Scene* m_activeScene = nullptr;
+	
 	std::vector<Scene*> m_scenes;
 	
 	//Imgui stuff
@@ -151,36 +111,13 @@ private:
 
 	//Player gravity scale
 	float m_playerGravity = 7;
-
-	//the direction of the character 0/false is right || || 1/true is left
 	
 
 	//Scene
 	bool m_changeScene = false;
 
-	//Player body
-	b2Body* m_playerBody;
-
-	//Bullet
-	bool m_isBulletHit = false;
-	unsigned int m_bulletHitUserData;
-
-	//Breakable 
-	bool m_isBroken = false;
-	unsigned int m_breakableUserData;
-
-	//Magnet
-	bool m_isMagnetInRange = false;
-	float m_closestMagnetDistance;
-	bool m_magnetCollision = false;
-	bool m_moveToMagnet = false;
-	b2Fixture* m_closestMagnet;
 	
 };
-
-
-
-
 
 #endif // !__GAME_H__
 

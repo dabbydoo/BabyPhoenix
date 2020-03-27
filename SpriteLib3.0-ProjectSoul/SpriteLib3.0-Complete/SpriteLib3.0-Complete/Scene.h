@@ -1,13 +1,14 @@
 #ifndef __SCENE_H__
 #define __SCENE_H__
-
+#include <iostream>
 #include "JSON.h"
 #include "ECS.h"
 #include "Xinput.h"
 #include <SDL2/SDL.h>
 #include "PhysicsBody.h"
 #include"Character.h"
-#include"Game.h"
+
+using namespace std;
 
 class Scene
 {
@@ -20,27 +21,44 @@ public:
 	//Saves the scene
 	void SaveScene();
 
-	virtual void SetGame(Game* _game) = 0;
-
 	//Each scene will need to have a different
 	//init, as each scene's contents will be different
 	virtual void InitScene(float windowWidth, float windowHeight);
 
-	virtual void Update() = 0;
+	virtual void Update() {}
 
-	virtual vec2 ConvertToGl(vec2 clickCoord);
+	virtual bool CanShoot() { return 0; }
+	virtual bool CanMagent() { return 0; }
+	virtual bool CanDash() { return 0; }
+	virtual void SetAction(bool dash=false, bool magnet = false, bool shoot = false) {}
+	virtual void SetBody(b2Body* body){}
+
+
+	virtual void SetRoom(Scene* room) {}
+
+	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken , 6 is m_magnetCollision
+	virtual bool* Player_Status() { return 0; }
+	virtual bool PlayerDirection() { return 0; }
+	virtual void SetBreakableUserData(unsigned int ID) {}
+	virtual void SetBulletHitUserData(unsigned int ID) {}
+
+	virtual void SetClosestMagnetDistance(float dist){}
+	virtual float GetClosestMagnetDistance(){ return 0; }
+	virtual void SetClosestMagnet(b2Fixture* x){}
+	virtual bool GetIfMagentInRange() { return 0; }
+	virtual void SetIfMagentInRange(bool range){}
 
 	//Gamepad Input
 	//Because these are virtual you can override them in your inherited classes.
 	//The same way you do for Update().
-	virtual void GamepadStroke(XInputController* con) = 0;
-	virtual void GamepadUp(XInputController* con) = 0;
-	virtual void GamepadDown(XInputController* con) = 0;
-	virtual void GamepadStick(XInputController* con) = 0;
-	virtual void GamepadTrigger(XInputController* con) = 0;
-	virtual void KeyboardHold() = 0;
-	virtual void KeyboardDown() = 0;
-	virtual void KeyboardUp() = 0;
+	virtual void GamepadStroke(XInputController* con) {}
+	virtual void GamepadUp(XInputController* con) {}
+	virtual void GamepadDown(XInputController* con) {}
+	virtual void GamepadStick(XInputController* con) {}
+	virtual void GamepadTrigger(XInputController* con) {}
+	virtual void KeyboardHold() {}
+	virtual void KeyboardDown() {}
+	virtual void KeyboardUp() {}
 
 	//Mouse Input
 	//Because these are virtual you can override them in your inherited classes.

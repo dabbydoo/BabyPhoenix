@@ -1,11 +1,9 @@
 #pragma once
 #include "Scene.h"
-#include <iostream>
+#include "BackEnd.h"
 
-using namespace std;
+enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY, BULLET, BREAKABLE };
 
-//fixture name
-enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY, BULLET, BREAKABLE};
 
 enum Anim {
 	IDLE,
@@ -29,12 +27,39 @@ public:
 
 	void InitScene(float windowWidth, float windowHeight) override;
 	
+
 	void Update() override;
 
-	void  SetGame(Game* _game)override;
+	bool CanShoot() override { return can_shoot; }
+	 bool CanMagent()  override { return can_magent; }
+	 bool CanDash()  override { return can_dash; }
+	  void SetAction(bool dash = false, bool magnet = false, bool shoot = false) override;
+
+	void SetRoom(Scene* room) override;
+	void DashUpdate();
+
 	
 
-	void setRoom(const Room room);
+	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide
+
+	 bool* Player_Status()override
+	 {
+		 bool* player_status[9] = { &m_isPlayerOnGround ,  &m_isPlayerJumping , &m_isPlayerHeadCollide,  &m_isPlayerOnWall, &m_isPlayerOnCollision,  &m_isBroken, &m_magnetCollision,&m_isBulletHit,&m_isPlayerSideCollide };
+
+		 return player_status[0];
+	 }
+	 bool PlayerDirection() override { return m_character_direction; }
+	 void SetBreakableUserData(unsigned int ID) override { m_breakableUserData = ID; }
+	 void SetBulletHitUserData(unsigned int ID)  override { m_bulletHitUserData = ID; }
+	 void SetClosestMagnetDistance(float dist) override { m_closestMagnetDistance = dist; }
+	 float GetClosestMagnetDistance() override { return m_closestMagnetDistance; }
+	 void SetClosestMagnet(b2Fixture* x) override{ m_closestMagnet = x; }
+	 bool GetIfMagentInRange()override { return m_isMagnetInRange; }
+	 void SetIfMagentInRange(bool range)override { m_isMagnetInRange=range; }
+	 void SetBody(b2Body* body)override { m_playerBody = body; }
+
+	void ProjectileUpdate();
+	void BreakableUpdate();
 
 	void GamepadStroke(XInputController* con) override;
 	void GamepadUp(XInputController* con) override;
@@ -49,11 +74,15 @@ public:
 	void MouseClick(SDL_MouseButtonEvent evnt) override;
 	void MouseWheel(SDL_MouseWheelEvent evnt) override;
 
-	bool can_dash = false, can_magent = false, can_shoot = false;
+
+	//ACCESSSING THE IT IN THE GAME
+
+	//the direction of the character 0/false is right || || 1/true is left
+	//Flag for if player on ground
+
+	
 
 private:
-
-	Game* game;
 
 	void CreateCamera(float windowWidth, float windowHeight);
 	void CreateBackground(string fileName, vec2 size);
@@ -65,34 +94,55 @@ private:
 	void CreateDestructable(string fileName, vec2 size, vec2 position);
 	void CreateDoorWay(b2Vec2 position);
 
-	//the direction of the character 0/false is right || || 1/true is left
-	//Flag for if player on ground
-	bool m_isPlayerOnGround = true;
+	void ShootBullet(float velocity);
+	vec2 ConvertToGl(vec2 clickCoord);
 
-	bool m_isPlayerJumping = false;
+ bool can_dash = false, can_magent = false, can_shoot = false;
 
-	//Flag for if player on wall
-	bool m_isPlayerOnWall = false;
 
-	//Collision flags
-	bool m_isPlayerOnCollision = false; //player collide
-	bool m_isPlayerHeadCollide = false; //player head sensor collides
-	bool m_isPlayerSideCollide = false; //player side sensor collides
+ bool m_isPlayerOnGround = true;
+ bool m_isPlayerJumping = false;
 
-	clock_t m_initDashTime; //Initial Player position when dash starts
-	int m_dashCounter = 1; //Dash counter
+ //Flag for if player on wall
+ bool m_isPlayerOnWall = false;
 
-	bool m_initDashOnGround = true; //Flag for if initial dash started on ground
-	bool m_initDashOnWall = false; //Flag for if initial dash started on the wall
-	bool m_isDashing = false; //Flag for if currently dashing
+ //Collision flags
+ bool m_isPlayerOnCollision = false; //player collide
+ bool m_isPlayerHeadCollide = false; //player head sensor collides
+ bool m_isPlayerSideCollide = false; //player side sensor collides
 
-	bool m_character_direction = false;
+ clock_t m_initDashTime; //Initial Player position when dash starts
+ int m_dashCounter = 1; //Dash counter
 
-	b2Vec2 m_initVelocity;
+ bool m_initDashOnGround = true; //Flag for if initial dash started on ground
+ bool m_initDashOnWall = false; //Flag for if initial dash started on the wall
+ bool m_isDashing = false; //Flag for if currently dashing
 
-	b2Body* m_playerBody;
+ //the direction of the character 0/false is right || || 1/true is left
+ bool m_character_direction = false;
 
-	vector<Enemy> enemies;
-	unsigned int m_background;
+ b2Vec2 m_initVelocity;
+
+ b2Body* m_playerBody;
+
+ //Magnet
+ bool m_isMagnetInRange = false;
+ float m_closestMagnetDistance;
+ bool m_magnetCollision = false;
+ bool m_moveToMagnet = false;
+ b2Fixture* m_closestMagnet;
+
+ //Bullet
+ bool m_isBulletHit = false;
+ unsigned int m_bulletHitUserData;
+
+ //Breakable 
+ bool m_isBroken = false;
+ unsigned int m_breakableUserData;
+
+
+ vector<Enemy> enemies;
+ unsigned int m_background;
+ float m_playerGravity = 7;
 
 };

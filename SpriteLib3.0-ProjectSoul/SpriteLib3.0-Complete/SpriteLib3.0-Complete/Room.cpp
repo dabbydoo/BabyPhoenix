@@ -1,6 +1,7 @@
 #include "Room.h"
 #include"Xinput.h"
 
+
 Room::Room(string name)
 	:Scene(name)
 {
@@ -953,6 +954,95 @@ void Room::CreateDoorWay(b2Vec2 position)
 	ECS::SetUpIdentifier(entity, bitHolder, "Doorway");
 }
 
+void Room::ShootBullet(float velocity)
+{
+	string fileName = "box.png";
+
+	//Creates entity
+	auto entity = ECS::CreateEntity();
+
+	//Add components
+	ECS::AttachComponent<Sprite>(entity);
+	ECS::AttachComponent<Transform>(entity);
+	ECS::AttachComponent<PhysicsBody>(entity);
+
+	//Set camera scroll focus to  main player
+	ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+	ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+
+	ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 1, 1);
+
+	if (velocity > 0)
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(m_playerBody->GetPosition().x + 5, m_playerBody->GetPosition().y, 50.f));
+	else
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(m_playerBody->GetPosition().x - 5, m_playerBody->GetPosition().y, 50.f));
+
+	auto& tempSpr = ECS::GetComponent<Sprite>(entity);
+	auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+	//Create physics body
+	b2Body* body;
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+
+	if (velocity > 0)
+		bodyDef.position.Set(m_playerBody->GetPosition().x + 5, m_playerBody->GetPosition().y);
+	else
+		bodyDef.position.Set(m_playerBody->GetPosition().x - 5, m_playerBody->GetPosition().y);
+
+	//Body user data is same as entityID
+	bodyDef.userData = ((void*)entity);
+
+
+	body = GetPhysicsWorld().CreateBody(&bodyDef);
+	body->SetGravityScale(0);
+
+	body->IsBullet();
+
+	phsBody = PhysicsBody(body, float(tempSpr.GetWidth()), float(tempSpr.GetHeight()),
+		vec2(0.f, 0.f), true, BULLET, true);
+
+	body->GetFixtureList()->SetRestitution(100);
+	body->SetLinearVelocity(b2Vec2(velocity, 0));
+
+	//Sets up the Identifier
+	unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+	ECS::SetUpIdentifier(entity, bitHolder, "Bullet");
+}
+
+vec2 Room::ConvertToGl(vec2 clickCoord)
+{
+	Camera tempCam = ECS::GetComponent<Camera>(EntityIdentifier::MainCamera());
+
+	//Need to convert cliccked point to screen space first!
+	vec2 clickedPoint = clickCoord;
+	vec2 position = vec2(tempCam.GetPositionX(), tempCam.GetPositionY());
+
+	//Window in windowX x windowY space
+	//Need to get into (right-left) x (top-bottome) space
+
+	//First task, make it so bottom is 0 and top is windowHeight
+	clickedPoint = vec2(clickedPoint.x, float(BackEnd::GetWindowHeight()) - clickedPoint.y);
+
+	float glX = (tempCam.GetAspect() * (tempCam.GetOrthoSize().y) - tempCam.GetAspect() * (tempCam.GetOrthoSize().x));
+	float glY = (tempCam.GetOrthoSize().w - tempCam.GetOrthoSize().z);
+
+	//Spaces
+	vec2 glSpace = vec2(glX, glY);
+	vec2 windowSpace = vec2(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
+
+	vec2 percentPoint = vec2(clickedPoint.x / windowSpace.x, clickedPoint.y / windowSpace.y);
+
+	//In glspace
+	clickedPoint = vec2(glSpace.x * percentPoint.x, glSpace.y * percentPoint.y);
+
+	clickedPoint = clickedPoint + vec2(tempCam.GetAspect() * tempCam.GetOrthoSize().x, tempCam.GetOrthoSize().z);
+
+	clickedPoint = clickedPoint + vec2(tempCam.GetPositionX(), tempCam.GetPositionY());
+
+	return clickedPoint;
+}
+
 
 
 void Room::GamepadStroke(XInputController* con)
@@ -995,6 +1085,11 @@ void Room::GamepadDown(XInputController* con)
 		animation.SetActiveAnim(m_character_direction + JUMP_END);
 		animation.GetAnimation(m_character_direction + JUMP_MIDDLE).Reset();
 	}
+	}
+
+	//shooting
+	{
+
 	}
 
 	//DASH
@@ -1081,7 +1176,7 @@ void Room::GamepadStick(XInputController* con)
 	//Apply force for movement
 	if (m_isPlayerOnGround && !m_isDashing) {
 
-		if (sticks[0].x <= 0.2f && sticks[0].x > -0.2f)
+		if (sticks[0].x <= 0.2f && sticks[0].x > -0.2f&&animation.GetActiveAnim()!=(JUMP_END+m_character_direction))
 			animation.SetActiveAnim(m_character_direction + IDLE);
 
 		//right run
@@ -1149,18 +1244,189 @@ void Room::GamepadStick(XInputController* con)
 
 void Room::GamepadTrigger(XInputController* con)
 {
+	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	// ADD THE SHOOT TO THE ROOM
+
+	if (con->IsButtonPressed(Buttons::RB)) {
+
+		animation.SetActiveAnim(m_character_direction + SHOOT);
+
+		if (m_character_direction)
+			ShootBullet(-50);
+		else
+			ShootBullet(50);
+	}
 }
 
 void Room::KeyboardHold()
 {
+	if (Input::GetKey(Key::Enter))
+	{
+		if (m_isMagnetInRange)
+		{
+			m_moveToMagnet = true;
+			bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5
+				&& (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y) < 0.5;
+
+			if (!distanceReached)
+			{
+				float speed = 50;
+				b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
+				velocity.Normalize();
+				m_playerBody->SetGravityScale(0);
+				m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
+			}
+			else
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
+		}
+	}
+
+	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	b2Vec2 velocity2 = m_playerBody->GetLinearVelocity();
+
+	//Player Movement 
+	{
+		if (!m_isDashing)
+		{
+			if (m_isPlayerOnGround)
+				animation.SetActiveAnim(m_character_direction + IDLE);
+
+
+			//Left 
+			if (Input::GetKey(Key::A) && !Input::GetKey(Key::D))
+			{
+				m_character_direction = true;
+
+				if (m_isPlayerOnGround)
+					animation.SetActiveAnim(RUN + m_character_direction);
+
+				velocity2.x = -20;
+				m_playerBody->SetLinearVelocity(velocity2);
+			}
+
+			//Right
+			if (Input::GetKey(Key::D) && !Input::GetKey(Key::A))
+			{
+				m_character_direction = false;
+
+				if (m_isPlayerOnGround)
+					animation.SetActiveAnim(RUN + m_character_direction);
+
+				velocity2.x = 20;
+				m_playerBody->SetLinearVelocity(velocity2);
+			}
+
+			if (Input::GetKey(Key::A) && Input::GetKey(Key::D))
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, m_playerBody->GetLinearVelocity().y));
+			}
+		}
+	}
 }
 
 void Room::KeyboardDown()
 {
+	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+	b2Vec2 velocity2 = m_playerBody->GetLinearVelocity();
+
+	if (Input::GetKeyDown(Key::Escape))
+		exit(0);
+
+	//Jump
+	if (Input::GetKeyDown(Key::Space))
+	{
+		if (m_isPlayerOnGround)
+		{
+			animation.SetActiveAnim(m_character_direction + JUMP_BEGIN);
+			velocity2.y = 40;
+			m_playerBody->SetLinearVelocity(velocity2);
+			m_isPlayerJumping = true;
+			m_isPlayerOnGround = false;
+			animation.GetAnimation(m_character_direction + JUMP_END).Reset();
+		}
+	}
+
+	//Shoot bullet
+	if (Input::GetKeyDown(Key::Space)&&!m_character_direction)
+	{
+		ShootBullet(50);
+	}
+	if (Input::GetKeyDown(Key::Space)&&m_character_direction)
+	{
+		ShootBullet(-50);
+	}
+
+	//Dash direction
+	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1)
+	{
+		b2Vec2 direction = b2Vec2(0.f, 0.f);
+		float magnitude = 50.f;
+
+		//Dash Up
+		if (Input::GetKey(Key::W)) {
+			direction = b2Vec2(direction.x, (direction.y + magnitude));
+		}
+
+		//Dash Left
+		if (Input::GetKey(Key::A)) {
+			direction = b2Vec2((direction.x - magnitude), direction.y);
+			m_character_direction = true;
+		}
+
+		//Dash Down
+		if (Input::GetKey(Key::S)) {
+			direction = b2Vec2(direction.x, (direction.y - magnitude));
+		}
+
+		//Dash Right
+		if (Input::GetKey(Key::D)) {
+			direction = b2Vec2((direction.x + magnitude), direction.y);
+			m_character_direction = false;
+		}
+
+		animation.SetActiveAnim(m_character_direction + DASH);
+
+		//Start Dashing
+		if (direction.Length() > 0)
+		{
+			//Flag whether initial dash position on ground
+			if (m_isPlayerOnGround)
+				m_initDashOnGround = true;
+			else
+				m_initDashOnGround = false;
+
+			//Flag whether initial dash position on wall
+			if (m_isPlayerOnWall)
+				m_initDashOnWall = true;
+			else
+				m_initDashOnWall = false;
+
+			//Set velocity
+			m_playerBody->SetGravityScale(0);
+			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+			m_playerBody->SetLinearVelocity(direction);
+			m_isDashing = true;
+			m_initDashTime = clock();
+			m_dashCounter = 0;
+			m_initVelocity = m_playerBody->GetLinearVelocity();
+		}
+	}
 }
 
 void Room::KeyboardUp()
 {
+	if (Input::GetKeyUp(Key::Enter))
+	{
+		m_moveToMagnet = false;
+		m_playerBody->SetGravityScale(m_playerGravity);
+		m_playerBody->ApplyForce(b2Vec2(0, -0.01), m_playerBody->GetWorldCenter(), true);
+	}
+	//Set linear velocity of x to zero when A or D key is up and is not dashing
+	if ((Input::GetKeyUp(Key::A) || Input::GetKeyUp(Key::D)) && !m_isDashing)
+		m_playerBody->SetLinearVelocity(b2Vec2(0, m_playerBody->GetLinearVelocity().y));
 }
 
 void Room::MouseMotion(SDL_MouseMotionEvent evnt)
@@ -1176,33 +1442,145 @@ void Room::MouseWheel(SDL_MouseWheelEvent evnt)
 {
 }
 
-void Room::SetGame(Game* _game)
+
+void Room::SetAction(bool dash, bool magnet, bool shoot)
 {
-	game = _game;
+	can_dash = dash;
+	can_magent = magnet;
+	can_shoot = shoot;
 }
 
-void Room::setRoom(Room room)
+void Room::SetRoom(Scene* room)
 {
-	this->can_dash = room.can_dash;
-	this->can_magent = room.can_magent;
-	this->can_shoot = room.can_shoot;
+	SetAction(room->CanDash(),room->CanMagent(),room->CanShoot());
+}
+
+void Room::DashUpdate()
+{
+	if (m_isPlayerOnGround && !m_isDashing)
+	{
+		m_dashCounter = 1;
+	}
+
+	//End of Dash 
+	if (m_isDashing)
+	{
+		//**ADJUST DASH LENGTH HERE**
+		float dashTime = .3;
+
+		//End dash when head sensor collides with platform 
+		if (m_isPlayerHeadCollide)
+		{
+			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+			m_playerBody->SetGravityScale(m_playerGravity);
+			m_isDashing = false;
+		}
+
+		//End dash when side sensor collides with wall OR time of dash reached
+		if (m_isPlayerOnWall)
+			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime || !m_initDashOnWall)
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_playerBody->SetGravityScale(m_playerGravity);
+				m_isDashing = false;
+			}
+
+		//End dash when side sensor collides with platform OR time of dash reached
+		if (m_isPlayerSideCollide)
+		{
+			if (abs(m_initVelocity.x) > 0.001 || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_playerBody->SetGravityScale(m_playerGravity);
+				m_isDashing = false;
+			}
+		}
+
+		//End dash when player collides with anything but (ground or platform) OR time of dash reached
+		if (m_isPlayerOnCollision || ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime))
+		{
+			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+			m_playerBody->SetGravityScale(m_playerGravity);
+			m_isDashing = false;
+			m_isPlayerOnCollision = false;
+		}
+
+		//End dash when foot sensor collides with (ground or platform) OR time of dash reached
+		if (m_isPlayerOnGround)
+		{
+			if ((float)(clock() - m_initDashTime) / CLOCKS_PER_SEC > dashTime || !m_initDashOnGround)
+			{
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+				m_playerBody->SetGravityScale(m_playerGravity);
+				m_isDashing = false;
+			}
+		}
+
+	}
+}
+//
+//void Room::MagnetScan()
+//{
+//	{
+//		b2Vec2 point1(m_playerBody->GetPosition());
+//		RayCastClosestCallback callback;
+//		float distance = 40.f;
+//		float angleRAD = 0;
+//		b2Fixture* fixture = NULL;
+//		b2Vec2 fixturePoint, fixtureNormal;
+//		float fraction = 0;
+//
+//		//2 means no magnet in range
+//		m_closestMagnetDistance = 2;
+//
+//		//Reset closest magnet
+//		m_closestMagnet = NULL;
+//
+//		//Magnet scanning 360 degrees
+//		for (int angleDEG = 0; angleDEG <= 360; ++angleDEG)
+//		{
+//			angleRAD = angleDEG * b2_pi / 180.0f;
+//
+//			b2Vec2 d(distance * cosf(angleRAD), distance * sinf(angleRAD));
+//
+//			b2Vec2 point2 = point1 + d;
+//
+//			GetPhysicsWorld().RayCast(&callback, point1, point2);
+//		}
+//	}
+//}
+
+
+
+void Room::ProjectileUpdate()
+{
+	if (m_isBulletHit)
+	{
+		ECS::GetComponent<PhysicsBody>(m_bulletHitUserData).DeleteBody();
+		ECS::DestroyEntity(m_bulletHitUserData);
+		m_isBulletHit = false;
+	}
+}
+
+void Room::BreakableUpdate()
+{
+	if (m_isBroken)
+	{
+		ECS::GetComponent<PhysicsBody>(m_breakableUserData).DeleteBody();
+		ECS::DestroyEntity(m_breakableUserData);
+		m_isBroken = false;
+		//Set camera scroll focus to  main player
+		ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+		ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+	}
 }
 
 //the room's update function
 void Room::Update()
 {
+	ProjectileUpdate();
+	DashUpdate();
 
-	game->ProjectileUpdate();
-	game->BreakableUpdate();
-	game->DashUpdate();
-
-	game->m_character_direction = this->m_character_direction;
-	game->m_isPlayerOnGround = this->m_isPlayerOnGround;
-	game->m_character_direction = this->m_character_direction;
-	game->m_initDashOnGround = this->m_initDashOnGround;
-	game->m_initDashOnWall = this->m_initDashOnWall;
-	game->m_dashCounter = this->m_dashCounter;
-	game->m_isDashing = this->m_isDashing;
-	game->m_initVelocity = this->m_initVelocity;
-
+	/*if (!m_moveToMagnet && !m_magnetCollision)
+		MagnetScan();*/
 }
