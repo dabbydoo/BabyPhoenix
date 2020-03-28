@@ -149,7 +149,7 @@
     "Frame3": [ 12071.0, 293.0, 12211.0, 1.0 ],
     "NumFrames": 4,
     "Repeating": false,
-    "SecsPerFrame": 0.10
+    "SecsPerFrame": 0.05
   },
   "Jump_Middle_Left": {
     "Frame0": [ 13633.0, 293.0, 13773.0, 1.0 ],
@@ -165,7 +165,7 @@
     "Frame3": [ 12639.0, 293.0, 12779.0, 1.0 ],
     "NumFrames": 4,
     "Repeating": false,
-    "SecsPerFrame": 0.10
+    "SecsPerFrame": 0.05
   },
   "Jump_Middle_Right": {
     "Frame0": [ 13917.0, 293.0, 14057.0, 1.0 ],
@@ -180,7 +180,7 @@
     "Frame2": [ 13065.0, 293.0, 13205.0, 1.0 ],
     "NumFrames": 3,
     "Repeating": false,
-    "SecsPerFrame": 0.499999940395355
+    "SecsPerFrame": 0.059999940395355
   },
   "Jump_End_Right": {
     "Frame0": [ 13207.0, 293.0, 13347.0, 1.0 ],
@@ -188,7 +188,7 @@
     "Frame2": [ 13491.0, 293.0, 13631.0, 1.0 ],
     "NumFrames": 3,
     "Repeating": false,
-    "SecsPerFrame": 0.499999940395355
+    "SecsPerFrame": 0.059999940395355
   },
   "Run_Left": {
     "Frame0": [ 14201.0, 293.0, 14341.0, 1.0 ],

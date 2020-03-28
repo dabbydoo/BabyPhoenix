@@ -37,7 +37,7 @@ public:
 	virtual void SetRoom(Scene* room) {}
 
 	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken , 6 is m_magnetCollision
-	virtual bool* Player_Status() { return 0; }
+	virtual bool* Player_Status(unsigned int num) { return 0; }
 	virtual bool PlayerDirection() { return 0; }
 	virtual void SetBreakableUserData(unsigned int ID) {}
 	virtual void SetBulletHitUserData(unsigned int ID) {}

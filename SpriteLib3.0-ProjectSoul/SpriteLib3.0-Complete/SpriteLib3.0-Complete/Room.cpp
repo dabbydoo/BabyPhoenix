@@ -1282,7 +1282,7 @@ void Room::CreateDoorWay(b2Vec2 position)
 
 void Room::ShootBullet(float velocity)
 {
-	string fileName = "box.png";
+	string fileName = "Bullet.png";
 
 	//Creates entity
 	auto entity = ECS::CreateEntity();
@@ -1397,7 +1397,7 @@ void Room::GamepadDown(XInputController* con)
 		animation.SetActiveAnim(m_character_direction + JUMP_BEGIN);
 		animation.GetAnimation(m_character_direction + JUMP_END).Reset();
 	}
-	if (animation.GetAnimation(m_character_direction + JUMP_BEGIN).GetAnimationDone()) {
+	if (animation.GetAnimation(m_character_direction + JUMP_BEGIN).GetAnimationDone()&&has_jumped) {
 		has_jumped = false;
 		float impulse = m_playerBody->GetMass() * 50; //Adjust to change height of jump
 		m_playerBody->ApplyLinearImpulse(b2Vec2(0, impulse), m_playerBody->GetWorldCenter(), true);
@@ -1420,7 +1420,7 @@ void Room::GamepadDown(XInputController* con)
 
 	//DASH
 	{
-		if (con->IsButtonStroked(Buttons::B)) {
+		if (con->IsButtonPressed(Buttons::B)) {
 
 			b2Vec2 direction = b2Vec2(0.f, 0.f);
 			float magnitude = 50.f;
@@ -1498,11 +1498,32 @@ void Room::GamepadStick(XInputController* con)
 	float velocity = 30; //Change for player velocity on ground
 
 	
+	if (!m_isPlayerOnGround) {
+		//right 
+		if (sticks[0].x >= 0.7f && sticks[0].x <= 1.f)
+		{
+			direction += b2Vec2(1, 0);
+			m_character_direction = false;
+			animation.SetActiveAnim(animation.GetActiveAnim()%2==0 ? animation.GetActiveAnim() + m_character_direction : animation.GetActiveAnim()-1);
+
+
+		}
+
+		//left
+		else if (sticks[0].x <= -0.7f && sticks[0].x >= -1.f)
+		{
+			direction += b2Vec2(-1, 0);
+			m_character_direction = true;
+			animation.SetActiveAnim(animation.GetActiveAnim() % 2 != 0 ? animation.GetActiveAnim() : animation.GetActiveAnim() - m_character_direction);
+
+		}
+	}
+
 
 	//Apply force for movement
 	if (m_isPlayerOnGround && !m_isDashing) {
 
-		if (sticks[0].x <= 0.2f && sticks[0].x > -0.2f&&animation.GetActiveAnim()!=(JUMP_END+m_character_direction))
+		if (sticks[0].x <= 0.2f && sticks[0].x > -0.2f&&(animation.GetActiveAnim()!=(JUMP_END+m_character_direction)||animation.GetAnimation(JUMP_END + m_character_direction).GetAnimationDone()))
 			animation.SetActiveAnim(m_character_direction + IDLE);
 
 		//right run
@@ -1574,7 +1595,7 @@ void Room::GamepadTrigger(XInputController* con)
 
 	// ADD THE SHOOT TO THE ROOM
 
-	if (con->IsButtonPressed(Buttons::RB)) {
+	if (con->IsButtonPressed(Buttons::X)) {
 
 		animation.SetActiveAnim(m_character_direction + SHOOT);
 
@@ -1607,6 +1628,7 @@ void Room::KeyboardHold()
 				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
 		}
 	}
+
 
 	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 
@@ -1788,6 +1810,8 @@ void Room::DashUpdate()
 		m_dashCounter = 1;
 	}
 
+	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
 	//End of Dash 
 	if (m_isDashing)
 	{
@@ -1809,6 +1833,7 @@ void Room::DashUpdate()
 				m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
 				m_playerBody->SetGravityScale(m_playerGravity);
 				m_isDashing = false;
+				animation.SetActiveAnim(FALL+m_character_direction);
 			}
 
 		//End dash when side sensor collides with platform OR time of dash reached
@@ -1904,6 +1929,7 @@ void Room::BreakableUpdate()
 //the room's update function
 void Room::Update()
 {
+	
 	ProjectileUpdate();
 	DashUpdate();
 

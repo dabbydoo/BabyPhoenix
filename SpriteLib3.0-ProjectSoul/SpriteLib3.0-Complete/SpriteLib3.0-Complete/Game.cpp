@@ -312,6 +312,7 @@ void Game::KeyboardDown()
 {
 	//Active scene now captures this input and can use it
 	//Look at base Scene class for more info.
+	if (m_activeScene->GetName()!="Menu") {
 
 	if (Input::GetKeyDown(Key::Escape)&&!m_pause_drawn) {
 		DrawPause();
@@ -348,8 +349,12 @@ void Game::KeyboardDown()
 		}
 		return;
 	}
+	
+	}
+
 	m_activeScene->KeyboardDown();
-}
+
+	}
 
 void Game::KeyboardUp()
 {
@@ -444,7 +449,7 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	int f1 = (int)fixtureA->GetUserData();
 	int f2 = (int)fixtureB->GetUserData();
 	
-	auto* status = m_activeScene->Player_Status();
+	
 
 	//Check if Player footsensor begin collision with ground or platform 
 	if ((f1 == FOOTSENSOR && (f2 == GROUND || f2 == PLATFORM))
@@ -454,66 +459,79 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 
 		//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide
 
-		
+		auto* status = m_activeScene->Player_Status(0);
 
-		status[0] = true;
+		*status = true;
 
 		animation.SetActiveAnim(m_activeScene->PlayerDirection() + JUMP_END);
 		animation.GetAnimation(m_activeScene->PlayerDirection() + JUMP_BEGIN).Reset();
 
-		if (status[1])
-			status[1] = false;
+		if (status = m_activeScene->Player_Status(1))
+			*status = false;
 	}
 
 	//Check if Player sidesensor begin collision with wall 
 	if ((f1 == SIDESENSOR && f2 == WALL)
-		|| ((f2 == SIDESENSOR) && f1 == WALL))
-		status[3] = true;
-
+		|| ((f2 == SIDESENSOR) && f1 == WALL)) {
+		auto* status = m_activeScene->Player_Status(3);
+		*status = true;
+	}
 	//Check if Player headsensor begin collision with platform 
 	if ((f1 == HEADSENSOR && f2 == PLATFORM)
 		|| (f2 == HEADSENSOR && f1 == PLATFORM))
-		status[2] = true;
-
+	{
+		auto* status = m_activeScene->Player_Status(2);
+		*status = true;
+	}
 	//Check if Player sideSensor begin collision with platform 
 	if ((f1 == SIDESENSOR && f2 == PLATFORM)
 		|| (f2 == SIDESENSOR && f1 == PLATFORM))
-		status[8] = true;
-
+	{
+		auto* status = m_activeScene->Player_Status(8);
+		*status = true;
+	}
 	//Check if Player begin collision with any entity that isn't a ground, platform, or wall
 	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL && f2 != MAGNET)
 		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL && f1 != MAGNET))
-		status[4] = true;
-
+	{
+		auto* status = m_activeScene->Player_Status(4);
+		*status = true;
+	}
 	//Check if player collides with magnet
 	if ((f1 == PLAYER && f2 == MAGNET)
 		|| ((f2 == PLAYER) && f1 == MAGNET))
-		status[6] = true;
+	{
+		auto* status = m_activeScene->Player_Status(6);
+		*status = true;
+	}
 
 	//Breakable collision
 	if (f1 == BULLET && f2 == BREAKABLE)
 	{
-		status[5] = true;
+		auto* status = m_activeScene->Player_Status(5);
+		*status = true;
 		m_activeScene->SetBreakableUserData((unsigned int)fixtureB->GetBody()->GetUserData());
 	}
 	if (f2 == BULLET && f1 == BREAKABLE)
 	{
-		status[5] = true;
+		auto* status = m_activeScene->Player_Status(5);
+		*status = true;
 		m_activeScene->SetBreakableUserData((unsigned int)fixtureA->GetBody()->GetUserData());
 	}
 
 	//Bullet collision
 	if (f1 == BULLET && f2 != PLAYER && f2 != SIDESENSOR)
 	{
-		status[7] = true;
+		auto* status = m_activeScene->Player_Status(7);
+		*status = true;
 		m_activeScene->SetBulletHitUserData((unsigned int)fixtureA->GetBody()->GetUserData());
-		cout << "Hit something"<<endl;
+	
 	}
 	if (f2 == BULLET && f1 != PLAYER && f1 != SIDESENSOR)
 	{
-		status[7] = true;
+		auto* status = m_activeScene->Player_Status(7);
+		*status = true;
 		m_activeScene->SetBulletHitUserData((unsigned int)fixtureB->GetBody()->GetUserData());
-		cout << "Hit Something" << endl;
 	}
 
 	//Check if player collides with doorway
@@ -528,39 +546,61 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	int f1 = (int)fixtureA->GetUserData();
 	int f2 = (int)fixtureB->GetUserData();
 
-	auto* status = m_activeScene->Player_Status();
+	
 
 	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide
 
 	//Check if Player footSensor end contact with ground or platform
 	if ((f1 == FOOTSENSOR && (f2 == GROUND || f2 == PLATFORM))
 		|| ((f2 == FOOTSENSOR) && (f1 == GROUND || f1 == PLATFORM)))
-		status[0] = false;
+		{
+		auto* status = m_activeScene->Player_Status(0);
+		*status = false;
+	}
 
 	//Check if Player sidesensor end collision with wall
 	if ((f1 == SIDESENSOR && f2 == WALL)
 		|| ((f2 == SIDESENSOR) && f1 == WALL))
-		status[3] = false;
+	{
+		auto* status = m_activeScene->Player_Status(3);
+		*status = false;
+	}
+
 
 	//Check if Player headSensor end collision with platform 
 	if ((f1 == HEADSENSOR && f2 == PLATFORM)
 		|| (f2 == HEADSENSOR && f1 == PLATFORM))
-		status[3] = false;
+	{
+		auto* status = m_activeScene->Player_Status(3);
+		*status = false;
+	}
+
 
 	//Check if Player sideSensor end collision with platform 
 	if ((f1 == SIDESENSOR && f2 == PLATFORM)
 		|| (f2 == SIDESENSOR && f1 == PLATFORM))
-		status[8] = false;
+	{
+		auto* status = m_activeScene->Player_Status(8);
+		*status = false;
+	}
 
 	//Check if Player end collision with any entity that isn't a ground, platform, or wall
 	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL && f2 != MAGNET)
 		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL && f1 != MAGNET))
-		status[4] = false;
+	{
+		auto* status = m_activeScene->Player_Status(4);
+		*status = false;
+	}
+
 
 	//Check if player end collision with magnet
 	if ((f1 == PLAYER && f2 == MAGNET)
 		|| ((f2 == PLAYER) && f1 == MAGNET))
-		status[6] = false;
+	{
+		auto* status = m_activeScene->Player_Status(6);
+		*status = false;
+	}
+
 }
 
 void Game::ChangeRoom(RoomName room)

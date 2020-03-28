@@ -42,11 +42,11 @@ public:
 
 	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide
 
-	 bool* Player_Status()override
+	 bool* Player_Status(unsigned int num)override
 	 {
 		 bool* player_status[9] = { &m_isPlayerOnGround ,  &m_isPlayerJumping , &m_isPlayerHeadCollide,  &m_isPlayerOnWall, &m_isPlayerOnCollision,  &m_isBroken, &m_magnetCollision, &m_isBulletHit, &m_isPlayerSideCollide };
 
-		 return player_status[0];
+		 return player_status[num];
 	 }
 	 bool PlayerDirection() override { return m_character_direction; }
 	 void SetBreakableUserData(unsigned int ID) override { m_breakableUserData = ID; }
