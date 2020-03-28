@@ -1600,6 +1600,26 @@ void Room::GamepadTrigger(XInputController* con)
 		else
 			ShootBullet(50);
 	}
+	if (con->IsButtonPressed(Buttons::RB)) {
+		if (m_isMagnetInRange)
+		{
+			cout << "I am in here";
+			m_moveToMagnet = true;
+			bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5
+				&& (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y) < 0.5;
+
+			if (!distanceReached)
+			{
+				float speed = 50;
+				b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
+				velocity.Normalize();
+				m_playerBody->SetGravityScale(0);
+				m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
+			}
+			else
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
+		}
+	}
 }
 
 void Room::KeyboardHold()
@@ -1764,9 +1784,23 @@ void Room::KeyboardUp()
 {
 	if (Input::GetKeyUp(Key::Enter))
 	{
-		m_moveToMagnet = false;
-		m_playerBody->SetGravityScale(m_playerGravity);
-		m_playerBody->ApplyForce(b2Vec2(0, -0.01), m_playerBody->GetWorldCenter(), true);
+		if (m_isMagnetInRange)
+		{
+			m_moveToMagnet = true;
+			bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5
+				&& (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y) < 0.5;
+
+			if (!distanceReached)
+			{
+				float speed = 50;
+				b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
+				velocity.Normalize();
+				m_playerBody->SetGravityScale(0);
+				m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
+			}
+			else
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
+		}
 	}
 	//Set linear velocity of x to zero when A or D key is up and is not dashing
 	if ((Input::GetKeyUp(Key::A) || Input::GetKeyUp(Key::D)) && !m_isDashing)
@@ -1865,37 +1899,6 @@ void Room::DashUpdate()
 
 	}
 }
-//
-//void Room::MagnetScan()
-//{
-//	{
-//		b2Vec2 point1(m_playerBody->GetPosition());
-//		RayCastClosestCallback callback;
-//		float distance = 40.f;
-//		float angleRAD = 0;
-//		b2Fixture* fixture = NULL;
-//		b2Vec2 fixturePoint, fixtureNormal;
-//		float fraction = 0;
-//
-//		//2 means no magnet in range
-//		m_closestMagnetDistance = 2;
-//
-//		//Reset closest magnet
-//		m_closestMagnet = NULL;
-//
-//		//Magnet scanning 360 degrees
-//		for (int angleDEG = 0; angleDEG <= 360; ++angleDEG)
-//		{
-//			angleRAD = angleDEG * b2_pi / 180.0f;
-//
-//			b2Vec2 d(distance * cosf(angleRAD), distance * sinf(angleRAD));
-//
-//			b2Vec2 point2 = point1 + d;
-//
-//			GetPhysicsWorld().RayCast(&callback, point1, point2);
-//		}
-//	}
-//}
 
 
 

@@ -145,6 +145,15 @@ void Game::Update()
 
 	}	
 
+	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken,
+	/*6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange*/
+
+	bool m_moveToMagnet = m_activeScene->Player_Status(9);
+	bool m_magnetCollision = m_activeScene->Player_Status(6);
+
+	if (!m_moveToMagnet && !m_magnetCollision)
+		MagnetScan();
+
 	//Updates the active scene
 	m_activeScene->Update();
 
@@ -443,6 +452,42 @@ void Game::MouseWheel(SDL_MouseWheelEvent evnt)
 }
 
 
+
+void Game::MagnetScan()
+{
+	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 
+	/*6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange*/
+
+	auto* m_playerBody = ECS::GetComponent<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
+
+	{
+		b2Vec2 point1(m_playerBody->GetPosition());
+		RayCastClosestCallback callback;
+		float distance = 40.f;
+		float angleRAD = 0;
+		b2Fixture* fixture = NULL;
+		b2Vec2 fixturePoint, fixtureNormal;
+		float fraction = 0;
+
+		//2 means no magnet in range
+		m_activeScene->SetMagnetDist(2);
+
+		//Reset closest magnet
+		m_activeScene->SetCloseMagnet(nullptr);
+
+		//Magnet scanning 360 degrees
+		for (int angleDEG = 0; angleDEG <= 360; ++angleDEG)
+		{
+			angleRAD = angleDEG * b2_pi / 180.0f;
+
+			b2Vec2 d(distance * cosf(angleRAD), distance * sinf(angleRAD));
+
+			b2Vec2 point2 = point1 + d;
+
+			m_activeScene->GetPhysicsWorld().RayCast(&callback, point1, point2);
+		}
+	}
+}
 
 void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 {

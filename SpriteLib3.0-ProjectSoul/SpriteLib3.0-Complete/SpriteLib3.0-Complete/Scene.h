@@ -27,25 +27,28 @@ public:
 
 	virtual void Update() {}
 
-	virtual bool CanShoot() { return 0; }
-	virtual bool CanMagent() { return 0; }
-	virtual bool CanDash() { return 0; }
+	virtual bool CanShoot() { return NULL; }
+	virtual bool CanMagent() { return NULL; }
+	virtual bool CanDash() { return NULL; }
 	virtual void SetAction(bool dash=false, bool magnet = false, bool shoot = false) {}
 	virtual void SetBody(b2Body* body){}
+
+	virtual void SetMagnetDist(float x){}
+	virtual void SetCloseMagnet(b2Fixture* x){}
 
 
 	virtual void SetRoom(Scene* room) {}
 
 	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken , 6 is m_magnetCollision
-	virtual bool* Player_Status(unsigned int num) { return 0; }
-	virtual bool PlayerDirection() { return 0; }
+	virtual bool* Player_Status(unsigned int num) { return NULL; }
+	virtual bool PlayerDirection() { return NULL; }
 	virtual void SetBreakableUserData(unsigned int ID) {}
 	virtual void SetBulletHitUserData(unsigned int ID) {}
 
 	virtual void SetClosestMagnetDistance(float dist){}
-	virtual float GetClosestMagnetDistance(){ return 0; }
+	virtual float GetClosestMagnetDistance(){ return NULL; }
 	virtual void SetClosestMagnet(b2Fixture* x){}
-	virtual bool GetIfMagentInRange() { return 0; }
+	virtual bool GetIfMagentInRange() { return NULL; }
 	virtual void SetIfMagentInRange(bool range){}
 
 	//Gamepad Input

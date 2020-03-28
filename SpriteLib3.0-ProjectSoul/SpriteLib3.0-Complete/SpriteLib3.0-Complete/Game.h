@@ -78,6 +78,8 @@ public:
 
 	//Contact listener
 
+	void MagnetScan();
+
 	//What happens at start of collision
 	void BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB);
 	//What happens at end of collision

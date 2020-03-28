@@ -38,13 +38,14 @@ public:
 	void SetRoom(Scene* room) override;
 	void DashUpdate();
 
-	
+	void SetMagnetDist(float x)override { m_closestMagnetDistance = x; }
+	void SetCloseMagnet(b2Fixture* x) { m_closestMagnet = x; }
 
-	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide
+	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange
 
 	 bool* Player_Status(unsigned int num)override
 	 {
-		 bool* player_status[9] = { &m_isPlayerOnGround ,  &m_isPlayerJumping , &m_isPlayerHeadCollide,  &m_isPlayerOnWall, &m_isPlayerOnCollision,  &m_isBroken, &m_magnetCollision, &m_isBulletHit, &m_isPlayerSideCollide };
+		 bool* player_status[11] = { &m_isPlayerOnGround ,  &m_isPlayerJumping , &m_isPlayerHeadCollide,  &m_isPlayerOnWall, &m_isPlayerOnCollision,  &m_isBroken, &m_magnetCollision, &m_isBulletHit, &m_isPlayerSideCollide, &m_moveToMagnet,&m_isMagnetInRange };
 
 		 return player_status[num];
 	 }
