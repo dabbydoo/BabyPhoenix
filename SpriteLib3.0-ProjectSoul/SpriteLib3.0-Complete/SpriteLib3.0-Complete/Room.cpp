@@ -18,7 +18,7 @@ void Room::InitScene(float windowWidth, float windowHeight)
 
 	CreateCamera(windowWidth, windowHeight);
 	
-	/*
+
 	if (m_name == "Start")
 	{
 
@@ -42,7 +42,7 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		CreateMainPlayer(10, 20, vec3(-43, -18, 50));
 		
 	}
-	*/
+	
 	if (m_name == "Hallway")
 	{
 		CreateBackground("Hallway Finished.png", vec2(480 / 4.5, 270 / 4.5));
@@ -565,9 +565,9 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		CreateMainPlayer(10, 20, vec3(0, 0, 50));
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
+
 	//INFESTED
-	
-	if (m_name == "Start")
+	if (m_name == "Infested")
 	{
 		CreateBackground("moninfest.png", vec2(1200 / 4.5, 1200 / 4.5));
 
@@ -1413,14 +1413,10 @@ void Room::GamepadDown(XInputController* con)
 	}
 	}
 
-	//shooting
-	{
-
-	}
 
 	//DASH
 	{
-		if (con->IsButtonPressed(Buttons::B)) {
+		if (con->IsButtonPressed(Buttons::B) && m_dashCounter == 1) {
 
 			b2Vec2 direction = b2Vec2(0.f, 0.f);
 			float magnitude = 50.f;
@@ -1698,11 +1694,11 @@ void Room::KeyboardDown()
 	}
 
 	//Shoot bullet
-	if (Input::GetKeyDown(Key::Space)&&!m_character_direction)
+	if (Input::GetKeyDown(Key::R)&&!m_character_direction)
 	{
 		ShootBullet(50);
 	}
-	if (Input::GetKeyDown(Key::Space)&&m_character_direction)
+	if (Input::GetKeyDown(Key::R)&&m_character_direction)
 	{
 		ShootBullet(-50);
 	}

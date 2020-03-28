@@ -47,6 +47,7 @@ void Game::InitGame()
 	m_scenes.push_back(new Room("Start"));
 	m_scenes.push_back(new Room("Hallway"));
 	m_scenes.push_back(new Room("Storage"));
+	m_scenes.push_back(new Room("Infested"));
 
 	
 	//Sets active scene reference to our scene
