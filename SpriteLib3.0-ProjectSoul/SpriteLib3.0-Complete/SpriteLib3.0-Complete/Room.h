@@ -2,7 +2,7 @@
 #include "Scene.h"
 #include "BackEnd.h"
 
-enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY, BULLET, BREAKABLE };
+enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY, BULLET, BREAKABLE, ENEMY };
 
 
 enum Anim {
@@ -89,6 +89,7 @@ private:
 	void CreateBackground(string fileName, vec2 size);
 	void CreateRoomBoundary();
 	void CreateMainPlayer(int width, int height, vec3 position);
+	void CreateRangedEnemy(int width, int height, vec3 position);
 	void CreatePlatform(string fileName, vec2 size, vec2 position);
 	void CreateMagnet(vec2 size, vec2 position);
 	void CreateEdge(b2Vec2 point1, b2Vec2 point2, fixtureName fixtureName, bool sensor = false);
@@ -142,7 +143,7 @@ private:
  unsigned int m_breakableUserData;
 
 
- vector<Enemy> enemies;
+ vector<unsigned int> enemies;
  unsigned int m_background;
  float m_playerGravity = 7;
 
