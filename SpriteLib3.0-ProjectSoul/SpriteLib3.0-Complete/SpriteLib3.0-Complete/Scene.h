@@ -33,8 +33,7 @@ public:
 	virtual void SetAction(bool dash=false, bool magnet = false, bool shoot = false) {}
 	virtual void SetBody(b2Body* body){}
 
-	virtual void SetMagnetDist(float x){}
-	virtual void SetCloseMagnet(b2Fixture* x){}
+	
 
 
 	virtual void SetRoom(Scene* room) {}
@@ -47,6 +46,7 @@ public:
 
 	virtual void SetClosestMagnetDistance(float dist){}
 	virtual float GetClosestMagnetDistance(){ return NULL; }
+	virtual  b2Fixture* GetClosestMagnet() { return NULL; }
 	virtual void SetClosestMagnet(b2Fixture* x){}
 	virtual bool GetIfMagentInRange() { return NULL; }
 	virtual void SetIfMagentInRange(bool range){}

@@ -1378,6 +1378,8 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 		b2Fixture* leftSensorFixture = body->CreateFixture(&fixtureDef);
 		leftSensorFixture->SetUserData((void*)SIDESENSOR);
 
+		m_playerBody = ECS::GetComponent<PhysicsBody>(entity).GetBody();
+
 		//Sets up the Identifier
 		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit()|EntityIdentifier::healthBarBit();
 		ECS::SetUpIdentifier(entity, bitHolder, "Main Player");
@@ -1915,7 +1917,7 @@ void Room::GamepadStick(XInputController* con)
 		if (direction.Length() > 0)
 			m_playerBody->SetLinearVelocity(b2Vec2(direction.x * velocity, direction.y * velocity));
 
-		if (!m_isDashing)
+		if (sticks[0].x <= 0.2f && sticks[0].x >= -.2f &&!m_isDashing)
 		{
 			if (sticks[0].x < 0.2f && sticks[0].x > -0.2f)
 				m_playerBody->SetLinearVelocity(b2Vec2(0, m_playerBody->GetLinearVelocity().y));
@@ -1959,7 +1961,6 @@ void Room::GamepadTrigger(XInputController* con)
 	if (con->IsButtonPressed(Buttons::RB)) {
 		if (m_isMagnetInRange)
 		{
-			cout << "I am in here";
 			m_moveToMagnet = true;
 			bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5
 				&& (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y) < 0.5;
@@ -1972,10 +1973,13 @@ void Room::GamepadTrigger(XInputController* con)
 				m_playerBody->SetGravityScale(0);
 				m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
 			}
-			else
+			else {
+				m_playerBody->SetGravityScale(7);
 				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
-		}
+			}
+			}
 	}
+	
 }
 
 void Room::KeyboardHold()
@@ -2000,6 +2004,7 @@ void Room::KeyboardHold()
 				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
 		}
 	}
+	
 
 
 	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
@@ -2138,25 +2143,9 @@ void Room::KeyboardDown()
 
 void Room::KeyboardUp()
 {
-	if (Input::GetKeyUp(Key::Enter))
-	{
-		if (m_isMagnetInRange)
-		{
-			m_moveToMagnet = true;
-			bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5
-				&& (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y) < 0.5;
-
-			if (!distanceReached)
-			{
-				float speed = 50;
-				b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
-				velocity.Normalize();
-				m_playerBody->SetGravityScale(0);
-				m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
-			}
-			else
-				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
-		}
+	if (Input::GetKeyUp(Key::Enter)) {
+		m_playerBody->SetGravityScale(7);
+		m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
 	}
 	//Set linear velocity of x to zero when A or D key is up and is not dashing
 	if ((Input::GetKeyUp(Key::A) || Input::GetKeyUp(Key::D)) && !m_isDashing)

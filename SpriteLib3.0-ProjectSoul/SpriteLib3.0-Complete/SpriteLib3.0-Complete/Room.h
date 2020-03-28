@@ -38,8 +38,6 @@ public:
 	void SetRoom(Scene* room) override;
 	void DashUpdate();
 
-	void SetMagnetDist(float x)override { m_closestMagnetDistance = x; }
-	void SetCloseMagnet(b2Fixture* x) { m_closestMagnet = x; }
 
 	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange
 
@@ -54,8 +52,11 @@ public:
 	 void SetBulletHitUserData(unsigned int ID)  override { m_bulletHitUserData = ID; }
 	 void SetClosestMagnetDistance(float dist) override { m_closestMagnetDistance = dist; }
 	 float GetClosestMagnetDistance() override { return m_closestMagnetDistance; }
-	 void SetClosestMagnet(b2Fixture* x) override{ m_closestMagnet = x; }
+	
+	 void SetClosestMagnet(b2Fixture* x) { m_closestMagnet = x; }
+	 b2Fixture* GetClosestMagnet() override{ return m_closestMagnet; }
 	 bool GetIfMagentInRange()override { return m_isMagnetInRange; }
+	
 	 void SetIfMagentInRange(bool range)override { m_isMagnetInRange=range; }
 	 void SetBody(b2Body* body)override { m_playerBody = body; }
 

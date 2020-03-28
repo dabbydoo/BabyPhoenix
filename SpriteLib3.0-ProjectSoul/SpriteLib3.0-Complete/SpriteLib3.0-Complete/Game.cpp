@@ -47,6 +47,7 @@ void Game::InitGame()
 	m_scenes.push_back(new Room("Start"));
 	m_scenes.push_back(new Room("Hallway"));
 	m_scenes.push_back(new Room("Storage"));
+	m_scenes.push_back(new Room("Vent"));
 	m_scenes.push_back(new Room("Infested"));
 
 	
@@ -64,7 +65,6 @@ void Game::InitGame()
 
 	//Set contact listener
 	listener.SetGame(this);
-	m_activeScene->SetBody(m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody());
 	m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
 
 	//Get player body
@@ -124,7 +124,7 @@ void Game::Update()
 {
 	//Update timer
 	Timer::Update();
-	
+
 	//Update Physics System
 	PhysicsSystem::Update(m_register, m_activeScene->GetPhysicsWorld());
 	//Update the backend
@@ -143,16 +143,18 @@ void Game::Update()
 			m_changeScene = false;
 		}
 
-	}	
+	}
 
 	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken,
 	/*6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange*/
 
-	bool m_moveToMagnet = m_activeScene->Player_Status(9);
-	bool m_magnetCollision = m_activeScene->Player_Status(6);
+	bool* m_moveToMagnet = m_activeScene->Player_Status(9);
+	bool* m_magnetCollision = m_activeScene->Player_Status(6);
 
-	if (!m_moveToMagnet && !m_magnetCollision)
-		MagnetScan();
+	//cout << *m_moveToMagnet << " " << *m_magnetCollision << endl;
+
+	if (!*m_moveToMagnet && !*m_magnetCollision)
+	MagnetScan();
 
 	//Updates the active scene
 	m_activeScene->Update();
@@ -462,7 +464,6 @@ void Game::MagnetScan()
 
 	{
 		b2Vec2 point1(m_playerBody->GetPosition());
-		RayCastClosestCallback callback;
 		float distance = 40.f;
 		float angleRAD = 0;
 		b2Fixture* fixture = NULL;
@@ -470,11 +471,12 @@ void Game::MagnetScan()
 		float fraction = 0;
 
 		//2 means no magnet in range
-		m_activeScene->SetMagnetDist(2);
+		m_activeScene->SetClosestMagnetDistance(2);
 
 		//Reset closest magnet
-		m_activeScene->SetCloseMagnet(nullptr);
+		auto* temp = m_activeScene->GetClosestMagnet();
 
+		temp = nullptr;
 		//Magnet scanning 360 degrees
 		for (int angleDEG = 0; angleDEG <= 360; ++angleDEG)
 		{
@@ -484,7 +486,7 @@ void Game::MagnetScan()
 
 			b2Vec2 point2 = point1 + d;
 
-			m_activeScene->GetPhysicsWorld().RayCast(&callback, point1, point2);
+			m_activeScene->GetPhysicsWorld().RayCast(&rayCastCallBack, point1, point2);
 		}
 	}
 }
@@ -684,21 +686,22 @@ float Game::RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction)
 		float angleDeg = atan((fixturePoint.y - playerPoint.y) / (fixturePoint.x - playerPoint.x)) * 180.0f / b2_pi;
 
 		//Get closest magnet fixture and the distance
-		if (f == 8)
+		if (f == MAGNET)
 		{
 			if (fraction < m_activeScene->GetClosestMagnetDistance())
 			{
 			m_activeScene->SetClosestMagnetDistance(fraction);
 			m_activeScene->SetClosestMagnet(fixture);
 			}
-			//cout << "Angle: " << angleDeg << "  Fraction: " << fraction << endl;
 		}
+
+		auto* status = m_activeScene->Player_Status(10);
 
 		//Flagging magnet in range
 		if (m_activeScene->GetClosestMagnetDistance() <= 1)
-			m_activeScene->SetIfMagentInRange(true);
+			*status = true;
 		else
-			m_activeScene->SetIfMagentInRange(false);
+			*status = false;
 
 		return 0.0f;
 	}
