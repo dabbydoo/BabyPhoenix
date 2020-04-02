@@ -1,9 +1,13 @@
 #pragma once
 #include"Scene.h"
+#include "BackEnd.h"
 
 class Start : public Scene
 {
 public:
+
+	Start():Scene("Title") {}
+
 	Start(string name);
 
 	void InitScene(float windowWidth, float windowHeight) override;
@@ -19,11 +23,16 @@ public:
 	 void KeyboardDown() override;
 	 void KeyboardUp() override;
 
+	 vec2 ConvertToGl(vec2 clickCoord);
 	  void MouseMotion(SDL_MouseMotionEvent evnt) override;
 	  void MouseClick(SDL_MouseButtonEvent evnt) override;
 	  void MouseWheel(SDL_MouseWheelEvent evnt) override;
 private:
-	
+
+	unsigned int index=0;
+
+	vector<unsigned int>all_components;
+
 	unsigned int Start_entity, instruction_entity, exit_entity, endlessMode_entity;
 
 };

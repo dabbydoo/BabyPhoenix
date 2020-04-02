@@ -1,0 +1,78 @@
+{
+	"frames": [
+		{
+			"filename": "Start WHITE.png",
+			"frame": {
+				"x": 1,
+				"y": 1,
+				"w": 265,
+				"h": 73
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 265,
+				"h": 73
+			},
+			"sourceSize": {
+				"w": 265,
+				"h": 73
+			}
+		},
+		{
+			"filename": "Start YELLOW.png",
+			"frame": {
+				"x": 268,
+				"y": 1,
+				"w": 265,
+				"h": 73
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 265,
+				"h": 73
+			},
+			"sourceSize": {
+				"w": 265,
+				"h": 73
+			}
+		},
+		{
+			"filename": "Z_Arrow.png",
+			"frame": {
+				"x": 535,
+				"y": 1,
+				"w": 114,
+				"h": 94
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 114,
+				"h": 94
+			},
+			"sourceSize": {
+				"w": 114,
+				"h": 94
+			}
+		}
+	],
+	"meta": {
+		"app": "http://www.codeandweb.com/texturepacker",
+		"version": "1.0",
+		"image": "spritesheet.png",
+		"format": "RGBA8888",
+		"size": {
+			"w": 650,
+			"h": 96
+		},
+		"scale": "1"
+	}
+}

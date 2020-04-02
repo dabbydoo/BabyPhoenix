@@ -80,6 +80,7 @@ public:
 	void MouseClick(SDL_MouseButtonEvent evnt) override;
 	void MouseWheel(SDL_MouseWheelEvent evnt) override;
 
+<<<<<<< HEAD
 	//Enemy
 	void SetEnemyBulletHit(bool isHit) override { m_isEnemyBulletHit = isHit; };
 	void SetEnemyBulletHitUserData(unsigned int ID) override { m_enemyBulletHitUserData = ID; };
@@ -88,6 +89,9 @@ public:
 	//ACCESSSING THE IT IN THE GAME
 
 	//the direction of the character 0/false is right || || 1/true is left
+=======
+	
+>>>>>>> master
 	//Flag for if player on ground
 
 	
@@ -130,6 +134,7 @@ private:
 
  //the direction of the character 0/false is right || || 1/true is left
  bool m_character_direction = false;
+ //the direction of the character 0/false is right || || 1/true is left
 
  b2Vec2 m_initVelocity;
 
