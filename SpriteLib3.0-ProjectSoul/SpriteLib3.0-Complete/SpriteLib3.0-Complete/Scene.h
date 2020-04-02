@@ -32,7 +32,8 @@ public:
 	virtual bool CanDash() { return NULL; }
 	virtual void SetAction(bool dash=false, bool magnet = false, bool shoot = false) {}
 	virtual void SetBody(b2Body* body){}
-
+	virtual b2Body* GetBody() { return NULL; };
+	virtual void SetInitPlayerPos(vec3 pos) {}
 	
 
 
@@ -50,6 +51,11 @@ public:
 	virtual void SetClosestMagnet(b2Fixture* x){}
 	virtual bool GetIfMagentInRange() { return NULL; }
 	virtual void SetIfMagentInRange(bool range){}
+
+	//Enemy
+	virtual void SetEnemyBulletHit(bool isHit) {};
+	virtual void SetEnemyBulletHitUserData(unsigned int ID) {}
+	virtual void SetEnemyBeingHit(b2Body* enemyBody) {};
 
 	//Gamepad Input
 	//Because these are virtual you can override them in your inherited classes.

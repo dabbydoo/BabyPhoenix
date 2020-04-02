@@ -85,13 +85,15 @@ public:
 	//What happens at end of collision
 	void EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB);
 
-	//Change room sccene
-	void ChangeRoom(RoomName room);
+	
 	float RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction);
 
 	Scene* m_activeScene = nullptr;
 
 private:
+	//Change room sccene
+	void ChangeRoom(RoomName room, vec3 pos);
+	void ChangeRoomUpdate();
 
 	unsigned int m_pauseID = 0;
 
@@ -126,6 +128,7 @@ private:
 	//Scene
 	bool m_changeScene = false;
 
+	b2Vec2 m_playerPreviousPos;
 	
 };
 

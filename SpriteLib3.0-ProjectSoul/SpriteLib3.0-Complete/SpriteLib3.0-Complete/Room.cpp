@@ -1,5 +1,5 @@
 #include "Room.h"
-#include"Xinput.h"
+#include "Xinput.h"
 
 
 Room::Room(string name)
@@ -17,8 +17,7 @@ void Room::InitScene(float windowWidth, float windowHeight)
 	ECS::AttachRegister(m_sceneReg);
 
 	CreateCamera(windowWidth, windowHeight);
-	
-	
+	 
 	if (m_name == "Start")
 	{
 
@@ -39,9 +38,34 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		CreateMagnet(vec2(4, 4), vec2(-10, 5));
 
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
-		CreateMainPlayer(10, 20, vec3(-43, -18, 50));
-		CreateRangedEnemy(10, 20, vec3(-35, -18, 50));
-		
+	
+		if (m_enemies.size() == 0)
+		{
+			Enemy enemy;
+			enemy.CreateBody(vec2(10, 20), b2Vec2(20, -25), m_physicsWorld);
+			enemy.Patrol(-30);
+			m_enemies.push_back(enemy);
+		}
+		else if (!m_enemies[0].m_isDead)
+		{
+			m_enemies[0].CreateBody(vec2(10, 20), b2Vec2(20, -25), m_physicsWorld);
+			m_enemies[0].Patrol(-30);
+		}
+
+		if (m_enemies.size() == 1)
+		{
+			Enemy enemy2;
+			enemy2.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy2.Patrol(30);
+			m_enemies.push_back(enemy2);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
+
+		CreateMainPlayer(10, 20, m_initPlayerPos);		
 	}
 	
 	if (m_name == "Hallway")
@@ -274,10 +298,25 @@ void Room::InitScene(float windowWidth, float windowHeight)
 				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
 		}
 
-		//Doorway
+		//Doorway on right
 		CreateDoorWay(b2Vec2(53, -20));
+		//Doorway on left
+		CreateDoorWay(b2Vec2(-53, -20));
 
-		CreateMainPlayer(10 / 1.3, 20 / 1.3, vec3(-44, -13, 50));
+		if (m_enemies.size() == 0)
+		{
+			Enemy enemy;
+			enemy.CreateBody(vec2(10, 20), b2Vec2(20, -25), m_physicsWorld);
+			enemy.Patrol(-30);
+			m_enemies.push_back(enemy);
+		}
+		else if (!m_enemies[0].m_isDead)
+		{
+			m_enemies[0].CreateBody(vec2(10, 20), b2Vec2(20, -25), m_physicsWorld);
+			m_enemies[0].Patrol(-30);
+		}
+
+		CreateMainPlayer(10 / 1.3, 20 / 1.3, m_initPlayerPos);
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
 
@@ -500,7 +539,11 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		CreateMagnet(vec2(2, 2), vec2(3.17, 0.72));
 		//CreateMagnet("magnetTemp.PNG", vec2(2, 2), vec2(31.90 , 0.72));
 		//CreateDestructable("enemy.PNG", vec2(4, 4), vec2(39, -22));
-		CreateMainPlayer(10 / 1.9, 20 / 1.9, vec3(-48, -23, 50));
+
+		//Doorway on left
+		CreateDoorWay(b2Vec2(-53, -20));
+
+		CreateMainPlayer(10 / 1.9, 20 / 1.9, m_initPlayerPos);
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
 	
@@ -1148,6 +1191,7 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
 	
+	cout << "Num of Enemies : " << m_enemies.size() << endl;
 	//Set camera scroll focus to  main player
 	ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
 	ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
@@ -1312,7 +1356,7 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 		animation.AddAnimation(movement["Gun_Shoot_Left"]);
 
 		animation.SetActiveAnim(0);
-
+		
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, width, height, true, &animation);
 
 		//Player position
@@ -1387,104 +1431,6 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 	}
 }
 
-void Room::CreateRangedEnemy(int width, int height, vec3 position)
-{
-	//Ranged Enemy
-	{
-		//Creates entity
-		auto entity = ECS::CreateEntity();
-
-		enemies.push_back(entity);
-
-		//Add components
-		ECS::AttachComponent<Sprite>(entity);
-		ECS::AttachComponent<Transform>(entity);
-		ECS::AttachComponent<PhysicsBody>(entity);
-
-		string filename = "Ranged.png";
-		ECS::AttachComponent<AnimationController>(entity);
-
-		auto movement = File::LoadJSON("Ranged.json");
-
-		auto& animation = ECS::GetComponent<AnimationController>(entity);
-
-		animation.InitUVs(filename);
-
-		animation.AddAnimation(movement["Left"]);
-		animation.AddAnimation(movement["Right"]);
-
-		animation.SetActiveAnim(0);
-
-		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, width, height, true, &animation);
-
-		//Enemy position
-		vec3 position(position.x, position.y, position.z);
-
-		ECS::GetComponent<Transform>(entity).SetPosition(position);
-
-		auto& sprite = ECS::GetComponent<Sprite>(entity);
-		auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
-
-		//Create box2d body
-		b2Body* body;
-		b2BodyDef bodyDef;
-
-		//Set body type
-		bodyDef.type = b2_dynamicBody;
-
-		//Set position of body
-		bodyDef.position.Set(float32(position.x), float32(position.y));
-
-		//Set body rotation to false
-		bodyDef.fixedRotation = true;
-
-		//Set user data and create body in scene
-		bodyDef.userData = ((void*)ENEMY);
-		body = m_physicsWorld->CreateBody(&bodyDef);
-
-		//Set gravity scale
-		body->SetGravityScale(7);
-
-		//Construct box collider 
-		phsBody = PhysicsBody(body, float(sprite.GetWidth()), float(sprite.GetHeight() * 0.9),
-			vec2(0.f, 0.f), false, 2.5f);
-
-		b2PolygonShape shape;
-		b2FixtureDef fixtureDef;
-
-		//Create foot sensor
-		shape.SetAsBox(float(sprite.GetWidth()) * (2.3f / 5.f), float(sprite.GetHeight()) * (1.f / 10.f), b2Vec2(0, -float(sprite.GetHeight()) / 2.5f), 0);
-		fixtureDef.shape = &shape;
-		fixtureDef.isSensor = true;
-		b2Fixture* footSensorFixture = body->CreateFixture(&fixtureDef);
-		footSensorFixture->SetUserData((void*)ENEMY);
-
-		//Create head sensor
-		shape.SetAsBox(float(sprite.GetWidth()) * (2.3f / 5.f), float(sprite.GetHeight()) * (1.f / 10.f), b2Vec2(0, float(sprite.GetHeight()) / 2.5f), 0);
-		fixtureDef.shape = &shape;
-		fixtureDef.isSensor = true;
-		b2Fixture* headSensorFixture = body->CreateFixture(&fixtureDef);
-		headSensorFixture->SetUserData((void*)ENEMY);
-
-		//Create Right side sensor
-		shape.SetAsBox(float(sprite.GetWidth()) * (1.f / 10.f), float(sprite.GetHeight()) * (2.1f / 5.f), b2Vec2(float(sprite.GetWidth()) / 2.5f, 0), 0);
-		fixtureDef.shape = &shape;
-		fixtureDef.isSensor = true;
-		b2Fixture* rightSensorFixture = body->CreateFixture(&fixtureDef);
-		rightSensorFixture->SetUserData((void*)ENEMY);
-
-		//Create Left side sensor
-		shape.SetAsBox(float(sprite.GetWidth()) * (1.f / 10.f), float(sprite.GetHeight()) * (2.1f / 5.f), b2Vec2(-float(sprite.GetWidth()) / 2.5f, 0), 0);
-		fixtureDef.shape = &shape;
-		fixtureDef.isSensor = true;
-		b2Fixture* leftSensorFixture = body->CreateFixture(&fixtureDef);
-		leftSensorFixture->SetUserData((void*)ENEMY);
-
-		//Sets up the Identifier
-		unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
-		ECS::SetUpIdentifier(entity, bitHolder, "Ranged Enemy");
-	}
-}
 
 void Room::CreatePlatform(string fileName, vec2 size, vec2 position)
 {
@@ -2255,6 +2201,12 @@ void Room::ProjectileUpdate()
 		ECS::DestroyEntity(m_bulletHitUserData);
 		m_isBulletHit = false;
 	}
+	if (m_isEnemyBulletHit)
+	{
+		ECS::GetComponent<PhysicsBody>(m_enemyBulletHitUserData).DeleteBody();
+		ECS::DestroyEntity(m_enemyBulletHitUserData);
+		m_isEnemyBulletHit = false;
+	}
 }
 
 void Room::BreakableUpdate()
@@ -2273,10 +2225,30 @@ void Room::BreakableUpdate()
 //the room's update function
 void Room::Update()
 {
-	
 	ProjectileUpdate();
 	DashUpdate();
 
-	/*if (!m_moveToMagnet && !m_magnetCollision)
-		MagnetScan();*/
+	for (int i = m_enemies.size() - 1; i >= 0; i--)
+	{
+		if(!m_enemies[i].m_isDead)
+			m_enemies[i].Update();
+
+		if (m_enemies[i].GetBody() == m_enemyBeingHit)
+		{
+
+			m_enemies[i].SetHealth((m_enemies[i].GetHealth() > 0 ? m_enemies[i].GetHealth() - 1 : 0));
+			if (m_enemies[i].GetHealth() == 0)
+			{
+				m_enemies[i].Delete();
+			}
+			m_enemyBeingHit = nullptr;
+		}
+
+		if (m_enemies.at(i).GetHealth() == 0)
+		{
+			//m_enemies.erase(m_enemies.begin() + i);
+			m_enemies.at(i).m_isDead = true;
+		}
+	}
+
 }

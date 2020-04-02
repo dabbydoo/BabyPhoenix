@@ -130,20 +130,7 @@ void Game::Update()
 	//Update the backend
 	BackEnd::Update(m_register);
 
-	if (m_changeScene) {
-		if (m_activeScene->GetName() == "Start")
-		{
-			ChangeRoom(HALLWAY);
-			m_changeScene = false;
-		}
-
-		else if (m_activeScene->GetName() == "Hallway")
-		{
-			ChangeRoom(STORAGE);
-			m_changeScene = false;
-		}
-
-	}
+	ChangeRoomUpdate();
 
 	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken,
 	/*6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange*/
@@ -567,19 +554,41 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		m_activeScene->SetBreakableUserData((unsigned int)fixtureA->GetBody()->GetUserData());
 	}
 
-	//Bullet collision
-	if (f1 == BULLET && f2 != PLAYER && f2 != SIDESENSOR)
+	//Player Bullet vs environment collision
+	if (f1 == BULLET && f2 != PLAYER && f2 != SIDESENSOR && f2 != ENEMYBULLET)
 	{
 		auto* status = m_activeScene->Player_Status(7);
 		*status = true;
 		m_activeScene->SetBulletHitUserData((unsigned int)fixtureA->GetBody()->GetUserData());
-	
 	}
-	if (f2 == BULLET && f1 != PLAYER && f1 != SIDESENSOR)
+	if (f2 == BULLET && f1 != PLAYER && f1 != SIDESENSOR && f2 != ENEMYBULLET)
 	{
 		auto* status = m_activeScene->Player_Status(7);
 		*status = true;
 		m_activeScene->SetBulletHitUserData((unsigned int)fixtureB->GetBody()->GetUserData());
+	}
+
+	//Player bullet vs Enemy collision
+	if (f1 == BULLET && f2 == ENEMY)
+	{
+		m_activeScene->SetEnemyBeingHit(fixtureB->GetBody());
+	}
+	if (f1 == ENEMY && f2 == BULLET)
+	{
+		m_activeScene->SetEnemyBeingHit(fixtureA->GetBody());
+	}
+
+	//Enemy Bullet vs environment collision
+	if (f1 == ENEMYBULLET && f2 != ENEMY && f2 != BULLET)
+	{
+		m_activeScene->SetEnemyBulletHit(true);
+		m_activeScene->SetEnemyBulletHitUserData((unsigned int)fixtureA->GetBody()->GetUserData());
+
+	}
+	if (f2 == ENEMYBULLET && f1 != ENEMY && f1 != BULLET)
+	{
+		m_activeScene->SetEnemyBulletHit(true);
+		m_activeScene->SetEnemyBulletHitUserData((unsigned int)fixtureB->GetBody()->GetUserData());
 	}
 
 	//Check if player collides with doorway
@@ -651,13 +660,15 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 
 }
 
-void Game::ChangeRoom(RoomName room)
+void Game::ChangeRoom(RoomName room, vec3 pos)
 {
 	m_scenes[room]->SetRoom(m_activeScene);
 
 	m_activeScene->Unload();
 
 	m_activeScene = m_scenes[room];
+
+	m_activeScene->SetInitPlayerPos(pos);
 
 	m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
 
@@ -672,8 +683,42 @@ void Game::ChangeRoom(RoomName room)
 	listener.SetGame(this);
 	m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
 	m_activeScene->SetBody(m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody());
+	
 	//Get player body
 	rayCastCallBack.SetGame(this);
+}
+
+void Game::ChangeRoomUpdate()
+{
+	if (m_changeScene) {
+		m_playerPreviousPos = m_activeScene->GetBody()->GetPosition();
+
+		if (m_activeScene->GetName() == "Start")
+		{
+			ChangeRoom(HALLWAY, vec3(-44, -13, 50));
+
+			m_changeScene = false;
+		}
+
+		else if (m_activeScene->GetName() == "Hallway")
+		{
+
+			if (m_playerPreviousPos.x < 0)
+				ChangeRoom(STARTING, vec3(43, -18, 50));
+			if (m_playerPreviousPos.x > 0)
+				ChangeRoom(STORAGE, vec3(-48, -23, 50));
+
+			m_changeScene = false;
+		}
+		else if (m_activeScene->GetName() == "Storage")
+		{
+			if (m_playerPreviousPos.x < 0)
+				ChangeRoom(HALLWAY, vec3(44, -15, 50));
+
+			m_changeScene = false;
+		}
+
+	}
 }
 
 float Game::RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction)

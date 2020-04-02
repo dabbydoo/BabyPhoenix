@@ -1,24 +1,25 @@
 #pragma once
 #include "Scene.h"
 #include "BackEnd.h"
-
-enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY, BULLET, BREAKABLE, ENEMY };
-
-
-enum Anim {
-	IDLE,
-	WALK = 2,
-	RUN = 4,
-	DASH = 6,
-	JUMP_BEGIN = 8,
-	JUMP_MIDDLE = 10,
-	JUMP_END = 12,
-	FALL = 14,
-	FLINCH = 16,
-	DEATH = 18,
-	SHOOT = 20,
-
-};
+#include "Enum.h"
+#include "Enemy.h"
+//enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY, BULLET, BREAKABLE, ENEMY };
+//
+//
+//enum Anim {
+//	IDLE,
+//	WALK = 2,
+//	RUN = 4,
+//	DASH = 6,
+//	JUMP_BEGIN = 8,
+//	JUMP_MIDDLE = 10,
+//	JUMP_END = 12,
+//	FALL = 14,
+//	FLINCH = 16,
+//	DEATH = 18,
+//	SHOOT = 20,
+//
+//};
 
 class Room : public Scene
 {
@@ -52,13 +53,16 @@ public:
 	 void SetBulletHitUserData(unsigned int ID)  override { m_bulletHitUserData = ID; }
 	 void SetClosestMagnetDistance(float dist) override { m_closestMagnetDistance = dist; }
 	 float GetClosestMagnetDistance() override { return m_closestMagnetDistance; }
-	
+
 	 void SetClosestMagnet(b2Fixture* x) { m_closestMagnet = x; }
-	 b2Fixture* GetClosestMagnet() override{ return m_closestMagnet; }
+	 b2Fixture* GetClosestMagnet() override { return m_closestMagnet; }
 	 bool GetIfMagentInRange()override { return m_isMagnetInRange; }
-	
-	 void SetIfMagentInRange(bool range)override { m_isMagnetInRange=range; }
+
+	 void SetIfMagentInRange(bool range)override { m_isMagnetInRange = range; }
 	 void SetBody(b2Body* body)override { m_playerBody = body; }
+	 b2Body* GetBody() override { return m_playerBody; };
+	 void SetInitPlayerPos(vec3 pos) override { m_initPlayerPos = pos; }
+
 
 	void ProjectileUpdate();
 	void BreakableUpdate();
@@ -76,6 +80,10 @@ public:
 	void MouseClick(SDL_MouseButtonEvent evnt) override;
 	void MouseWheel(SDL_MouseWheelEvent evnt) override;
 
+	//Enemy
+	void SetEnemyBulletHit(bool isHit) override { m_isEnemyBulletHit = isHit; };
+	void SetEnemyBulletHitUserData(unsigned int ID) override { m_enemyBulletHitUserData = ID; };
+	void SetEnemyBeingHit(b2Body* enemyBody) override { m_enemyBeingHit = enemyBody; };
 
 	//ACCESSSING THE IT IN THE GAME
 
@@ -90,7 +98,6 @@ private:
 	void CreateBackground(string fileName, vec2 size);
 	void CreateRoomBoundary();
 	void CreateMainPlayer(int width, int height, vec3 position);
-	void CreateRangedEnemy(int width, int height, vec3 position);
 	void CreatePlatform(string fileName, vec2 size, vec2 position);
 	void CreateMagnet(vec2 size, vec2 position);
 	void CreateEdge(b2Vec2 point1, b2Vec2 point2, fixtureName fixtureName, bool sensor = false);
@@ -126,7 +133,9 @@ private:
 
  b2Vec2 m_initVelocity;
 
+ //Player
  b2Body* m_playerBody;
+ vec3 m_initPlayerPos = vec3(-43, -18, 50);
 
  //Magnet
  bool m_isMagnetInRange = false;
@@ -144,8 +153,14 @@ private:
  unsigned int m_breakableUserData;
 
 
- vector<unsigned int> enemies;
  unsigned int m_background;
  float m_playerGravity = 7;
 
+ //Enemy
+ vector<Enemy> m_enemies;
+ b2Body* m_enemyBeingHit;
+ bool m_isEnemyBulletHit = false;
+ unsigned int m_enemyBulletHitUserData;
+ 
+bool m_firstTime = true;
 };
