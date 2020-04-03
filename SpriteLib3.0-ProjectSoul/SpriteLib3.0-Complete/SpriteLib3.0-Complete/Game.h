@@ -5,12 +5,15 @@
 #include "Projectile.h"
 #include"Room.h"
 #include"Start.h"
+#include"EndlessMode.h"
 
 
 enum RoomName {
+	ENDLESS=1,
 	STARTING,
 	HALLWAY,
-	STORAGE
+	STORAGE,
+	
 };
 
 //Our main class for running our game
@@ -92,13 +95,14 @@ public:
 
 private:
 
-	bool inMenu = true;
-
+	
+	bool Endless_selected = false;
 	//Change room sccene
 	void ChangeRoom(RoomName room, vec3 pos);
 	void ChangeRoomUpdate();
 
 	bool in_Menu = true;
+	bool Menu_unloaded = false;
 
 	unsigned int m_pauseID = 0;
 

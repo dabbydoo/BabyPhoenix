@@ -3,23 +3,7 @@
 #include "BackEnd.h"
 #include "Enum.h"
 #include "Enemy.h"
-//enum fixtureName { PLAYER = 1, FOOTSENSOR, HEADSENSOR, SIDESENSOR, GROUND, WALL, PLATFORM, MAGNET, DOORWAY, BULLET, BREAKABLE, ENEMY };
-//
-//
-//enum Anim {
-//	IDLE,
-//	WALK = 2,
-//	RUN = 4,
-//	DASH = 6,
-//	JUMP_BEGIN = 8,
-//	JUMP_MIDDLE = 10,
-//	JUMP_END = 12,
-//	FALL = 14,
-//	FLINCH = 16,
-//	DEATH = 18,
-//	SHOOT = 20,
-//
-//};
+
 
 class Room : public Scene
 {
@@ -40,7 +24,8 @@ public:
 	void DashUpdate();
 
 
-	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange
+	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken,
+	//6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange
 
 	 bool* Player_Status(unsigned int num)override
 	 {

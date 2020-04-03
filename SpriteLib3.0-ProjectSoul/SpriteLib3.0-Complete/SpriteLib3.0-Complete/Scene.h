@@ -27,6 +27,8 @@ public:
 
 	virtual void Update() {}
 
+	virtual void SetEndlessSelected(bool* end){ }
+
 	virtual bool CanShoot() { return NULL; }
 	virtual bool CanMagent() { return NULL; }
 	virtual bool CanDash() { return NULL; }

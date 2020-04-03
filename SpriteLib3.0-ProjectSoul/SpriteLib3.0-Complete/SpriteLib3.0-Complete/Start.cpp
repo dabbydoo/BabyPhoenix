@@ -1,5 +1,11 @@
 ﻿#include "Start.h"
 
+static unsigned entity;
+
+static bool is_Controls_Drawn = false;
+
+static bool is_Controls_in_use = false;
+
 Start::Start(string name)
 	:Scene(name)
 {
@@ -257,9 +263,7 @@ void Start::Update()
 
 void Start::GamepadStroke(XInputController* con)
 {
-	static unsigned entity;
-
-	static bool is_Controls_Drawn = false;
+	
 
 	//selected
 	if (con->IsButtonPressed(Buttons::A))
@@ -267,13 +271,14 @@ void Start::GamepadStroke(XInputController* con)
 		//Starts the game
 		if (all_components[index] == Start_entity)
 		{
-
+			*menu = false;
 		}
 
 		//Starts endless game
 		if (all_components[index] == endlessMode_entity)
 		{
-
+			*menu = false;
+			*endless = true;
 		}
 		//shows the controls
 		if (all_components[index] == controls_entity)
@@ -374,7 +379,7 @@ void Start::GamepadStick(XInputController* con)
 	static bool stop = false;
 
 	//going up
-	if (stick[0].y > 0.5f&&!stop) {
+	if (stick[0].y > 0.5f && !stop) {
 		auto tempIndex = index;
 
 		index = (index == 0) ? all_components.size() - 1 : index - 1;
@@ -489,11 +494,7 @@ void Start::KeyboardDown()
 
 		ECS::GetComponent<AnimationController>(all_components[index]).SetActiveAnim(1);
 	}
-	static unsigned entity;
-
-	static bool is_Controls_Drawn = false;
-
-	static bool is_Controls_in_use = false;
+	
 
 	//selected
 	if (Input::GetKeyDown(Key::Space)) {
@@ -501,13 +502,14 @@ void Start::KeyboardDown()
 		//Starts the game
 		if (all_components[index] == Start_entity)
 		{
-
+			*menu = false;
 		}
 
 		//Starts endless game
 		if (all_components[index] == endlessMode_entity)
 		{
-
+			*menu = false;
+			*endless = true;
 		}
 		//shows the controls
 		if (all_components[index] == controls_entity)
@@ -740,7 +742,7 @@ void Start::MouseClick(SDL_MouseButtonEvent evnt)
 
 		//in the parameters of start
 		if (mousePos.x >= StartX.x && mousePos.x <= StartX.y && mousePos.y >= StartY.x && mousePos.y <= StartY.y) {
-		
+			*menu = false;
 		}
 
 		auto EndlessPos = ECS::GetComponent<Transform>(endlessMode_entity).GetPosition();
@@ -756,7 +758,7 @@ void Start::MouseClick(SDL_MouseButtonEvent evnt)
 
 		//in the parameters of endless mode
 		if (mousePos.x >= EndlessX.x && mousePos.x <= EndlessX.y && mousePos.y >= EndlessY.x && mousePos.y <= EndlessY.y) {
-			
+			*endless = true;
 		}
 
 		auto controlsPos = ECS::GetComponent<Transform>(controls_entity).GetPosition();
@@ -772,7 +774,35 @@ void Start::MouseClick(SDL_MouseButtonEvent evnt)
 
 		//in the parameters of endless mode
 		if (mousePos.x >= controlsX.x && mousePos.x <= controlsX.y && mousePos.y >= controlsY.x && mousePos.y <= controlsY.y) {
-			
+
+			MakeTransparent();
+			if (!is_Controls_Drawn)
+			{
+				entity = ECS::CreateEntity();
+
+
+				ECS::AttachComponent<Sprite>(entity);
+				ECS::AttachComponent<Transform>(entity);
+
+				string filename = "Instruction.png";
+
+
+				ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 200, 160);
+
+				ECS::GetComponent<Transform>(entity).SetPosition(vec3(-10.16, -17.9, 100));
+
+				unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
+				ECS::SetUpIdentifier(entity, bitHolder, "Controls Image");
+
+				is_Controls_Drawn = true;
+				is_Controls_in_use = true;
+			}
+			else {
+				ECS::GetComponent<Sprite>(entity).SetTransparency(1);
+				is_Controls_in_use = true;
+			}
+
+
 		}
 
 		auto exitPos = ECS::GetComponent<Transform>(exit_entity).GetPosition();

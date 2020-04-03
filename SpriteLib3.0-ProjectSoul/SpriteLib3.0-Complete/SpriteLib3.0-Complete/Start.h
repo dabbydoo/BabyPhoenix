@@ -25,6 +25,8 @@ public:
 	 void KeyboardUp() override;
 
 	 void SetInMenu(bool* inMenu) { menu=inMenu; }
+	 
+	 void SetEndlessSelected(bool* end) { endless = end; }
 
 	 void MakeTransparent();
 
@@ -39,6 +41,8 @@ private:
 	unsigned int index=0;
 
 	bool* menu = nullptr;
+
+	bool* endless = nullptr;
 
 	vector<unsigned int>all_components;
 

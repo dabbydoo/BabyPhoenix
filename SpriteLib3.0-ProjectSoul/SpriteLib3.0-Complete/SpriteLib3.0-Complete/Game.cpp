@@ -6,6 +6,7 @@
 MyContactListener listener;
 RayCastClosestCallback rayCastCallBack;
 
+
 Game::~Game()
 {
 	//If window isn't equal to nullptr
@@ -39,6 +40,7 @@ void Game::InitGame()
 	//Replace this with your own scene.
 
 	m_scenes.push_back(new Start("Menu"));
+	m_scenes.push_back(new EndlessMode("Endless Mode"));
 	m_scenes.push_back(new Room("Start"));
 	m_scenes.push_back(new Room("Hallway"));
 	m_scenes.push_back(new Room("Storage"));
@@ -55,6 +57,7 @@ void Game::InitGame()
 	m_register = m_activeScene->GetScene();
 
 	m_activeScene->SetInMenu(&in_Menu);
+	m_activeScene->SetEndlessSelected(&Endless_selected);
 
 	BackEnd::SetWindowName(m_activeScene->GetName());
 
@@ -119,6 +122,7 @@ bool Game::Run()
 
 void Game::Update()
 {
+
 	//Update timer
 	Timer::Update();
 
@@ -129,7 +133,15 @@ void Game::Update()
 
 	ChangeRoomUpdate();
 
+
 	if (!in_Menu) {
+
+		if (!Menu_unloaded&&m_activeScene->GetName()=="Menu"&&!Endless_selected) {
+			ChangeRoom(STARTING,vec3(0,0,100));
+		}
+
+		if(!Menu_unloaded && m_activeScene->GetName() == "Menu" && Endless_selected)
+
 		if (m_changeScene) {
 			if (m_activeScene->GetName() == "Start")
 			{
@@ -158,8 +170,9 @@ void Game::Update()
 		if (!*m_moveToMagnet && !*m_magnetCollision)
 			MagnetScan();
 	}
-	else if (inMenu) {
-		m_activeScene->SetInMenu(&inMenu);
+	else if (in_Menu) {
+		m_activeScene->SetInMenu(&in_Menu);
+		m_activeScene->SetEndlessSelected(&Endless_selected);
 	}
 	
 	
@@ -682,7 +695,10 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 
 void Game::ChangeRoom(RoomName room, vec3 pos)
 {
+	if(m_activeScene->GetName()!="Menu")
 	m_scenes[room]->SetRoom(m_activeScene);
+	
+	Menu_unloaded = true;
 
 	m_activeScene->Unload();
 
