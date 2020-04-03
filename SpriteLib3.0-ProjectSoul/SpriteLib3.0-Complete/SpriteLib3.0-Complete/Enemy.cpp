@@ -195,14 +195,8 @@ void Enemy::ShootBullet(Direction dir)
 
 void Enemy::Delete()
 {
-	//Delete b2Body
-	//if (m_body != nullptr)
-	//	m_body->GetWorld()->DestroyBody(m_body);
-
-	//Delete entity
 	ECS::GetComponent<PhysicsBody>(m_enemyID).DeleteBody();
-	ECS::DestroyEntity(m_enemyID);
-	
+	ECS::DestroyEntity(m_enemyID);	
 }
 
 bool Enemy::checkPlayerInSight()

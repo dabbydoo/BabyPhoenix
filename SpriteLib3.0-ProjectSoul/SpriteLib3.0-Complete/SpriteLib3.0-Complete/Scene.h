@@ -35,7 +35,7 @@ public:
 	virtual b2Body* GetBody() { return NULL; };
 	virtual void SetInitPlayerPos(vec3 pos) {}
 	
-
+	virtual void SetInMenu(bool* inMenu){ }
 
 	virtual void SetRoom(Scene* room) {}
 

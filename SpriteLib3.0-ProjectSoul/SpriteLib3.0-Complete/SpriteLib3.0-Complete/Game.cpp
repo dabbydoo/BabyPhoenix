@@ -38,7 +38,7 @@ void Game::InitGame()
 	//Creates a new scene.
 	//Replace this with your own scene.
 
-	//m_scenes.push_back(new Start("Menu"));
+	m_scenes.push_back(new Start("Menu"));
 	m_scenes.push_back(new Room("Start"));
 	m_scenes.push_back(new Room("Hallway"));
 	m_scenes.push_back(new Room("Storage"));
@@ -53,6 +53,8 @@ void Game::InitGame()
 
 	//Sets m_register to point to the register in the active scene
 	m_register = m_activeScene->GetScene();
+
+	m_activeScene->SetInMenu(&in_Menu);
 
 	BackEnd::SetWindowName(m_activeScene->GetName());
 
@@ -127,17 +129,40 @@ void Game::Update()
 
 	ChangeRoomUpdate();
 
-	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken,
+	if (!in_Menu) {
+		if (m_changeScene) {
+			if (m_activeScene->GetName() == "Start")
+			{
+				ChangeRoom(HALLWAY,vec3(0,0,100));
+				m_changeScene = false;
+			}
+
+			else if (m_activeScene->GetName() == "Hallway")
+			{
+				ChangeRoom(STORAGE, vec3(0, 0, 100));
+				m_changeScene = false;
+			}
+
+		}
+
+
+		//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 
 	/*6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange*/
 
-	bool* m_moveToMagnet = m_activeScene->Player_Status(9);
-	bool* m_magnetCollision = m_activeScene->Player_Status(6);
 
-	//cout << *m_moveToMagnet << " " << *m_magnetCollision << endl;
+		bool* m_moveToMagnet = m_activeScene->Player_Status(9);
+		bool* m_magnetCollision = m_activeScene->Player_Status(6);
 
-	if (!*m_moveToMagnet && !*m_magnetCollision)
-	MagnetScan();
+		//cout << *m_moveToMagnet << " " << *m_magnetCollision << endl;
 
+		if (!*m_moveToMagnet && !*m_magnetCollision)
+			MagnetScan();
+	}
+	else if (inMenu) {
+		m_activeScene->SetInMenu(&inMenu);
+	}
+	
+	
 	//Updates the active scene
 	m_activeScene->Update();
 

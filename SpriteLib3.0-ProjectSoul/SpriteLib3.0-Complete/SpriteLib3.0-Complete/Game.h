@@ -91,9 +91,14 @@ public:
 	Scene* m_activeScene = nullptr;
 
 private:
+
+	bool inMenu = true;
+
 	//Change room sccene
 	void ChangeRoom(RoomName room, vec3 pos);
 	void ChangeRoomUpdate();
+
+	bool in_Menu = true;
 
 	unsigned int m_pauseID = 0;
 
