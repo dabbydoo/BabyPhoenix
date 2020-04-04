@@ -758,6 +758,7 @@ void Start::MouseClick(SDL_MouseButtonEvent evnt)
 
 		//in the parameters of endless mode
 		if (mousePos.x >= EndlessX.x && mousePos.x <= EndlessX.y && mousePos.y >= EndlessY.x && mousePos.y <= EndlessY.y) {
+			*menu = false;
 			*endless = true;
 		}
 

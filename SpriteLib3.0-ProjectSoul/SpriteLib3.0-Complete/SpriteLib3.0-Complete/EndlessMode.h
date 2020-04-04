@@ -4,15 +4,16 @@
 
 enum class Object {
 
-Enemy,
-Object,
-Floor,
-BackGround,
+ENEMY,
+OBJECT,
+FLOOR,
+BACKGROUND,
 
 };
 
 class InfoHolder {
 	public:
+		//Entity ID, Object type
 		InfoHolder(unsigned int ID, Object obj) { entityID = ID; object = obj; }
 
 		vec3 GetPos() { ECS::GetComponent<Transform>(entityID).GetPosition(); }
@@ -41,7 +42,8 @@ public:
 	void KeyboardHold() override;
 	void KeyboardDown() override;
 	void KeyboardUp() override;
-	
+
+	void SetInitPlayerPos(vec3 pos) override {}
 
 	void Update()override;
 
@@ -57,10 +59,18 @@ public:
 
 
 private:
+
+	vector<InfoHolder*>Enemy;
+	vector<InfoHolder*>Floor;
+	vector<InfoHolder*>Background;
+	vector<InfoHolder*>Obstacle;
+
 	vector<InfoHolder*>infoHolder;
 
-	const vec2 min = vec2(-100, -195);
+	const vec2 min = vec2(-178, -100);
 
-	const vec2 max = vec2(100, 195);
+	const vec2 max = vec2(178, 100);
+
+	unsigned int mouse;
 
 };

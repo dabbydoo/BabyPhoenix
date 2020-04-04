@@ -1318,7 +1318,7 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 		ECS::AttachComponent<PhysicsBody>(entity);
 		ECS::AttachComponent<HealthBar>(entity);
 
-		ECS::GetComponent<HealthBar>(entity).SetMaxHealth(3.f);
+		ECS::GetComponent<HealthBar>(entity).SetMaxHealth(4.f);
 
 		string filename = "entire_sheet.png";
 		ECS::AttachComponent<AnimationController>(entity);

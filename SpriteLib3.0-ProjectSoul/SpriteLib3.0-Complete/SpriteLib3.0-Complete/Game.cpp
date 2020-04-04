@@ -140,7 +140,8 @@ void Game::Update()
 			ChangeRoom(STARTING,vec3(0,0,100));
 		}
 
-		if(!Menu_unloaded && m_activeScene->GetName() == "Menu" && Endless_selected)
+		if (!Menu_unloaded && m_activeScene->GetName() == "Menu" && Endless_selected)
+			ChangeRoom(ENDLESS,vec3(-80,-75,100));
 
 		if (m_changeScene) {
 			if (m_activeScene->GetName() == "Start")
@@ -165,9 +166,8 @@ void Game::Update()
 		bool* m_moveToMagnet = m_activeScene->Player_Status(9);
 		bool* m_magnetCollision = m_activeScene->Player_Status(6);
 
-		//cout << *m_moveToMagnet << " " << *m_magnetCollision << endl;
 
-		if (!*m_moveToMagnet && !*m_magnetCollision)
+		if (!Endless_selected &&!*m_moveToMagnet && !*m_magnetCollision)
 			MagnetScan();
 	}
 	else if (in_Menu) {
@@ -718,6 +718,8 @@ void Game::ChangeRoom(RoomName room, vec3 pos)
 	//Set contact listener
 	listener.SetGame(this);
 	m_activeScene->GetPhysicsWorld().SetContactListener(&listener);
+
+	if(!Endless_selected)
 	m_activeScene->SetBody(m_register->get<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody());
 	
 	//Get player body
