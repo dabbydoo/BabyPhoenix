@@ -18,6 +18,7 @@ void Room::InitScene(float windowWidth, float windowHeight)
 
 	CreateCamera(windowWidth, windowHeight);
 	 
+	//Start Room
 	if (m_name == "Start")
 	{
 
@@ -64,11 +65,81 @@ void Room::InitScene(float windowWidth, float windowHeight)
 			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
 			m_enemies[1].Patrol(30);
 		}
+	
+		CreateMainPlayer(10, 20, 7, 16, vec2(0, -2), m_initPlayerPos);
+		//CreateMainPlayer(10, 20, m_initPlayerPos);		
+	}
 
-		CreateMainPlayer(10, 20, m_initPlayerPos);		
+	//HALLP1
+	if (m_name == "Hallway1")
+	{
+		CreateBackground("hallp1.png", vec2(460 / 4.5, 270 / 4.5));
+
+		auto entity = ECS::CreateEntity();
+		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
+		float thickness = 5;
+
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<PhysicsBody>(entity);
+
+		auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+		b2Body* body;
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_staticBody;
+		bodyDef.position.Set(0.f, 0.f);
+		b2FixtureDef myFixtureDef;
+
+		//Floor
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-51, -23.8624);
+			vertices[1].Set(51, -23.8624);
+			vertices[2].Set(51, -28.7004);
+			vertices[3].Set(-51, -28.7004);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+
+		//Left Wall
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(-bgEntity.GetWidth() / 2 - (thickness / 2), 0.f), false);
+		}
+
+		//Right Wall 
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
+		}
+		//Doorway on right
+		CreateDoorWay(b2Vec2(51, -20));
+		//Doorway on left
+		CreateDoorWay(b2Vec2(-51, -20));
+
+		CreateMainPlayer(10 / 1.3, 20 / 1.3, 7 / 1.3, 15 / 1.3, vec2(0, -2 / 1.3), m_initPlayerPos);
+
+		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
 	
-	if (m_name == "Hallway")
+	//Hallway2
+	if (m_name == "Hallway2")
 	{
 		CreateBackground("Hallway Finished.png", vec2(480 / 4.5, 270 / 4.5));
 		auto entity = ECS::CreateEntity();
@@ -315,12 +386,13 @@ void Room::InitScene(float windowWidth, float windowHeight)
 			m_enemies[0].CreateBody(vec2(10, 20), b2Vec2(20, -25), m_physicsWorld);
 			m_enemies[0].Patrol(-30);
 		}
+		
+		CreateMainPlayer(10 / 1.3, 20 / 1.3, 7 / 1.3, 15 / 1.3, vec2(0, -2 / 1.3), m_initPlayerPos);
 
-		CreateMainPlayer(10 / 1.3, 20 / 1.3, m_initPlayerPos);
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
 
-
+	//Storage
 	if (m_name == "Storage")
 	{
 		CreateBackground("Latest Version 2.png", vec2(480 / 4.5, 270 / 4.5));
@@ -537,16 +609,19 @@ void Room::InitScene(float windowWidth, float windowHeight)
 				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
 		}
 		CreateMagnet(vec2(2, 2), vec2(3.17, 0.72));
-		//CreateMagnet("magnetTemp.PNG", vec2(2, 2), vec2(31.90 , 0.72));
-		//CreateDestructable("enemy.PNG", vec2(4, 4), vec2(39, -22));
 
 		//Doorway on left
 		CreateDoorWay(b2Vec2(-53, -20));
 
-		CreateMainPlayer(10 / 1.9, 20 / 1.9, m_initPlayerPos);
+		//Doorway to vent
+		CreateDoorWay(b2Vec2(41.5, 26), vec2(7, 0.5));
+
+		CreateMainPlayer(10 / 1.9, 20 / 1.9, 7 / 1.9, 15 / 1.9, vec2(0, -1), m_initPlayerPos);
+
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
 	
+	//Vent
 	if (m_name == "Vent")
 	{
 		CreateBackground("Vent.png", vec2(900 / 4.5, 1170 / 4.5));
@@ -862,12 +937,351 @@ void Room::InitScene(float windowWidth, float windowHeight)
 			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
 				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
 		}
-		CreateMainPlayer(8, 16, vec3(-67.5406, 111.672, 100));
+		//Doorway on left
+		CreateDoorWay(b2Vec2(-77, 95), vec2(10, 0.5));
+
+		//Doorway on bottom right
+		CreateDoorWay(b2Vec2(55, -90), vec2(20, 0.5));
+
+		CreateMainPlayer(10, 20, 7, 15, vec2(0, -2), m_initPlayerPos);
+		//CreateMainPlayer(8, 16, vec3(-67.5406, 111.672, 100));
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
-	
+
+
+	//BOSS ROOM
+	if (m_name == "BossRoom")
+	{
+		CreateBackground("boss.png", vec2(460 / 4.5, 270 / 4.5));
+
+		auto entity = ECS::CreateEntity();
+		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
+		float thickness = 5;
+
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<PhysicsBody>(entity);
+
+		auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+		b2Body* body;
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_staticBody;
+		bodyDef.position.Set(0.f, 0.f);
+		b2FixtureDef myFixtureDef;
+
+		//Floor
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-45.9541, -25.422);
+			vertices[1].Set(-25.7706, -25.422);
+			vertices[2].Set(-25.7706, -28.7004);
+			vertices[3].Set(-45.9541, -28.7004);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-16.9633, -25.422);
+			vertices[1].Set(18.5379, -25.422);
+			vertices[2].Set(18.5379, -28.7004);
+			vertices[3].Set(-16.9633, -28.7004);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(27.789, -25.422);
+			vertices[1].Set(50.7248, -25.422);
+			vertices[2].Set(50.7248, -28.7004);
+			vertices[3].Set(27.789, -28.7004);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-46.9551, 3.70911);
+			vertices[1].Set(-33.0724, 3.70911);
+			vertices[2].Set(-33.0724, 2.86018);
+			vertices[3].Set(-46.9551, 2.86018);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-7.53559, -2.6829);
+			vertices[1].Set(7.28089, -2.6829);
+			vertices[2].Set(7.28089, -3.53183);
+			vertices[3].Set(-7.53559, -3.53183);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(34.221, 3.85893);
+			vertices[1].Set(48.2534, 3.85893);
+			vertices[2].Set(48.2534, 2.91011);
+			vertices[3].Set(34.221, 2.91011);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-51, -2.13358);
+			vertices[1].Set(-46.0062, -2.13358);
+			vertices[2].Set(-46.0062, -25.3546);
+			vertices[3].Set(-51, -25.3546);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		//Left Wall
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(-bgEntity.GetWidth() / 2 - (thickness / 2), 0.f), false);
+		}
+
+		//Right Wall 
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
+		}
+
+		//Ceiling
+		{
+			bodyDef.userData = ((void*)PLATFORM);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, float(bgEntity.GetWidth()), thickness,
+				vec2(0.f, bgEntity.GetHeight() / 2 + (thickness / 2)), false);
+		}
+		CreateMagnet(vec2(10, 5), vec2(-17.9413, 24.3558));
+		CreateMagnet(vec2(10, 5), vec2(21.0599, 24.3059));
+
+		//Doorway on right
+		CreateDoorWay(b2Vec2(51, -15));
+
+		CreateMainPlayer(8, 16, 8, 16, vec2(0, 0), m_initPlayerPos);
+		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
+	}
+
+	//ARMORY
+	if (m_name == "Armory")
+	{
+		CreateBackground("armory.png", vec2(460 / 4.5, 270 / 4.5));
+
+		auto entity = ECS::CreateEntity();
+		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
+		float thickness = 5;
+
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<PhysicsBody>(entity);
+
+		auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+		b2Body* body;
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_staticBody;
+		bodyDef.position.Set(0.f, 0.f);
+		b2FixtureDef myFixtureDef;
+
+		//Floor
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-49.0025, -26.603);
+			vertices[1].Set(0.635452, -26.603);
+			vertices[2].Set(0.635452, -28.7503);
+			vertices[3].Set(-49.0025, -28.7503);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[3];
+			vertices[0].Set(0.635452, -25.0537);
+			vertices[1].Set(21.3371, -14.3184);
+			vertices[2].Set(21.3371, -26.0537);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 3); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(21.3371, -14.3184);
+			vertices[1].Set(50.9501, -14.3184);
+			vertices[2].Set(50.9501, -23.3071);
+			vertices[3].Set(21.3371, -23.3071);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-46.8052, 29);
+			vertices[1].Set(-0.0362034, 29);
+			vertices[2].Set(-0.0362034, 18.6629);
+			vertices[3].Set(-46.8052, 18.6629);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[3];
+			vertices[0].Set(-0.0362034, 28.9001);
+			vertices[1].Set(18.241, 28.9001);
+			vertices[2].Set(-0.0362034, 18.6629);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 3); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		//Left Wall
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(-bgEntity.GetWidth() / 2 - (thickness / 2), 0.f), false);
+		}
+
+		//Right Wall 
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
+		}
+
+		//Ceiling
+		{
+			bodyDef.userData = ((void*)PLATFORM);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, float(bgEntity.GetWidth()), thickness,
+				vec2(0.f, bgEntity.GetHeight() / 2 + (thickness / 2)), false);
+		}
+
+		//Doorway on left-
+		CreateDoorWay(b2Vec2(51, -15));
+		//Doorway on right
+		CreateDoorWay(b2Vec2(51, -15));
+
+		CreateMainPlayer(10, 20, 8, 16, vec2(0, -2), m_initPlayerPos);
+
+		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
+	}
+
 	//INFESTED
-	if (m_name == "Infested")
+	if (m_name == "Infest")
 	{
 		CreateBackground("moninfest.png", vec2(1200 / 4.5, 1200 / 4.5));
 
@@ -1170,7 +1584,7 @@ void Room::InitScene(float windowWidth, float windowHeight)
 				vec2(-bgEntity.GetWidth() / 2 - (thickness / 2), 0.f), false);
 		}
 
-		//Right Wall
+		//Right Wall 
 		{
 			bodyDef.userData = ((void*)WALL);
 			body = m_physicsWorld->CreateBody(&bodyDef);
@@ -1187,11 +1601,339 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		CreateMagnet(vec2(10, 5), vec2(-22.0795, -29.2955));
 		CreateMagnet(vec2(10, 5), vec2(47.0852, 88.9823));
 		CreateMagnet(vec2(10, 5), vec2(-14.7432, 89.1034));
-		CreateMainPlayer(10, 20, vec3(0, 0, 100));
+		CreateForeground("fence.png", vec2(105, 9.5), vec2(-79.9726, -38.4034));
+		CreateMainPlayer(10, 20, 10, 20, vec2(0, 0), m_initPlayerPos);
+		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(40);
+	}
+
+
+	//HP ROOM
+	if (m_name == "HPUpgrade")
+	{
+		CreateBackground("hproom.png", vec2(480 / 4.5, 270 / 4.5));
+
+		auto entity = ECS::CreateEntity();
+		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
+		float thickness = 5;
+
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<PhysicsBody>(entity);
+
+		auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+		b2Body* body;
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_staticBody;
+		bodyDef.position.Set(0.f, 0.f);
+		b2FixtureDef myFixtureDef;
+
+		//Floor
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-53, -23.9563);
+			vertices[1].Set(52.9001, -23.9563);
+			vertices[2].Set(52.9001, -28.7503);
+			vertices[3].Set(-53, -28.7503);
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-50.6529, -3.33208);
+			vertices[1].Set(-39.7166, -3.33208);
+			vertices[2].Set(-39.7166, -4.33084);
+			vertices[3].Set(-50.6529, -4.33084);
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-21.1898, 12.3473);
+			vertices[1].Set(-9.95381, 12.3473);
+			vertices[2].Set(-9.95381, 11.3486);
+			vertices[3].Set(-21.1898, 11.3486);
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(10.4707, 21.0864);
+			vertices[1].Set(43.9114, 21.0864);
+			vertices[2].Set(43.9114, 20.0563);
+			vertices[3].Set(10.4707, 20.0563);
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-53, 50);
+			vertices[1].Set(-29.7291, 50);
+			vertices[2].Set(-29.7291, 29);
+			vertices[3].Set(-53, 17.3146);
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		//Left Wall
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(-bgEntity.GetWidth() / 2 - (thickness / 2), 0.f), false);
+		}
+
+		//Right Wall 
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
+		}
+		CreateMainPlayer(8, 16, 8, 16, vec2(0, 0), vec3(43.412, -17.4644, 100));
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
+
+	//MAGNET ROOM    
+	if (m_name == "MagnetUpgrade")
+	{
+		CreateBackground("magroom.png", vec2(480 / 4.5, 270 / 4.5));
+
+		auto entity = ECS::CreateEntity();
+		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
+		float thickness = 5;
+
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<PhysicsBody>(entity);
+
+		auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+		b2Body* body;
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_staticBody;
+		bodyDef.position.Set(0.f, 0.f);
+		b2FixtureDef myFixtureDef;
+
+		//Floor
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-53, 15.2437);
+			vertices[1].Set(-34.2734, 15.2437);
+			vertices[2].Set(-34.2734, -6.72882);
+			vertices[3].Set(-53, -6.72882);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-34.2734, -6.72882);
+			vertices[1].Set(-17.7441, -6.72882);
+			vertices[2].Set(-17.7441, -17.2647);
+			vertices[3].Set(-34.2734, -17.2647);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-17.7441, -17.2647);
+			vertices[1].Set(52.9501, -17.3146);
+			vertices[2].Set(52.9501, -28.4507);
+			vertices[3].Set(-17.7441, -28.4507);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+
+		//Left Wall
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(-bgEntity.GetWidth() / 2 - (thickness / 2), 0.f), false);
+		}
+
+		//Right Wall 
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
+		}
+		CreateMainPlayer(8, 16, 8, 16, vec2(0, 0), vec3(43.412, -17.4644, 100));
+		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
+	}
+
+	//MAGNET PRACTICE
+	if (m_name == "MagnetPractice")
+	{
+		CreateBackground("magpractice.png", vec2(960 / 4.5, 270 / 4.5));
+
+		auto entity = ECS::CreateEntity();
+		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
+		float thickness = 5;
+
+		ECS::AttachComponent<Transform>(entity);
+		ECS::AttachComponent<PhysicsBody>(entity);
+
+		auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+		b2Body* body;
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_staticBody;
+		bodyDef.position.Set(0.f, 0.f);
+		b2FixtureDef myFixtureDef;
+
+		//Floor
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(80.2322, -20.0612);
+			vertices[1].Set(105.9, -20.0612);
+			vertices[2].Set(105.9, -28.7004);
+			vertices[3].Set(80.2322, -28.7004);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-22.8049, -20.1111);
+			vertices[1].Set(21.6395, -20.1111);
+			vertices[2].Set(21.6395, -28.7503);
+			vertices[3].Set(-22.8049, -28.7503);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+		{
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			b2Vec2 vertices[4];
+			vertices[0].Set(-106, -20.0612);
+			vertices[1].Set(-82.4794, -20.0612);
+			vertices[2].Set(-82.4794, -28.8002);
+			vertices[3].Set(-106, -28.8002);
+
+
+			b2PolygonShape polygonShape;
+			polygonShape.Set(vertices, 4); //pass array to the shape
+
+			myFixtureDef.shape = &polygonShape; //change the shape of the fixture
+			myFixtureDef.userData = ((void*)PLATFORM);
+			body->CreateFixture(&myFixtureDef);
+		}
+
+
+		//Left Wall
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(-bgEntity.GetWidth() / 2 - (thickness / 2), 0.f), false);
+		}
+
+		//Right Wall 
+		{
+			bodyDef.userData = ((void*)WALL);
+			body = m_physicsWorld->CreateBody(&bodyDef);
+
+			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
+				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
+		}
+		CreateMagnet(vec2(10, 5), vec2(-48.9214, 2.91011));
+		CreateMagnet(vec2(10, 5), vec2(51.32, 3.00999));
+		CreateMainPlayer(8, 16, 8, 16, vec2(0, 0), vec3(-99.7578, -14.3683, 100));
+		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
+	}
+
 	
-	cout << "Num of Enemies : " << m_enemies.size() << endl;
 	//Set camera scroll focus to  main player
 	ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
 	ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
@@ -1241,8 +1983,10 @@ void Room::CreateBackground(string fileName, vec2 size)
 	ECS::AttachComponent<Sprite>(entity);
 	ECS::AttachComponent<Transform>(entity);
 
+
 	ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, size.x, size.y);
 	ECS::GetComponent<Transform>(entity).SetPosition(vec3(0.f, 0.f, 1.f));
+
 
 	unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 	ECS::SetUpIdentifier(entity, bitHolder, "bgImage");
@@ -1305,7 +2049,7 @@ void Room::CreateRoomBoundary()
 }
 
 
-void Room::CreateMainPlayer(int width, int height, vec3 position)
+void Room::CreateMainPlayer(int spriteWidth, int spriteHeight, float colliderWidth, float colliderHeight, vec2 colliderOffset, vec3 position)
 {
 	//Main Player
 	{
@@ -1357,7 +2101,7 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 
 		animation.SetActiveAnim(0);
 		
-		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, width, height, true, &animation);
+		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, spriteWidth, spriteHeight, true, &animation);
 
 		//Player position
 		vec3 position(position.x, position.y, position.z);
@@ -1388,8 +2132,8 @@ void Room::CreateMainPlayer(int width, int height, vec3 position)
 		body->SetGravityScale(7);
 
 		//Construct box collider 
-		phsBody = PhysicsBody(body, float(sprite.GetWidth()), float(sprite.GetHeight() * 0.9),
-			vec2(0.f, 0.f), false, 2.5f);
+		phsBody = PhysicsBody(body, colliderWidth, colliderHeight,
+			colliderOffset, false, 2.5f);
 
 		b2PolygonShape shape;
 		b2FixtureDef fixtureDef;
@@ -1548,7 +2292,7 @@ void Room::CreateDestructable(string fileName, vec2 size, vec2 position)
 	ECS::SetUpIdentifier(entity, bitHolder, "Breakable");
 }
 
-void Room::CreateDoorWay(b2Vec2 position)
+void Room::CreateDoorWay(b2Vec2 position, vec2 size)
 {
 	//Creates entity
 	auto entity = ECS::CreateEntity();
@@ -1576,12 +2320,27 @@ void Room::CreateDoorWay(b2Vec2 position)
 	body->SetGravityScale(0);
 
 	//Create collider
-	phsBody = PhysicsBody(body, 0.5f, 20.f,
+	phsBody = PhysicsBody(body, size.x, size.y,
 		vec2(0.f, 0.f), true, DOORWAY, true);
 
 	//Sets up the Identifier
 	unsigned int bitHolder = EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 	ECS::SetUpIdentifier(entity, bitHolder, "Doorway");
+}
+
+void Room::CreateForeground(string fileName, vec2 size, vec2 position)
+{
+	auto entity = ECS::CreateEntity();
+
+	ECS::AttachComponent<Sprite>(entity);
+	ECS::AttachComponent<Transform>(entity);
+
+
+	ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, size.x, size.y);
+	ECS::GetComponent<Transform>(entity).SetPosition(vec3(position.x, position.y, 100.f));
+
+	unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+	ECS::SetUpIdentifier(entity, bitHolder, "fgImage");
 }
 
 void Room::ShootBullet(float velocity)
@@ -2081,6 +2840,15 @@ void Room::KeyboardDown()
 			else
 				m_initDashOnWall = false;
 
+			// Flag whether initial dash position during head collision
+			if (m_isPlayerHeadCollide)
+			{
+				cout << "initdashHEAD\n";
+				m_initDashHeadCollide = true;
+			}
+			else
+				m_initDashHeadCollide = false;
+
 			//Set velocity
 			m_playerBody->SetGravityScale(0);
 			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
@@ -2146,7 +2914,7 @@ void Room::DashUpdate()
 		float dashTime = .3;
 
 		//End dash when head sensor collides with platform 
-		if (m_isPlayerHeadCollide)
+		if (m_isPlayerHeadCollide && !m_initDashHeadCollide)
 		{
 			m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
 			m_playerBody->SetGravityScale(m_playerGravity);

@@ -75,12 +75,13 @@ private:
 	void CreateCamera(float windowWidth, float windowHeight);
 	void CreateBackground(string fileName, vec2 size);
 	void CreateRoomBoundary();
-	void CreateMainPlayer(int width, int height, vec3 position);
+	void CreateMainPlayer(int spriteWidth, int spriteHeight, float colliderWidth, float colliderHeight, vec2 colliderOffset, vec3 position);
 	void CreatePlatform(string fileName, vec2 size, vec2 position);
 	void CreateMagnet(vec2 size, vec2 position);
 	void CreateEdge(b2Vec2 point1, b2Vec2 point2, fixtureName fixtureName, bool sensor = false);
 	void CreateDestructable(string fileName, vec2 size, vec2 position);
-	void CreateDoorWay(b2Vec2 position);
+	void CreateDoorWay(b2Vec2 position, vec2 size = vec2(0.5f, 20.f));
+	void CreateForeground(string fileName, vec2 size, vec2 position);
 
 	void ShootBullet(float velocity);
 	vec2 ConvertToGl(vec2 clickCoord);
@@ -105,6 +106,7 @@ private:
  bool m_initDashOnGround = true; //Flag for if initial dash started on ground
  bool m_initDashOnWall = false; //Flag for if initial dash started on the wall
  bool m_isDashing = false; //Flag for if currently dashing
+ bool m_initDashHeadCollide = false;
 
  //the direction of the character 0/false is right || || 1/true is left
  bool m_character_direction = false;
@@ -114,7 +116,7 @@ private:
 
  //Player
  b2Body* m_playerBody;
- vec3 m_initPlayerPos = vec3(-43, -18, 50);
+ vec3 m_initPlayerPos = vec3(-43, -17, 50);
 
  //Magnet
  bool m_isMagnetInRange = false;

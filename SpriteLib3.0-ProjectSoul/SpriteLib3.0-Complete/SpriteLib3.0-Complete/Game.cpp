@@ -39,17 +39,29 @@ void Game::InitGame()
 	//Creates a new scene.
 	//Replace this with your own scene.
 
+<<<<<<< Updated upstream
 	m_scenes.push_back(new Start("Menu"));
 	m_scenes.push_back(new EndlessMode("Endless Mode"));
+=======
+	//m_scenes.push_back(new Start("Menu"));
+	
+>>>>>>> Stashed changes
 	m_scenes.push_back(new Room("Start"));
-	m_scenes.push_back(new Room("Hallway"));
+	m_scenes.push_back(new Room("Hallway1"));
+	m_scenes.push_back(new Room("Hallway2"));
 	m_scenes.push_back(new Room("Storage"));
 	m_scenes.push_back(new Room("Vent"));
-	m_scenes.push_back(new Room("Infested"));
+	m_scenes.push_back(new Room("BossRoom"));
+	m_scenes.push_back(new Room("Armory"));
+	m_scenes.push_back(new Room("Infest"));
+	m_scenes.push_back(new Room("HPUpgrade"));
+	m_scenes.push_back(new Room("MagnetUpgrade"));
+	m_scenes.push_back(new Room("MagnetPractice"));
 
 	
+	
 	//Sets active scene reference to our scene
-	m_activeScene = m_scenes[0];
+	m_activeScene = m_scenes[5];
 
 	m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
 
@@ -504,6 +516,7 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		auto* status = m_activeScene->Player_Status(3);
 		*status = true;
 	}
+
 	//Check if Player headsensor begin collision with platform 
 	if ((f1 == HEADSENSOR && f2 == PLATFORM)
 		|| (f2 == HEADSENSOR && f1 == PLATFORM))
@@ -511,6 +524,7 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		auto* status = m_activeScene->Player_Status(2);
 		*status = true;
 	}
+
 	//Check if Player sideSensor begin collision with platform 
 	if ((f1 == SIDESENSOR && f2 == PLATFORM)
 		|| (f2 == SIDESENSOR && f1 == PLATFORM))
@@ -518,13 +532,15 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		auto* status = m_activeScene->Player_Status(8);
 		*status = true;
 	}
-	//Check if Player begin collision with any entity that isn't a ground, platform, or wall
-	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL && f2 != MAGNET)
-		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL && f1 != MAGNET))
+
+	//Check if Player end collision with any entity that isn't a ground, platform, wall, magnet, enemy, enemybullet
+	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL && f2 != MAGNET && f2 != ENEMY && f2 != ENEMYBULLET)
+		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL && f1 != MAGNET && f1 != ENEMY && f1 != ENEMYBULLET))
 	{
 		auto* status = m_activeScene->Player_Status(4);
 		*status = true;
 	}
+
 	//Check if player collides with magnet
 	if ((f1 == PLAYER && f2 == MAGNET)
 		|| ((f2 == PLAYER) && f1 == MAGNET))
@@ -533,19 +549,19 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		*status = true;
 	}
 
-	//Breakable collision
-	if (f1 == BULLET && f2 == BREAKABLE)
-	{
-		auto* status = m_activeScene->Player_Status(5);
-		*status = true;
-		m_activeScene->SetBreakableUserData((unsigned int)fixtureB->GetBody()->GetUserData());
-	}
-	if (f2 == BULLET && f1 == BREAKABLE)
-	{
-		auto* status = m_activeScene->Player_Status(5);
-		*status = true;
-		m_activeScene->SetBreakableUserData((unsigned int)fixtureA->GetBody()->GetUserData());
-	}
+	////Breakable collision
+	//if (f1 == BULLET && f2 == BREAKABLE)
+	//{
+	//	auto* status = m_activeScene->Player_Status(5);
+	//	*status = true;
+	//	m_activeScene->SetBreakableUserData((unsigned int)fixtureB->GetBody()->GetUserData());
+	//}
+	//if (f2 == BULLET && f1 == BREAKABLE)
+	//{
+	//	auto* status = m_activeScene->Player_Status(5);
+	//	*status = true;
+	//	m_activeScene->SetBreakableUserData((unsigned int)fixtureA->GetBody()->GetUserData());
+	//}
 
 	//Player Bullet vs environment collision
 	if (f1 == BULLET && f2 != PLAYER && f2 != SIDESENSOR && f2 != ENEMYBULLET)
@@ -603,9 +619,12 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	//Check if Player footSensor end contact with ground or platform
 	if ((f1 == FOOTSENSOR && (f2 == GROUND || f2 == PLATFORM))
 		|| ((f2 == FOOTSENSOR) && (f1 == GROUND || f1 == PLATFORM)))
+	{
+		if (!m_activeScene->Player_Status(0))
 		{
-		auto* status = m_activeScene->Player_Status(0);
-		*status = false;
+			auto* status = m_activeScene->Player_Status(0);
+			*status = false;
+		}
 	}
 
 	//Check if Player sidesensor end collision with wall
@@ -621,7 +640,7 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	if ((f1 == HEADSENSOR && f2 == PLATFORM)
 		|| (f2 == HEADSENSOR && f1 == PLATFORM))
 	{
-		auto* status = m_activeScene->Player_Status(3);
+		auto* status = m_activeScene->Player_Status(2);
 		*status = false;
 	}
 
@@ -634,9 +653,10 @@ void Game::EndCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		*status = false;
 	}
 
-	//Check if Player end collision with any entity that isn't a ground, platform, or wall
-	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL && f2 != MAGNET)
-		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL && f1 != MAGNET))
+
+	//Check if Player end collision with any entity that isn't a ground, platform, wall, magnet, enemy, enemybullet
+	if ((f1 == PLAYER && f2 != GROUND && f2 != PLATFORM && f2 != WALL && f2 != MAGNET && f2 != ENEMY && f2 != ENEMYBULLET)
+		|| (f2 == PLAYER && f1 != GROUND && f1 != PLATFORM && f1 != WALL && f1 != MAGNET && f1 != ENEMY && f1 != ENEMYBULLET))
 	{
 		auto* status = m_activeScene->Player_Status(4);
 		*status = false;
@@ -700,6 +720,7 @@ void Game::ChangeRoomUpdate()
 		if (m_changeScene&&Menu_unloaded&&!Endless_selected) {
 			m_playerPreviousPos = m_activeScene->GetBody()->GetPosition();
 
+<<<<<<< Updated upstream
 			if (m_activeScene->GetName() == "Start")
 			{
 				ChangeRoom(HALLWAY, vec3(-44, -13, 50));
@@ -721,6 +742,64 @@ void Game::ChangeRoomUpdate()
 			{
 				if (m_playerPreviousPos.x < 0)
 					ChangeRoom(HALLWAY, vec3(44, -15, 50));
+=======
+		if (m_activeScene->GetName() == "Start")
+		{
+			
+			ChangeRoom(HALLWAY1, vec3(-44.1086, -17.1648, 100));
+			m_changeScene = false;
+		}
+		else if (m_activeScene->GetName() == "Hallway1")
+		{
+
+			if (m_playerPreviousPos.x < 0)
+				ChangeRoom(STARTING, vec3(43, -17, 50));
+			if (m_playerPreviousPos.x > 0)
+				ChangeRoom(HALLWAY2, vec3(-44, -15, 50));
+
+			m_changeScene = false;
+		}
+		else if (m_activeScene->GetName() == "Hallway2")
+		{
+
+			if (m_playerPreviousPos.x < 0)
+				ChangeRoom(HALLWAY1, vec3(43, -17, 50));
+			if (m_playerPreviousPos.x > 0)
+				ChangeRoom(STORAGE, vec3(-48, -22, 50));
+
+			m_changeScene = false;
+		}
+		else if (m_activeScene->GetName() == "Storage")
+		{
+			if (m_playerPreviousPos.x < 0)
+				ChangeRoom(HALLWAY2, vec3(44, -15, 50));
+			if (m_playerPreviousPos.x > 0 && m_playerPreviousPos.y > 0)
+				ChangeRoom(VENT, vec3(-67.5406, 114.672, 100));
+
+			m_changeScene = false;
+		}
+		else if (m_activeScene->GetName() == "Vent")
+		{
+			if (m_playerPreviousPos.x < -65 && m_playerPreviousPos.y > 90)
+				ChangeRoom(STORAGE, vec3(39, 20, 50));
+			if (m_playerPreviousPos.x > 30 && m_playerPreviousPos.y < -80)
+				ChangeRoom(BOSS, vec3(-44.1086, 10.1648, 100));
+
+			m_changeScene = false;
+		}
+		else if (m_activeScene->GetName() == "BossRoom")
+		{
+			ChangeRoom(ARMORY, vec3(-40.1086, -15.1648, 100));
+
+			m_changeScene = false;
+		}
+		else if (m_activeScene->GetName() == "Armory")
+		{
+			if(m_playerPreviousPos.x < 0)
+				ChangeRoom(BOSS, vec3(45.1086, -10, 100));
+			if(m_playerPreviousPos.x > 0)
+				ChangeRoom(INFESTED, vec3(0, 0, 100));
+>>>>>>> Stashed changes
 
 				m_changeScene = false;
 			}
