@@ -116,7 +116,7 @@ private:
 
  //Player
  b2Body* m_playerBody;
- vec3 m_initPlayerPos = vec3(-43, -17, 50);
+ vec3 m_initPlayerPos = vec3(-120, -30, 100);//vec3(-43, -17, 50);
 
  //Magnet
  bool m_isMagnetInRange = false;

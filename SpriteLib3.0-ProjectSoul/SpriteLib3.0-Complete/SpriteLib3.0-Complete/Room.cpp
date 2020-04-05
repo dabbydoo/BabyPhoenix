@@ -1154,7 +1154,6 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		b2FixtureDef myFixtureDef;
 
 		//Floor
-
 		{
 			body = m_physicsWorld->CreateBody(&bodyDef);
 
@@ -1270,10 +1269,10 @@ void Room::InitScene(float windowWidth, float windowHeight)
 				vec2(0.f, bgEntity.GetHeight() / 2 + (thickness / 2)), false);
 		}
 
-		//Doorway on left-
-		CreateDoorWay(b2Vec2(51, -15));
+		//Doorway on left
+		CreateDoorWay(b2Vec2(-50, -15));
 		//Doorway on right
-		CreateDoorWay(b2Vec2(51, -15));
+		CreateDoorWay(b2Vec2(50, -15));
 
 		CreateMainPlayer(10, 20, 8, 16, vec2(0, -2), m_initPlayerPos);
 
@@ -1602,6 +1601,10 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		CreateMagnet(vec2(10, 5), vec2(47.0852, 88.9823));
 		CreateMagnet(vec2(10, 5), vec2(-14.7432, 89.1034));
 		CreateForeground("fence.png", vec2(105, 9.5), vec2(-79.9726, -38.4034));
+
+		//Doorway on left
+		CreateDoorWay(b2Vec2(-133, -35));
+
 		CreateMainPlayer(10, 20, 10, 20, vec2(0, 0), m_initPlayerPos);
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(40);
 	}
@@ -2695,26 +2698,26 @@ void Room::GamepadTrigger(XInputController* con)
 
 void Room::KeyboardHold()
 {
-	if (Input::GetKey(Key::Enter))
-	{
-		if (m_isMagnetInRange)
-		{
-			m_moveToMagnet = true;
-			bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5
-				&& (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y) < 0.5;
+	//if (Input::GetKey(Key::Enter))
+	//{
+	//	if (m_isMagnetInRange)
+	//	{
+	//		m_moveToMagnet = true;
+	//		bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5
+	//			&& (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y) < 0.5;
 
-			if (!distanceReached)
-			{
-				float speed = 50;
-				b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
-				velocity.Normalize();
-				m_playerBody->SetGravityScale(0);
-				m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
-			}
-			else
-				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
-		}
-	}
+	//		if (!distanceReached)
+	//		{
+	//			float speed = 50;
+	//			b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
+	//			velocity.Normalize();
+	//			m_playerBody->SetGravityScale(0);
+	//			m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
+	//		}
+	//		else
+	//			m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
+	//	}
+	//}
 	
 
 
@@ -2859,13 +2862,35 @@ void Room::KeyboardDown()
 			m_initVelocity = m_playerBody->GetLinearVelocity();
 		}
 	}
+
+	if (Input::GetKey(Key::Enter))
+	{
+		if (m_isMagnetInRange)
+		{
+			m_moveToMagnet = true;
+			bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5
+				&& (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y) < 0.5;
+
+			if (!distanceReached)
+			{
+				float speed = 50;
+				b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
+				velocity.Normalize();
+				m_playerBody->SetGravityScale(0);
+				m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
+			}
+			else
+				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
+		}
+	}
 }
 
 void Room::KeyboardUp()
 {
 	if (Input::GetKeyUp(Key::Enter)) {
-		m_playerBody->SetGravityScale(7);
-		m_playerBody->SetLinearVelocity(b2Vec2(0, 0));
+		m_moveToMagnet = false;
+		m_playerBody->SetGravityScale(m_playerGravity);
+		m_playerBody->ApplyForce(b2Vec2(0, -0.01), m_playerBody->GetWorldCenter(), true);
 	}
 	//Set linear velocity of x to zero when A or D key is up and is not dashing
 	if ((Input::GetKeyUp(Key::A) || Input::GetKeyUp(Key::D)) && !m_isDashing)

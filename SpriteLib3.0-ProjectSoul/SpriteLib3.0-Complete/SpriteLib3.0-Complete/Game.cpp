@@ -57,7 +57,7 @@ void Game::InitGame()
 	
 	
 	//Sets active scene reference to our scene
-	m_activeScene = m_scenes[5];
+	m_activeScene = m_scenes[0];
 
 	m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
 
@@ -442,8 +442,6 @@ void Game::MouseWheel(SDL_MouseWheelEvent evnt)
 
 void Game::MagnetScan()
 {
-	//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 
-	/*6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange*/
 
 	auto* m_playerBody = ECS::GetComponent<PhysicsBody>(EntityIdentifier::MainPlayer()).GetBody();
 
@@ -459,9 +457,9 @@ void Game::MagnetScan()
 		m_activeScene->SetClosestMagnetDistance(2);
 
 		//Reset closest magnet
-		auto* temp = m_activeScene->GetClosestMagnet();
+		/*auto* temp = */m_activeScene->SetClosestMagnet(NULL);
 
-		temp = nullptr;
+		/*temp = nullptr;*/
 		//Magnet scanning 360 degrees
 		for (int angleDEG = 0; angleDEG <= 360; ++angleDEG)
 		{
@@ -707,7 +705,7 @@ void Game::ChangeRoomUpdate()
 	if (!in_Menu) {
 
 		if (!Menu_unloaded && m_activeScene->GetName() == "Menu" && !Endless_selected) {
-			ChangeRoom(STARTING, vec3(0, 0, 100));
+			ChangeRoom(STARTING, vec3(-43, -17, 50));
 		}
 
 		if (!Menu_unloaded && m_activeScene->GetName() == "Menu" && Endless_selected)
@@ -769,9 +767,9 @@ void Game::ChangeRoomUpdate()
 		else if (m_activeScene->GetName() == "Armory")
 		{
 			if(m_playerPreviousPos.x < 0)
-				ChangeRoom(BOSS, vec3(45.1086, -10, 100));
+				ChangeRoom(BOSS, vec3(45.1086, -15, 100));
 			if(m_playerPreviousPos.x > 0)
-				ChangeRoom(INFESTED, vec3(0, 0, 100));
+				ChangeRoom(INFESTED, vec3(-120, -40, 100));
 
 
 				m_changeScene = false;
@@ -789,7 +787,9 @@ void Game::ChangeRoomUpdate()
 
 
 		if (!Endless_selected && !*m_moveToMagnet && !*m_magnetCollision)
+		{
 			MagnetScan();
+		}
 	}
 	else if (in_Menu) {
 		m_activeScene->SetInMenu(&in_Menu);
@@ -811,8 +811,8 @@ float Game::RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction)
 		{
 			if (fraction < m_activeScene->GetClosestMagnetDistance())
 			{
-			m_activeScene->SetClosestMagnetDistance(fraction);
-			m_activeScene->SetClosestMagnet(fixture);
+				m_activeScene->SetClosestMagnetDistance(fraction);
+				m_activeScene->SetClosestMagnet(fixture);
 			}
 		}
 
