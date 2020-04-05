@@ -11,14 +11,9 @@
 enum RoomName {
 	ENDLESS=1,
 	STARTING,
-<<<<<<< Updated upstream
-	HALLWAY,
 	STORAGE,
-	
-=======
 	HALLWAY1,
 	HALLWAY2,
-	STORAGE,
 	VENT,
 	BOSS,
 	ARMORY,
@@ -26,7 +21,7 @@ enum RoomName {
 	HPUPGRADE,
 	MAGNETUPGRADE,
 	MAGNETPRACTICE
->>>>>>> Stashed changes
+
 };
 
 //Our main class for running our game

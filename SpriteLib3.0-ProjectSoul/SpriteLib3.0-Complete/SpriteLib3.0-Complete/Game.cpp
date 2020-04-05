@@ -39,13 +39,9 @@ void Game::InitGame()
 	//Creates a new scene.
 	//Replace this with your own scene.
 
-<<<<<<< Updated upstream
+
 	m_scenes.push_back(new Start("Menu"));
 	m_scenes.push_back(new EndlessMode("Endless Mode"));
-=======
-	//m_scenes.push_back(new Start("Menu"));
-	
->>>>>>> Stashed changes
 	m_scenes.push_back(new Room("Start"));
 	m_scenes.push_back(new Room("Hallway1"));
 	m_scenes.push_back(new Room("Hallway2"));
@@ -720,29 +716,6 @@ void Game::ChangeRoomUpdate()
 		if (m_changeScene&&Menu_unloaded&&!Endless_selected) {
 			m_playerPreviousPos = m_activeScene->GetBody()->GetPosition();
 
-<<<<<<< Updated upstream
-			if (m_activeScene->GetName() == "Start")
-			{
-				ChangeRoom(HALLWAY, vec3(-44, -13, 50));
-
-				m_changeScene = false;
-			}
-
-			else if (m_activeScene->GetName() == "Hallway")
-			{
-
-				if (m_playerPreviousPos.x < 0)
-					ChangeRoom(STARTING, vec3(43, -18, 50));
-				if (m_playerPreviousPos.x > 0)
-					ChangeRoom(STORAGE, vec3(-48, -23, 50));
-
-				m_changeScene = false;
-			}
-			else if (m_activeScene->GetName() == "Storage")
-			{
-				if (m_playerPreviousPos.x < 0)
-					ChangeRoom(HALLWAY, vec3(44, -15, 50));
-=======
 		if (m_activeScene->GetName() == "Start")
 		{
 			
@@ -799,7 +772,7 @@ void Game::ChangeRoomUpdate()
 				ChangeRoom(BOSS, vec3(45.1086, -10, 100));
 			if(m_playerPreviousPos.x > 0)
 				ChangeRoom(INFESTED, vec3(0, 0, 100));
->>>>>>> Stashed changes
+
 
 				m_changeScene = false;
 			}
