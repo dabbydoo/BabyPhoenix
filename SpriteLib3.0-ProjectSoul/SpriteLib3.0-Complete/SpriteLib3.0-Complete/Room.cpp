@@ -1600,6 +1600,8 @@ void Room::ShootBullet(float velocity)
 	ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
 	ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
 
+
+
 	ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 1, 1);
 
 	if (velocity > 0)

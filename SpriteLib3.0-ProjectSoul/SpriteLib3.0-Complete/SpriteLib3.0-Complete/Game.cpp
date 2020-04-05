@@ -132,49 +132,6 @@ void Game::Update()
 	BackEnd::Update(m_register);
 
 	ChangeRoomUpdate();
-
-
-	if (!in_Menu) {
-
-		if (!Menu_unloaded&&m_activeScene->GetName()=="Menu"&&!Endless_selected) {
-			ChangeRoom(STARTING,vec3(0,0,100));
-		}
-
-		if (!Menu_unloaded && m_activeScene->GetName() == "Menu" && Endless_selected)
-			ChangeRoom(ENDLESS,vec3(-80,-75,100));
-
-		if (m_changeScene) {
-			if (m_activeScene->GetName() == "Start")
-			{
-				ChangeRoom(HALLWAY,vec3(0,0,100));
-				m_changeScene = false;
-			}
-
-			else if (m_activeScene->GetName() == "Hallway")
-			{
-				ChangeRoom(STORAGE, vec3(0, 0, 100));
-				m_changeScene = false;
-			}
-
-		}
-
-
-		//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 
-	/*6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange*/
-
-
-		bool* m_moveToMagnet = m_activeScene->Player_Status(9);
-		bool* m_magnetCollision = m_activeScene->Player_Status(6);
-
-
-		if (!Endless_selected &&!*m_moveToMagnet && !*m_magnetCollision)
-			MagnetScan();
-	}
-	else if (in_Menu) {
-		m_activeScene->SetInMenu(&in_Menu);
-		m_activeScene->SetEndlessSelected(&Endless_selected);
-	}
-	
 	
 	//Updates the active scene
 	m_activeScene->Update();
@@ -525,14 +482,17 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 	{
 		auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 
-		//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide
+		//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 6 is m_magnetCollision,
+		//7 is m_isBulletHit, 8 is m_isPlayerSideCollide
 
 		auto* status = m_activeScene->Player_Status(0);
 
 		*status = true;
 
-		animation.SetActiveAnim(m_activeScene->PlayerDirection() + JUMP_END);
-		animation.GetAnimation(m_activeScene->PlayerDirection() + JUMP_BEGIN).Reset();
+		if (!Endless_selected) {
+			animation.SetActiveAnim(m_activeScene->PlayerDirection() + JUMP_END);
+			animation.GetAnimation(m_activeScene->PlayerDirection() + JUMP_BEGIN).Reset();
+		}
 
 		if (status = m_activeScene->Player_Status(1))
 			*status = false;
@@ -728,34 +688,60 @@ void Game::ChangeRoom(RoomName room, vec3 pos)
 
 void Game::ChangeRoomUpdate()
 {
-	if (m_changeScene) {
-		m_playerPreviousPos = m_activeScene->GetBody()->GetPosition();
+	if (!in_Menu) {
 
-		if (m_activeScene->GetName() == "Start")
-		{
-			ChangeRoom(HALLWAY, vec3(-44, -13, 50));
-
-			m_changeScene = false;
+		if (!Menu_unloaded && m_activeScene->GetName() == "Menu" && !Endless_selected) {
+			ChangeRoom(STARTING, vec3(0, 0, 100));
 		}
 
-		else if (m_activeScene->GetName() == "Hallway")
-		{
+		if (!Menu_unloaded && m_activeScene->GetName() == "Menu" && Endless_selected)
+			ChangeRoom(ENDLESS, vec3(0, -47.5, 100));
 
-			if (m_playerPreviousPos.x < 0)
-				ChangeRoom(STARTING, vec3(43, -18, 50));
-			if (m_playerPreviousPos.x > 0)
-				ChangeRoom(STORAGE, vec3(-48, -23, 50));
+		if (m_changeScene&&Menu_unloaded&&!Endless_selected) {
+			m_playerPreviousPos = m_activeScene->GetBody()->GetPosition();
 
-			m_changeScene = false;
+			if (m_activeScene->GetName() == "Start")
+			{
+				ChangeRoom(HALLWAY, vec3(-44, -13, 50));
+
+				m_changeScene = false;
+			}
+
+			else if (m_activeScene->GetName() == "Hallway")
+			{
+
+				if (m_playerPreviousPos.x < 0)
+					ChangeRoom(STARTING, vec3(43, -18, 50));
+				if (m_playerPreviousPos.x > 0)
+					ChangeRoom(STORAGE, vec3(-48, -23, 50));
+
+				m_changeScene = false;
+			}
+			else if (m_activeScene->GetName() == "Storage")
+			{
+				if (m_playerPreviousPos.x < 0)
+					ChangeRoom(HALLWAY, vec3(44, -15, 50));
+
+				m_changeScene = false;
+			}
+
 		}
-		else if (m_activeScene->GetName() == "Storage")
-		{
-			if (m_playerPreviousPos.x < 0)
-				ChangeRoom(HALLWAY, vec3(44, -15, 50));
 
-			m_changeScene = false;
-		}
 
+		//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 
+	/*6 is m_magnetCollision, 7 is m_isBulletHit, 8 is m_isPlayerSideCollide, 9 is m_moveToMagnet, 10 is m_isMagnetInRange*/
+
+
+		bool* m_moveToMagnet = m_activeScene->Player_Status(9);
+		bool* m_magnetCollision = m_activeScene->Player_Status(6);
+
+
+		if (!Endless_selected && !*m_moveToMagnet && !*m_magnetCollision)
+			MagnetScan();
+	}
+	else if (in_Menu) {
+		m_activeScene->SetInMenu(&in_Menu);
+		m_activeScene->SetEndlessSelected(&Endless_selected);
 	}
 }
 

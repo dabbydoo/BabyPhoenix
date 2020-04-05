@@ -22,9 +22,7 @@ void BackEnd::InitBackEnd(float windowWidth, float windowHeight)
 	//Sets the backend window width, height, and aspect ratio
 	m_windowWidth = DM.w;
 	m_windowHeight = DM.h;
-	/*m_windowWidth = (GLsizei)windowWidth;
-	m_windowHeight = (GLsizei)windowHeight;*/
-	m_aspectRatio = float(m_windowWidth) / float(m_windowHeight);
+	/*m_aspectRatio = float(m_windowWidth) / float(m_windowHeight);*/
 	//Creates new window with name of the scene as a caption
 	m_window = new Window("", BackEnd::GetWindowWidth(), BackEnd::GetWindowHeight());
 

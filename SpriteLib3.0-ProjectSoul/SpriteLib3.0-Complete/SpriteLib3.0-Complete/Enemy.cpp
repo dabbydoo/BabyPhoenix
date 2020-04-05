@@ -137,7 +137,7 @@ void Enemy::EngagePlayer()
 
 void Enemy::ShootBullet(Direction dir)
 {
-	string fileName = "Bullet.png";
+	string fileName = "Enemy Bullet.png";
 
 	//Creates entity
 	auto entity = ECS::CreateEntity();
