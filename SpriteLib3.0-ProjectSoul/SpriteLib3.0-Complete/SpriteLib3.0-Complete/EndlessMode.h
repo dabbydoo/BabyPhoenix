@@ -2,6 +2,7 @@
 #include"Scene.h"
 #include"BackEnd.h"
 #include"Enum.h"
+#include "Enemy.h"
 
 enum class Object {
 
@@ -58,6 +59,10 @@ public:
 	}
 
 	void SetInitPlayerPos(vec3 pos) override { }
+	void SetBulletHitUserData(unsigned int ID)  override { m_bulletHitUserData = ID; }
+	void SetEnemyBeingHit(b2Body* enemyBody) override { m_enemyBeingHit = enemyBody; }
+
+	void ShootBullet();
 
 	void DrawHUD();
 
@@ -76,7 +81,7 @@ public:
 
 private:
 
-	vector<InfoHolder*>Enemy;
+	vector<InfoHolder*>enemy;
 	vector<InfoHolder*>Floor;
 	vector<InfoHolder*>Background;
 	vector<InfoHolder*>Obstacle;
@@ -122,6 +127,9 @@ private:
 	//Bullet
 	bool m_isBulletHit = false;
 	unsigned int m_bulletHitUserData;
+
+	vector<Enemy> m_enemies;
+	b2Body* m_enemyBeingHit;
 
 	//Breakable 
 	bool m_isBroken = false;

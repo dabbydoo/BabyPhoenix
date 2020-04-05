@@ -1806,8 +1806,7 @@ void Room::GamepadStick(XInputController* con)
 		{
 			direction += b2Vec2(1, 0);
 			m_character_direction = false;
-			animation.SetActiveAnim(animation.GetActiveAnim()%2==0 ? animation.GetActiveAnim() + m_character_direction : animation.GetActiveAnim()-1);
-
+		
 
 		}
 
@@ -1816,7 +1815,7 @@ void Room::GamepadStick(XInputController* con)
 		{
 			direction += b2Vec2(-1, 0);
 			m_character_direction = true;
-			animation.SetActiveAnim(animation.GetActiveAnim() % 2 != 0 ? animation.GetActiveAnim() : animation.GetActiveAnim() - m_character_direction);
+			
 
 		}
 	}
@@ -1877,14 +1876,19 @@ void Room::GamepadStick(XInputController* con)
 	{
 		if (sticks[0].x >= 0.2f && sticks[0].x < 0.7f) {
 			direction += b2Vec2(0.5, 0);
+			
 			m_character_direction = false;
+			animation.SetActiveAnim(animation.GetActiveAnim() % 2 == 0 ? animation.GetActiveAnim() + m_character_direction : animation.GetActiveAnim() - 1);
+
 		}
 
 		//left walk
 		else if (sticks[0].x <= -0.2f && sticks[0].x >= -.7f)
 		{
 			direction = b2Vec2(-0.5f, 0);
+
 			m_character_direction = true;
+			animation.SetActiveAnim(animation.GetActiveAnim() % 2 != 0 ? animation.GetActiveAnim() : animation.GetActiveAnim() - m_character_direction);
 
 		}
 		m_playerBody->ApplyForce(b2Vec2(direction.x * force, direction.y * force), b2Vec2(m_playerBody->GetPosition().x, m_playerBody->GetPosition().y), true);
