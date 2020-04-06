@@ -1611,147 +1611,162 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		//Doorway on bottom right (EM ROOM)
 		CreateDoorWay(b2Vec2(133, -110));
 
+		//deathzone
+		CreateDeathZone(b2Vec2(-24, 122), vec2(30, 0.5));
+
 		if (m_enemies.size() == 0)
 		{
 			Enemy enemy;
-			enemy.CreateBody(vec2(10, 20), b2Vec2(20, -25), m_physicsWorld);
-			enemy.Patrol(-30);
+			enemy.CreateBody(vec2(10, 20), b2Vec2(-35, -38), m_physicsWorld);
+			enemy.Patrol(-40);
 			m_enemies.push_back(enemy);
 		}
 		else if (!m_enemies[0].m_isDead)
 		{
-			m_enemies[0].CreateBody(vec2(10, 20), b2Vec2(20, -25), m_physicsWorld);
-			m_enemies[0].Patrol(-30);
+			m_enemies[0].CreateBody(vec2(10, 20), b2Vec2(-35, -38), m_physicsWorld);
+			m_enemies[0].Patrol(-40);
 		}
 
 		if (m_enemies.size() == 1)
 		{
 			Enemy enemy1;
-			enemy1.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			enemy1.Patrol(30);
+			enemy1.CreateBody(vec2(10, 20), b2Vec2(-120, 116), m_physicsWorld);
+			enemy1.Patrol(40);
 			m_enemies.push_back(enemy1);
 		}
 		else if (!m_enemies[1].m_isDead)
 		{
-			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			m_enemies[1].Patrol(30);
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-120, 116), m_physicsWorld);
+			m_enemies[1].Patrol(40);
 		}
 
 		if (m_enemies.size() == 2)
 		{
 			Enemy enemy2;
-			enemy2.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			enemy2.Patrol(30);
+			enemy2.CreateBody(vec2(10, 20), b2Vec2(-67, 116), m_physicsWorld);
+			enemy2.Patrol(-40);
 			m_enemies.push_back(enemy2);
 		}
-		else if (!m_enemies[1].m_isDead)
+		else if (!m_enemies[2].m_isDead)
 		{
-			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			m_enemies[1].Patrol(30);
+			m_enemies[2].CreateBody(vec2(10, 20), b2Vec2(-67, 116), m_physicsWorld);
+			m_enemies[2].Patrol(-40);
 		}
 
 		if (m_enemies.size() == 3)
 		{
 			Enemy enemy3;
-			enemy3.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy3.CreateBody(vec2(10, 20), b2Vec2(-22, 60), m_physicsWorld);
 			enemy3.Patrol(30);
 			m_enemies.push_back(enemy3);
 		}
-		else if (!m_enemies[1].m_isDead)
+		else if (!m_enemies[3].m_isDead)
 		{
-			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			m_enemies[1].Patrol(30);
+			m_enemies[3].CreateBody(vec2(10, 20), b2Vec2(-22, 60), m_physicsWorld);
+			m_enemies[3].Patrol(30);
 		}
 
 		if (m_enemies.size() == 4)
 		{
 			Enemy enemy4;
-			enemy4.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			enemy4.Patrol(30);
+			enemy4.CreateBody(vec2(10, 20), b2Vec2(70, 60), m_physicsWorld);
+			enemy4.Patrol(-35);
 			m_enemies.push_back(enemy4);
 		}
-		else if (!m_enemies[1].m_isDead)
+		else if (!m_enemies[4].m_isDead)
 		{
-			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			m_enemies[1].Patrol(30);
+			m_enemies[4].CreateBody(vec2(10, 20), b2Vec2(70, 60), m_physicsWorld);
+			m_enemies[4].Patrol(-35);
 		}
 
 		if (m_enemies.size() == 5)
 		{
 			Enemy enemy5;
-			enemy5.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			enemy5.Patrol(30);
+			enemy5.CreateBody(vec2(10, 20), b2Vec2(128, 99), m_physicsWorld);
+			enemy5.Patrol(-50);
 			m_enemies.push_back(enemy5);
 		}
-		else if (!m_enemies[1].m_isDead)
+		else if (!m_enemies[5].m_isDead)
 		{
-			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			m_enemies[1].Patrol(30);
+			m_enemies[5].CreateBody(vec2(10, 20), b2Vec2(128, 99), m_physicsWorld);
+			m_enemies[5].Patrol(-50);
 		}
 
 		if (m_enemies.size() == 6)
 		{
 			Enemy enemy6;
-			enemy6.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			enemy6.Patrol(30);
+			enemy6.CreateBody(vec2(10, 20), b2Vec2(77, 99), m_physicsWorld);
+			enemy6.Patrol(50);
 			m_enemies.push_back(enemy6);
 		}
-		else if (!m_enemies[1].m_isDead)
+		else if (!m_enemies[6].m_isDead)
 		{
-			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			m_enemies[1].Patrol(30);
+			m_enemies[6].CreateBody(vec2(10, 20), b2Vec2(77, 99), m_physicsWorld);
+			m_enemies[6].Patrol(50);
 		}
 
 		if (m_enemies.size() == 7)
 		{
 			Enemy enemy7;
-			enemy7.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			enemy7.Patrol(30);
+			enemy7.CreateBody(vec2(10, 20), b2Vec2(114, -15), m_physicsWorld);
+			enemy7.Patrol(-80);
 			m_enemies.push_back(enemy7);
 		}
-		else if (!m_enemies[1].m_isDead)
+		else if (!m_enemies[7].m_isDead)
 		{
-			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			m_enemies[1].Patrol(30);
+			m_enemies[7].CreateBody(vec2(10, 20), b2Vec2(114, -15), m_physicsWorld);
+			m_enemies[7].Patrol(-80);
 		}
 
 		if (m_enemies.size() == 8)
 		{
 			Enemy enemy8;
-			enemy8.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			enemy8.Patrol(30);
+			enemy8.CreateBody(vec2(10, 20), b2Vec2(123, -47), m_physicsWorld);
+			enemy8.Patrol(-60);
 			m_enemies.push_back(enemy8);
 		}
-		else if (!m_enemies[1].m_isDead)
+		else if (!m_enemies[8].m_isDead)
 		{
-			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			m_enemies[1].Patrol(30);
+			m_enemies[8].CreateBody(vec2(10, 20), b2Vec2(123, -47), m_physicsWorld);
+			m_enemies[8].Patrol(-60);
 		}
 
 		if (m_enemies.size() == 9)
 		{
-			Enemy enemy2;
-			enemy2.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			enemy2.Patrol(30);
-			m_enemies.push_back(enemy2);
+			Enemy enemy9;
+			enemy9.CreateBody(vec2(10, 20), b2Vec2(39, -47), m_physicsWorld);
+			enemy9.Patrol(60);
+			m_enemies.push_back(enemy9);
 		}
-		else if (!m_enemies[1].m_isDead)
+		else if (!m_enemies[9].m_isDead)
 		{
-			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			m_enemies[1].Patrol(30);
+			m_enemies[9].CreateBody(vec2(10, 20), b2Vec2(-39, -47), m_physicsWorld);
+			m_enemies[9].Patrol(60);
 		}
 
-		if (m_enemies.size() == 1)
+		if (m_enemies.size() == 10)
 		{
-			Enemy enemy2;
-			enemy2.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			enemy2.Patrol(30);
-			m_enemies.push_back(enemy2);
+			Enemy enemy10;
+			enemy10.CreateBody(vec2(10, 20), b2Vec2(-74, 17), m_physicsWorld);
+			enemy10.Patrol(50);
+			m_enemies.push_back(enemy10);
 		}
-		else if (!m_enemies[1].m_isDead)
+		else if (!m_enemies[10].m_isDead)
 		{
-			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
-			m_enemies[1].Patrol(30);
+			m_enemies[10].CreateBody(vec2(10, 20), b2Vec2(-74, 17), m_physicsWorld);
+			m_enemies[10].Patrol(50);
+		}
+		if (m_enemies.size() == 11)
+		{
+			Enemy enemy11;
+			enemy11.CreateBody(vec2(10, 20), b2Vec2(-74, 17), m_physicsWorld);
+			enemy11.Patrol(-50);
+			m_enemies.push_back(enemy11);
+		}
+		else if (!m_enemies[11].m_isDead)
+		{
+			m_enemies[11].CreateBody(vec2(10, 20), b2Vec2(-74, 17), m_physicsWorld);
+			m_enemies[11].Patrol(-50);
 		}
 
 		CreateMainPlayer(10, 20, 10, 20, vec2(0, 0), m_initPlayerPos);
@@ -2511,6 +2526,42 @@ void Room::CreateForeground(string fileName, vec2 size, vec2 position)
 
 	unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
 	ECS::SetUpIdentifier(entity, bitHolder, "fgImage");
+}
+
+void Room::CreateDeathZone(b2Vec2 position, vec2 size)
+{
+	//Creates entity
+	auto entity = ECS::CreateEntity();
+
+	//Add components
+	ECS::AttachComponent<Transform>(entity);
+	ECS::AttachComponent<PhysicsBody>(entity);
+
+	ECS::GetComponent<Transform>(entity).SetPosition(vec3(0, 0, 49));
+
+	auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
+
+	//Create physics body
+	b2Body* body;
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+
+	//Set position of doorway
+	bodyDef.position.Set(position.x, position.y);
+
+	//Body user data is same as entityID
+	bodyDef.userData = ((void*)entity);
+
+	body = m_physicsWorld->CreateBody(&bodyDef);
+	body->SetGravityScale(0);
+
+	//Create collider
+	phsBody = PhysicsBody(body, size.x, size.y,
+		vec2(0.f, 0.f), true, DEATHZONE, true);
+
+	//Sets up the Identifier
+	unsigned int bitHolder = EntityIdentifier::TransformBit() | EntityIdentifier::PhysicsBit();
+	ECS::SetUpIdentifier(entity, bitHolder, "Doorway");
 }
 
 void Room::ShootBullet(float velocity)

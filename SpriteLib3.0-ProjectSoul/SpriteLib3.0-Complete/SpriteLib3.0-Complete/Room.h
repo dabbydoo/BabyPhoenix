@@ -82,6 +82,7 @@ private:
 	void CreateDestructable(string fileName, vec2 size, vec2 position);
 	void CreateDoorWay(b2Vec2 position, vec2 size = vec2(0.5f, 20.f));
 	void CreateForeground(string fileName, vec2 size, vec2 position);
+	void CreateDeathZone(b2Vec2 position, vec2 size = vec2(20.f, 0.5f));
 
 	void ShootBullet(float velocity);
 	vec2 ConvertToGl(vec2 clickCoord);

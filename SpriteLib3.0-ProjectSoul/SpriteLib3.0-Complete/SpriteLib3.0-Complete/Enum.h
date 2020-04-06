@@ -14,7 +14,8 @@ enum fixtureName
 	BULLET, 
 	BREAKABLE, 
 	ENEMY, 
-	ENEMYBULLET
+	ENEMYBULLET,
+	DEATHZONE
 };
 
 

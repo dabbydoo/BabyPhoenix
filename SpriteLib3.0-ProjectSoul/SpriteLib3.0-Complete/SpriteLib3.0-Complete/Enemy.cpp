@@ -154,9 +154,9 @@ void Enemy::ShootBullet(Direction dir)
 	ECS::GetComponent<Sprite>(entity).LoadSprite(fileName, 1, 1);
 
 	if (dir == RIGHT)
-		ECS::GetComponent<Transform>(entity).SetPosition(vec3(GetPosition().x + 5, GetPosition().y, 50.f));
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(GetPosition().x + 5, GetPosition().y + 2, 50.f));
 	else
-		ECS::GetComponent<Transform>(entity).SetPosition(vec3(GetPosition().x - 5, GetPosition().y, 50.f));
+		ECS::GetComponent<Transform>(entity).SetPosition(vec3(GetPosition().x - 5, GetPosition().y + 2, 50.f));
 
 	auto& tempSpr = ECS::GetComponent<Sprite>(entity);
 	auto& phsBody = ECS::GetComponent<PhysicsBody>(entity);
@@ -167,9 +167,9 @@ void Enemy::ShootBullet(Direction dir)
 	bodyDef.type = b2_dynamicBody;
 
 	if (dir == RIGHT)
-		bodyDef.position.Set(GetPosition().x + 5, GetPosition().y);
+		bodyDef.position.Set(GetPosition().x + 5, GetPosition().y + 2);
 	else
-		bodyDef.position.Set(GetPosition().x - 5, GetPosition().y);
+		bodyDef.position.Set(GetPosition().x - 5, GetPosition().y + 2);
 
 	//Body user data is same as entityID
 	bodyDef.userData = ((void*)entity);
