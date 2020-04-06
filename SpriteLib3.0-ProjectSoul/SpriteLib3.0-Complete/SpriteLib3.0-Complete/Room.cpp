@@ -2693,7 +2693,6 @@ void Room::GamepadDown(XInputController* con)
 			animation.GetAnimation(m_character_direction + JUMP_BEGIN).Reset();
 		}
 
-
 		if (animation.GetAnimation(m_character_direction + JUMP_MIDDLE).GetAnimationDone() && m_isPlayerOnGround) {
 			animation.SetActiveAnim(m_character_direction + JUMP_END);
 			animation.GetAnimation(m_character_direction + JUMP_MIDDLE).Reset();
