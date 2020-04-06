@@ -21,7 +21,33 @@ public:
 	void DestroyHealthBar();
 
 	void Update();
+
+
+	//0 is healthEntity, 1 is soulFillerEntity, 2 is iconEntity, 3 is gunEntity
+	unsigned int GetBarStatus(int index) {
+
+		if (index == 0) {
+			return healthEntity;
+		}
+
+		if (index == 1) {
+			return soulFillerEntity;
+		}
+		if (index == 2) {
+			return iconEntity;
+		}
+		if (index == 3) {
+			return gunEntity;
+		}
+	}
+
+	bool dontUpdate = false;
+	bool can_shoot = false;
+
 private:
+
+	
+
 	int m_health = 0.f;
 	int m_max_h = 0.f;
 	unsigned healthEntity = 0, soulFillerEntity = 0, iconEntity = 0, gunEntity = 0;
