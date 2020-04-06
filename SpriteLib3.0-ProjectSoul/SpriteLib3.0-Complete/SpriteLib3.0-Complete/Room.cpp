@@ -1611,7 +1611,148 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		//Doorway on bottom right (EM ROOM)
 		CreateDoorWay(b2Vec2(133, -110));
 
-		
+		if (m_enemies.size() == 0)
+		{
+			Enemy enemy;
+			enemy.CreateBody(vec2(10, 20), b2Vec2(20, -25), m_physicsWorld);
+			enemy.Patrol(-30);
+			m_enemies.push_back(enemy);
+		}
+		else if (!m_enemies[0].m_isDead)
+		{
+			m_enemies[0].CreateBody(vec2(10, 20), b2Vec2(20, -25), m_physicsWorld);
+			m_enemies[0].Patrol(-30);
+		}
+
+		if (m_enemies.size() == 1)
+		{
+			Enemy enemy1;
+			enemy1.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy1.Patrol(30);
+			m_enemies.push_back(enemy1);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
+
+		if (m_enemies.size() == 2)
+		{
+			Enemy enemy2;
+			enemy2.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy2.Patrol(30);
+			m_enemies.push_back(enemy2);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
+
+		if (m_enemies.size() == 3)
+		{
+			Enemy enemy3;
+			enemy3.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy3.Patrol(30);
+			m_enemies.push_back(enemy3);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
+
+		if (m_enemies.size() == 4)
+		{
+			Enemy enemy4;
+			enemy4.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy4.Patrol(30);
+			m_enemies.push_back(enemy4);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
+
+		if (m_enemies.size() == 5)
+		{
+			Enemy enemy5;
+			enemy5.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy5.Patrol(30);
+			m_enemies.push_back(enemy5);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
+
+		if (m_enemies.size() == 6)
+		{
+			Enemy enemy6;
+			enemy6.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy6.Patrol(30);
+			m_enemies.push_back(enemy6);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
+
+		if (m_enemies.size() == 7)
+		{
+			Enemy enemy7;
+			enemy7.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy7.Patrol(30);
+			m_enemies.push_back(enemy7);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
+
+		if (m_enemies.size() == 8)
+		{
+			Enemy enemy8;
+			enemy8.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy8.Patrol(30);
+			m_enemies.push_back(enemy8);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
+
+		if (m_enemies.size() == 9)
+		{
+			Enemy enemy2;
+			enemy2.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy2.Patrol(30);
+			m_enemies.push_back(enemy2);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
+
+		if (m_enemies.size() == 1)
+		{
+			Enemy enemy2;
+			enemy2.CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			enemy2.Patrol(30);
+			m_enemies.push_back(enemy2);
+		}
+		else if (!m_enemies[1].m_isDead)
+		{
+			m_enemies[1].CreateBody(vec2(10, 20), b2Vec2(-20, -25), m_physicsWorld);
+			m_enemies[1].Patrol(30);
+		}
 
 		CreateMainPlayer(10, 20, 10, 20, vec2(0, 0), m_initPlayerPos);
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(40);
