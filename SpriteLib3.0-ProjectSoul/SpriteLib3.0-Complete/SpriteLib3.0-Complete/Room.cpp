@@ -2489,6 +2489,8 @@ void Room::GamepadDown(XInputController* con)
 			b2Vec2 direction = b2Vec2(0.f, 0.f);
 			float magnitude = 50.f;
 
+			if (GetName() == "Infest")
+				magnitude = 100;
 
 			Stick sticks[2];
 
@@ -2560,28 +2562,6 @@ void Room::GamepadStick(XInputController* con)
 
 	float force = 40000;
 	float velocity = 30; //Change for player velocity on ground
-
-	
-	if (!m_isPlayerOnGround) {
-		//right 
-		if (sticks[0].x >= 0.7f && sticks[0].x <= 1.f)
-		{
-			direction += b2Vec2(1, 0);
-			m_character_direction = false;
-		
-
-		}
-
-		//left
-		else if (sticks[0].x <= -0.7f && sticks[0].x >= -1.f)
-		{
-			direction += b2Vec2(-1, 0);
-			m_character_direction = true;
-			
-
-		}
-	}
-
 
 	//Apply force for movement
 	if (m_isPlayerOnGround && !m_isDashing) {
@@ -2698,29 +2678,6 @@ void Room::GamepadTrigger(XInputController* con)
 
 void Room::KeyboardHold()
 {
-	//if (Input::GetKey(Key::Enter))
-	//{
-	//	if (m_isMagnetInRange)
-	//	{
-	//		m_moveToMagnet = true;
-	//		bool distanceReached = (float)abs(m_playerBody->GetPosition().x - m_closestMagnet->GetBody()->GetPosition().x) < 0.5
-	//			&& (float)abs(m_playerBody->GetPosition().y - m_closestMagnet->GetBody()->GetPosition().y) < 0.5;
-
-	//		if (!distanceReached)
-	//		{
-	//			float speed = 50;
-	//			b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
-	//			velocity.Normalize();
-	//			m_playerBody->SetGravityScale(0);
-	//			m_playerBody->SetLinearVelocity(b2Vec2(velocity.x * speed, velocity.y * speed));
-	//		}
-	//		else
-	//			m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
-	//	}
-	//}
-	
-
-
 	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
 
 	b2Vec2 velocity2 = m_playerBody->GetLinearVelocity();
@@ -2741,7 +2698,14 @@ void Room::KeyboardHold()
 				if (m_isPlayerOnGround)
 					animation.SetActiveAnim(RUN + m_character_direction);
 
-				velocity2.x = -20;
+
+				if (GetName() == "Infest")
+				
+					velocity2.x = -40;
+				
+				else
+					velocity2.x = -20;
+				
 				m_playerBody->SetLinearVelocity(velocity2);
 			}
 
@@ -2752,8 +2716,12 @@ void Room::KeyboardHold()
 
 				if (m_isPlayerOnGround)
 					animation.SetActiveAnim(RUN + m_character_direction);
+			
+				if (GetName() == "Infest")
+					velocity2.x = 40;
 
-				velocity2.x = 20;
+				else
+					velocity2.x = 20;
 				m_playerBody->SetLinearVelocity(velocity2);
 			}
 
@@ -2780,7 +2748,11 @@ void Room::KeyboardDown()
 		if (m_isPlayerOnGround)
 		{
 			animation.SetActiveAnim(m_character_direction + JUMP_BEGIN);
-			velocity2.y = 40;
+			
+			if (GetName() == "Infest")
+				velocity2.y = 60;
+			else
+				velocity2.y = 40;
 			m_playerBody->SetLinearVelocity(velocity2);
 			m_isPlayerJumping = true;
 			m_isPlayerOnGround = false;
@@ -2802,7 +2774,11 @@ void Room::KeyboardDown()
 	if (Input::GetKeyDown(Key::LeftShift) && m_dashCounter == 1)
 	{
 		b2Vec2 direction = b2Vec2(0.f, 0.f);
+		
 		float magnitude = 50.f;
+		
+		if (GetName() == "Infest")
+			magnitude = 100;
 
 		//Dash Up
 		if (Input::GetKey(Key::W)) {
@@ -2874,6 +2850,10 @@ void Room::KeyboardDown()
 			if (!distanceReached)
 			{
 				float speed = 50;
+
+				if (GetName() == "Infest")
+					speed = 80;
+
 				b2Vec2 velocity = (m_closestMagnet->GetBody()->GetPosition() - m_playerBody->GetPosition());
 				velocity.Normalize();
 				m_playerBody->SetGravityScale(0);

@@ -89,6 +89,7 @@ private:
  bool can_dash = false, can_magent = false, can_shoot = false;
 
 
+
  bool m_isPlayerOnGround = true;
  bool m_isPlayerJumping = false;
 
