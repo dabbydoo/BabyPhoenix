@@ -57,7 +57,7 @@ void Game::InitGame()
 	
 	
 	//Sets active scene reference to our scene
-	m_activeScene = m_scenes[0];
+	m_activeScene = m_scenes[INFESTED];
 
 	m_activeScene->InitScene(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
 
@@ -409,7 +409,9 @@ void Game::MouseClick(SDL_MouseButtonEvent evnt)
 
 	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
-	
+		vec2 clickedPoint = ConvertToGl(vec2(float(evnt.x), float(evnt.y)));
+		cout << "x: " << clickedPoint.x << endl;
+		cout << "Y: " << clickedPoint.y << endl;
 	}
 
 	if (m_guiActive)
@@ -773,9 +775,53 @@ void Game::ChangeRoomUpdate()
 
 
 				m_changeScene = false;
-			}
+		}
+		else if (m_activeScene->GetName() == "Infest")
+		{
+			if (m_playerPreviousPos.x < 0 && m_playerPreviousPos.y < 0)
+				ChangeRoom(ARMORY, vec3(40.1086, -10, 100));
+			if (m_playerPreviousPos.x < 0 && m_playerPreviousPos.y > 0)
+				ChangeRoom(HPUPGRADE, vec3(-60, 30, 100));
+			if (m_playerPreviousPos.x > 0)
+				ChangeRoom(MAGNETUPGRADE, vec3(-47, 22, 100));
+
+			m_changeScene = false;
+		}
+		else if (m_activeScene->GetName() == "HPUpgrade")
+		{
+			/*if (m_playerPreviousPos.x < 0 && m_playerPreviousPos.y < 0)
+				ChangeRoom(ARMORY, vec3(40.1086, -10, 100));
+			if (m_playerPreviousPos.x > 0 && m_playerPreviousPos.y > 0)
+				ChangeRoom(HPUPGRADE, vec3(-60, 30, 100));
+			if (m_playerPreviousPos.x > 0)
+				ChangeRoom(MAGNETUPGRADE, vec3(-47, 22, 100));*/
+
+			m_changeScene = false;
+		}
+		else if (m_activeScene->GetName() == "MagnetUpgrade")
+		{
+			if (m_playerPreviousPos.x < 0)
+				ChangeRoom(INFESTED, vec3(123, -110, 100));
+			if (m_playerPreviousPos.x > 0)
+				ChangeRoom(MAGNETPRACTICE, vec3(-60, 30, 100));
+
+			m_changeScene = false;
+		}
+		else if (m_activeScene->GetName() == "MagnetPractice")
+		{
+			if (m_playerPreviousPos.x < 0)
+				ChangeRoom(MAGNETUPGRADE, vec3(43, -10, 100));
+			if (m_playerPreviousPos.x > 0)
+				ChangeRoom(INFESTED, vec3(123, -110, 100));
+
+			m_changeScene = false;
+		}
+
+
 
 		}
+
+
 
 
 		//0 is m_playeronground , 1 is m_playerjumping , 2 is m_playerheadcolide, 3 is m_isPlayerOnWall, 4 is m_isPlayerOnCollision, 5 is m_isBroken, 
@@ -826,6 +872,39 @@ float Game::RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction)
 
 		return 0.0f;
 	}
+
+vec2 Game::ConvertToGl(vec2 clickCoord)
+{
+	Camera tempCam = m_register->get<Camera>(EntityIdentifier::MainCamera());
+
+	//Need to convert cliccked point to screen space first!
+	vec2 clickedPoint = clickCoord;
+	vec2 position = vec2(tempCam.GetPositionX(), tempCam.GetPositionY());
+
+	//Window in windowX x windowY space
+	//Need to get into (right-left) x (top-bottome) space
+
+	//First task, make it so bottom is 0 and top is windowHeight
+	clickedPoint = vec2(clickedPoint.x, float(BackEnd::GetWindowHeight()) - clickedPoint.y);
+
+	float glX = (tempCam.GetAspect() * (tempCam.GetOrthoSize().y) - tempCam.GetAspect() * (tempCam.GetOrthoSize().x));
+	float glY = (tempCam.GetOrthoSize().w - tempCam.GetOrthoSize().z);
+
+	//Spaces
+	vec2 glSpace = vec2(glX, glY);
+	vec2 windowSpace = vec2(float(BackEnd::GetWindowWidth()), float(BackEnd::GetWindowHeight()));
+
+	vec2 percentPoint = vec2(clickedPoint.x / windowSpace.x, clickedPoint.y / windowSpace.y);
+
+	//In glspace
+	clickedPoint = vec2(glSpace.x * percentPoint.x, glSpace.y * percentPoint.y);
+
+	clickedPoint = clickedPoint + vec2(tempCam.GetAspect() * tempCam.GetOrthoSize().x, tempCam.GetOrthoSize().z);
+
+	clickedPoint = clickedPoint + vec2(tempCam.GetPositionX(), tempCam.GetPositionY());
+
+	return clickedPoint;
+}
 
 
 

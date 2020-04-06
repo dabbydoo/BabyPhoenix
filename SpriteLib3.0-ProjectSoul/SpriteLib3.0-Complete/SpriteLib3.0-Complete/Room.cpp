@@ -1602,8 +1602,16 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		CreateMagnet(vec2(10, 5), vec2(-14.7432, 89.1034));
 		CreateForeground("fence.png", vec2(105, 9.5), vec2(-79.9726, -38.4034));
 
-		//Doorway on left
+		//Doorway on left (BOSSROOM)
 		CreateDoorWay(b2Vec2(-133, -35));
+
+		//Doorway on center left (HP UPGRADE)
+		CreateDoorWay(b2Vec2(-133, 120));
+
+		//Doorway on bottom right (EM ROOM)
+		CreateDoorWay(b2Vec2(133, -110));
+
+		
 
 		CreateMainPlayer(10, 20, 10, 20, vec2(0, 0), m_initPlayerPos);
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(40);
@@ -1734,6 +1742,10 @@ void Room::InitScene(float windowWidth, float windowHeight)
 			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
 				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
 		}
+
+		//Doorway on right (INFESTED)
+		CreateDoorWay(b2Vec2(53, 0));
+
 		CreateMainPlayer(8, 16, 8, 16, vec2(0, 0), vec3(43.412, -17.4644, 100));
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
@@ -1832,14 +1844,21 @@ void Room::InitScene(float windowWidth, float windowHeight)
 			phsBody = PhysicsBody(body, thickness, bgEntity.GetHeight(),
 				vec2(bgEntity.GetWidth() / 2 + (thickness / 2), 0.f), false);
 		}
-		CreateMainPlayer(8, 16, 8, 16, vec2(0, 0), vec3(43.412, -17.4644, 100));
+
+		//Doorway on left (INFESTED)
+		CreateDoorWay(b2Vec2(-53, 20));
+
+		//Doorway on center right (MAGNET PRACTICE)
+		CreateDoorWay(b2Vec2(53, -10));
+
+		CreateMainPlayer(8, 16, 8, 16, vec2(0, 0), m_initPlayerPos);
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
 
 	//MAGNET PRACTICE
 	if (m_name == "MagnetPractice")
 	{
-		CreateBackground("magpractice.png", vec2(960 / 4.5, 270 / 4.5));
+		CreateBackground("magnetpractice.png", vec2(960 / 4.5, 270 / 4.5));
 
 		auto entity = ECS::CreateEntity();
 		auto bgEntity = ECS::GetComponent<Sprite>(m_background);
@@ -1932,6 +1951,13 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		}
 		CreateMagnet(vec2(10, 5), vec2(-48.9214, 2.91011));
 		CreateMagnet(vec2(10, 5), vec2(51.32, 3.00999));
+
+		//Doorway on left (MAGNET ROOM)
+		CreateDoorWay(b2Vec2(-106, -10));
+
+		//Doorway on right (MAGNET ROOM TELEPORT)
+		CreateDoorWay(b2Vec2(97, -10));
+
 		CreateMainPlayer(8, 16, 8, 16, vec2(0, 0), vec3(-99.7578, -14.3683, 100));
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
@@ -2883,6 +2909,7 @@ void Room::MouseMotion(SDL_MouseMotionEvent evnt)
 
 void Room::MouseClick(SDL_MouseButtonEvent evnt)
 {
+
 }
 
 

@@ -100,6 +100,8 @@ public:
 	
 	float RayCastCollision(b2Fixture* fixture, b2Vec2 point, float fraction);
 
+	vec2 ConvertToGl(vec2 clickCoord);
+
 	Scene* m_activeScene = nullptr;
 
 private:
