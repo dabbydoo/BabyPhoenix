@@ -111,10 +111,21 @@ void HealthBar::SetHealth(float health)
 	m_health = health>m_max_h?m_max_h:health;
 }
 
+float HealthBar::GetMaxHealth() const
+{
+	return m_max_h;
+}
+
 void HealthBar::SetMaxHealth(float health)
 {
 	m_max_h = health;
 	m_health = health;
+}
+
+void HealthBar::DestroyHealthBar()
+{
+	ECS::DestroyEntity(healthEntity);
+	ECS::DestroyEntity(iconEntity);
 }
 
 void HealthBar::Update()

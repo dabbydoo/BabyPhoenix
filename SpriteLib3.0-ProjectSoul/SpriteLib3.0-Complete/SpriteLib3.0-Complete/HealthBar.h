@@ -15,7 +15,10 @@ public:
 
 	float GetHealth() const;
 	void SetHealth(float health);
+	float GetMaxHealth() const;
 	void SetMaxHealth(float health);
+
+	void DestroyHealthBar();
 
 	void Update();
 private:

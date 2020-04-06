@@ -70,6 +70,9 @@ public:
 	void SetEnemyBulletHitUserData(unsigned int ID) override { m_enemyBulletHitUserData = ID; };
 	void SetEnemyBeingHit(b2Body* enemyBody) override { m_enemyBeingHit = enemyBody; };
 
+	//Player
+	void SetPlayerBeingHit(bool hitState) override { m_playerBeingHit = hitState; };
+
 private:
 
 	void CreateCamera(float windowWidth, float windowHeight);
@@ -119,6 +122,7 @@ private:
  //Player
  b2Body* m_playerBody;
  vec3 m_initPlayerPos = vec3(-120, -30, 100);//vec3(-43, -17, 50);
+ bool m_playerBeingHit = false;
 
  //Magnet
  bool m_isMagnetInRange = false;

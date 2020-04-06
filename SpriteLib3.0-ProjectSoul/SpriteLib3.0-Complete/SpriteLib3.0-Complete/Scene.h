@@ -59,6 +59,9 @@ public:
 	virtual void SetEnemyBulletHitUserData(unsigned int ID) {}
 	virtual void SetEnemyBeingHit(b2Body* enemyBody) {};
 
+	//Player
+	virtual void SetPlayerBeingHit(bool hitState) {};
+
 	//Gamepad Input
 	//Because these are virtual you can override them in your inherited classes.
 	//The same way you do for Update().

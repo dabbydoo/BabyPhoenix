@@ -596,6 +596,16 @@ void Game::BeginCollision(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		m_activeScene->SetEnemyBulletHitUserData((unsigned int)fixtureB->GetBody()->GetUserData());
 	}
 
+	//Enemy Bullet vs Player Collision
+	if (f1 == ENEMYBULLET && f2 == PLAYER)
+	{
+		m_activeScene->SetPlayerBeingHit(true);
+	}
+	if (f2 == ENEMYBULLET && f1 == PLAYER)
+	{
+		m_activeScene->SetPlayerBeingHit(true);
+	}
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
 	//Check if player collides with doorway
 	if ((f1 == SIDESENSOR && f2 == DOORWAY)
 		|| ((f2 == SIDESENSOR) && f1 == DOORWAY))

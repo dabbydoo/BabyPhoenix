@@ -1594,7 +1594,7 @@ void Room::InitScene(float windowWidth, float windowHeight)
 
 		CreateMagnet(vec2(10, 5), vec2(23.6257, 5.03368));
 		CreateMagnet(vec2(10, 5), vec2(77.7484, -99.0911));
-		CreateMagnet(vec2(10, 5), vec2(-51.0106, -78.4656));
+		CreateMagnet(vec2(10, 5), vec2(-46.0106, -78.4656));
 		CreateMagnet(vec2(10, 5), vec2(-97.794, -105.034));
 		CreateMagnet(vec2(10, 5), vec2(101.102, 2.93997));
 		CreateMagnet(vec2(10, 5), vec2(-22.0795, -29.2955));
@@ -2889,7 +2889,7 @@ void Room::GamepadTrigger(XInputController* con)
 				m_playerBody->SetGravityScale(7);
 				m_playerBody->SetLinearVelocity(b2Vec2(0, 0)); //Stop player
 			}
-			}
+		}
 	}
 	
 }
@@ -2897,6 +2897,7 @@ void Room::GamepadTrigger(XInputController* con)
 void Room::KeyboardHold()
 {
 	auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+	auto& health = ECS::GetComponent<HealthBar>(EntityIdentifier::MainPlayer());
 
 	b2Vec2 velocity2 = m_playerBody->GetLinearVelocity();
 
@@ -2904,8 +2905,19 @@ void Room::KeyboardHold()
 	{
 		if (!m_isDashing)
 		{
-			if (m_isPlayerOnGround)
+			if (m_isPlayerOnGround && (health.GetHealth() != 0.0))
 				animation.SetActiveAnim(m_character_direction + IDLE);
+			if (m_isPlayerOnGround && (health.GetHealth() == 0.0))
+			{
+				animation.SetActiveAnim(m_character_direction + DEATH);
+				if (animation.GetAnimation(m_character_direction + DEATH).GetAnimationDone())
+				{
+					health.DestroyHealthBar();
+					ECS::GetComponent<PhysicsBody>(EntityIdentifier::MainPlayer()).DeleteBody();
+					ECS::DestroyEntity(EntityIdentifier::MainPlayer());
+					CreateMainPlayer(10, 20, 10, 20, vec2(0, 0), m_initPlayerPos);
+				}
+			}
 
 
 			//Left 
@@ -3225,6 +3237,19 @@ void Room::Update()
 {
 	ProjectileUpdate();
 	DashUpdate();
+
+	if (m_playerBeingHit)
+	{
+		auto& health = ECS::GetComponent<HealthBar>(EntityIdentifier::MainPlayer());
+		auto& animation = ECS::GetComponent<AnimationController>(EntityIdentifier::MainPlayer());
+
+		if (health.GetHealth() != 0.0)
+		{
+			health.SetHealth(health.GetHealth() - 1);
+		}
+
+		m_playerBeingHit = false;
+	}
 
 	for (int i = m_enemies.size() - 1; i >= 0; i--)
 	{
