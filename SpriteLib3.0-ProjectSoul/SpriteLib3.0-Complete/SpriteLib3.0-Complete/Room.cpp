@@ -1,6 +1,9 @@
 #include "Room.h"
 #include "Xinput.h"
 
+unsigned gun;
+unsigned magnet;
+unsigned upgrade;
 
 Room::Room(string name)
 	:Scene(name)
@@ -1276,6 +1279,30 @@ void Room::InitScene(float windowWidth, float windowHeight)
 
 		CreateMainPlayer(10, 20, 8, 16, vec2(0, -2), m_initPlayerPos);
 
+		{
+			//Creates entity
+		 gun = ECS::CreateEntity();
+
+			//Add components
+			ECS::AttachComponent<Sprite>(gun);
+			ECS::AttachComponent<Transform>(gun);
+
+			string filename = "Gun Final.png";
+
+			//Set camera scroll focus to  main player
+			ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+			ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+
+
+			ECS::GetComponent<Sprite>(gun).LoadSprite(filename, 7, 4);
+			
+
+			ECS::GetComponent<Transform>(gun).SetPosition(27.1,-1.7,99);
+
+			unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
+			ECS::SetUpIdentifier(gun, bitHolder, "Gun");
+}
+
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
 
@@ -1903,6 +1930,34 @@ void Room::InitScene(float windowWidth, float windowHeight)
 		CreateDoorWay(b2Vec2(53, 0));
 
 		CreateMainPlayer(8, 16, 8, 16, vec2(0, 0), vec3(43.412, -17.4644, 100));
+		
+		{
+			{
+				//Creates entity
+				upgrade = ECS::CreateEntity();
+
+				//Add components
+				ECS::AttachComponent<Sprite>(upgrade);
+				ECS::AttachComponent<Transform>(upgrade);
+
+				string filename = "HP Item.png";
+
+				//Set camera scroll focus to  main player
+				ECS::GetComponent<HorizontalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+				ECS::GetComponent<VerticalScroll>(EntityIdentifier::MainCamera()).SetFocus(&ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()));
+
+
+				ECS::GetComponent<Sprite>(upgrade).LoadSprite(filename, 4, 6);
+
+
+				ECS::GetComponent<Transform>(upgrade).SetPosition(33, 25.4, 99);
+
+				unsigned int bitHolder = EntityIdentifier::SpriteBit() | EntityIdentifier::TransformBit();
+				ECS::SetUpIdentifier(upgrade, bitHolder, "Helth");
+			}
+		}
+
+
 		ECS::GetComponent<Camera>(EntityIdentifier::MainCamera()).Zoom(80);
 	}
 
@@ -2127,6 +2182,22 @@ void Room::InitScene(float windowWidth, float windowHeight)
 
 
 
+void Room::UpdateHUD()
+{
+	auto& health = ECS::GetComponent<HealthBar>(EntityIdentifier::MainPlayer());
+
+	if (GetName() == "Infest") {
+		
+
+		auto& m_cam = ECS::GetComponent<Camera>(EntityIdentifier::MainCamera());
+
+		ECS::GetComponent<AnimationController>(health.GetBarStatus(0)).SetActiveAnim(health.GetHealth());
+
+		ECS::GetComponent<Transform>(health.GetBarStatus(0)).SetPosition(vec3(m_cam.GetPosition().x - 49, m_cam.GetPosition().y + 45.7, 99));
+		ECS::GetComponent<Transform>(health.GetBarStatus(2)).SetPosition(vec3(m_cam.GetPosition().x - 93.6, m_cam.GetPosition().y + 45.1, 99));
+	}
+}
+
 void Room::CreateCamera(float windowWidth, float windowHeight)
 {
 	//Sets up the aspect ratio for the camera
@@ -2247,7 +2318,7 @@ void Room::CreateMainPlayer(int spriteWidth, int spriteHeight, float colliderWid
 		ECS::AttachComponent<PhysicsBody>(entity);
 		ECS::AttachComponent<HealthBar>(entity);
 
-		ECS::GetComponent<HealthBar>(entity).SetMaxHealth(4.f);
+		ECS::GetComponent<HealthBar>(entity).SetMaxHealth(3.f);
 
 		string filename = "entire_sheet.png";
 		ECS::AttachComponent<AnimationController>(entity);
@@ -2286,6 +2357,9 @@ void Room::CreateMainPlayer(int spriteWidth, int spriteHeight, float colliderWid
 
 		animation.SetActiveAnim(0);
 		
+		if(GetName()=="Infest")
+		ECS::GetComponent<HealthBar>(entity).dontUpdate = true;
+
 		ECS::GetComponent<Sprite>(entity).LoadSprite(filename, spriteWidth, spriteHeight, true, &animation);
 
 		//Player position
@@ -2891,6 +2965,12 @@ void Room::GamepadTrigger(XInputController* con)
 			}
 		}
 	}
+
+	if (con->IsButtonReleased(Buttons::RB)) {
+		m_moveToMagnet = false;
+		m_playerBody->SetGravityScale(m_playerGravity);
+		m_playerBody->ApplyForce(b2Vec2(0, -0.01), m_playerBody->GetWorldCenter(), true);
+	}
 	
 }
 
@@ -2991,11 +3071,11 @@ void Room::KeyboardDown()
 	}
 
 	//Shoot bullet
-	if (Input::GetKeyDown(Key::R)&&!m_character_direction)
+	if (Input::GetKeyDown(Key::R)&&!m_character_direction&&can_shoot)
 	{
 		ShootBullet(50);
 	}
-	if (Input::GetKeyDown(Key::R)&&m_character_direction)
+	if (Input::GetKeyDown(Key::R)&&m_character_direction && can_shoot)
 	{
 		ShootBullet(-50);
 	}
@@ -3069,7 +3149,7 @@ void Room::KeyboardDown()
 		}
 	}
 
-	if (Input::GetKey(Key::Enter))
+	if (Input::GetKey(Key::Enter)&&can_magent)
 	{
 		if (m_isMagnetInRange)
 		{
@@ -3238,6 +3318,7 @@ void Room::Update()
 	ProjectileUpdate();
 	DashUpdate();
 
+<<<<<<< Updated upstream
 	if (m_playerBeingHit)
 	{
 		auto& health = ECS::GetComponent<HealthBar>(EntityIdentifier::MainPlayer());
@@ -3249,6 +3330,51 @@ void Room::Update()
 		}
 
 		m_playerBeingHit = false;
+=======
+	UpdateHUD();
+	
+	if (GetName() == "Armory"&&!can_shoot) {
+	auto pos = ECS::GetComponent<Transform>(gun).GetPosition();
+	vec2 size = vec2(ECS::GetComponent<Sprite>(gun).GetWidth(), ECS::GetComponent<Sprite>(gun).GetHeight());
+
+	vec2 x = vec2(pos.x - (size.x * 0.5), pos.x + (size.x * 0.5));
+
+	vec2 y = vec2(pos.y - (size.y * 0.5), pos.y + (size.y * 0.5));
+
+	auto tempos = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).GetPosition();
+	vec2 tempsize = vec2(ECS::GetComponent<Sprite>(EntityIdentifier::MainPlayer()).GetWidth(), ECS::GetComponent<Sprite>(EntityIdentifier::MainPlayer()).GetHeight());
+
+	vec2 tempX = vec2(tempos.x-(tempsize.x*0.5), tempos.x + (tempsize.x * 0.5));
+
+	vec2 tempY = vec2(tempos.y - (tempsize.y * 0.5), tempos.y + (tempsize.y * 0.5));
+
+	if (tempX.x<=x.x&&tempX.y>=x.y&&tempY.x<=y.x&&tempY.y>=y.y) {
+		can_shoot = true;
+		ECS::DestroyEntity(gun);
+	}
+
+	}
+	if (GetName() == "HPUpgrade" && ECS::GetComponent<HealthBar>(EntityIdentifier::MainPlayer()).GetHealth()<4) {
+		auto pos = ECS::GetComponent<Transform>(upgrade).GetPosition();
+		vec2 size = vec2(ECS::GetComponent<Sprite>(upgrade).GetWidth(), ECS::GetComponent<Sprite>(upgrade).GetHeight());
+
+		vec2 x = vec2(pos.x - (size.x * 0.5), pos.x + (size.x * 0.5));
+
+		vec2 y = vec2(pos.y - (size.y * 0.5), pos.y + (size.y * 0.5));
+
+		auto tempos = ECS::GetComponent<Transform>(EntityIdentifier::MainPlayer()).GetPosition();
+		vec2 tempsize = vec2(ECS::GetComponent<Sprite>(EntityIdentifier::MainPlayer()).GetWidth(), ECS::GetComponent<Sprite>(EntityIdentifier::MainPlayer()).GetHeight());
+
+		vec2 tempX = vec2(tempos.x - (tempsize.x * 0.5), tempos.x + (tempsize.x * 0.5));
+
+		vec2 tempY = vec2(tempos.y - (tempsize.y * 0.5), tempos.y + (tempsize.y * 0.5));
+
+		if (tempX.x <= x.x && tempX.y >= x.y && tempY.x <= y.x && tempY.y >= y.y) {
+			ECS::GetComponent<HealthBar>(EntityIdentifier::MainPlayer()).SetMaxHealth(4);
+			ECS::DestroyEntity(upgrade);
+		}
+
+>>>>>>> Stashed changes
 	}
 
 	for (int i = m_enemies.size() - 1; i >= 0; i--)

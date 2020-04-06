@@ -295,7 +295,7 @@ void Start::GamepadStroke(XInputController* con)
 				 string filename = "Instruction.png";
 
 
-				 ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 200, 160);
+				 ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 260, 152);
 
 				 ECS::GetComponent<Transform>(entity).SetPosition(vec3(-10.16, -17.9, 100));
 
@@ -497,7 +497,7 @@ void Start::KeyboardDown()
 	
 
 	//selected
-	if (Input::GetKeyDown(Key::Space)) {
+	if (Input::GetKeyDown(Key::Enter)) {
 
 		//Starts the game
 		if (all_components[index] == Start_entity)
@@ -526,7 +526,7 @@ void Start::KeyboardDown()
 				string filename = "Instruction.png";
 
 
-				ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 200, 160);
+				ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 260, 152);
 
 				ECS::GetComponent<Transform>(entity).SetPosition(vec3(-10.16, -17.9, 100));
 
@@ -788,7 +788,7 @@ void Start::MouseClick(SDL_MouseButtonEvent evnt)
 				string filename = "Instruction.png";
 
 
-				ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 200, 160);
+				ECS::GetComponent<Sprite>(entity).LoadSprite(filename, 260, 152);
 
 				ECS::GetComponent<Transform>(entity).SetPosition(vec3(-10.16, -17.9, 100));
 

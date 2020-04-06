@@ -75,6 +75,8 @@ public:
 
 private:
 
+	void UpdateHUD();
+
 	void CreateCamera(float windowWidth, float windowHeight);
 	void CreateBackground(string fileName, vec2 size);
 	void CreateRoomBoundary();

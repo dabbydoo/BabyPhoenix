@@ -42,7 +42,7 @@ void HealthBar::DrawHUD()
 
 		animation.SetActiveAnim(this->GetHealth());
 
-		ECS::GetComponent<Sprite>(healthEntity).LoadSprite(filename, 19, 4, true, &animation);
+		ECS::GetComponent<Sprite>(healthEntity).LoadSprite(filename, 19*(-m_cam->GetOrthoSize().x/20), 4 * (m_cam->GetOrthoSize().y / 20), true, &animation);
 
 		//HealthBar position
 		
@@ -78,9 +78,7 @@ void HealthBar::DrawHUD()
 		animation.SetActiveAnim(0);
 
 
-		ECS::GetComponent<Sprite>(iconEntity).LoadSprite(filename, 7, 8, true, &animation);
-
-		ECS::GetComponent<Sprite>(iconEntity).LoadSprite(filename, 7, 7, true, &animation);
+		ECS::GetComponent<Sprite>(iconEntity).LoadSprite(filename, 7 * (-m_cam->GetOrthoSize().x / 20), 8 * (m_cam->GetOrthoSize().y / 20), true, &animation);
 
 
 		//Icon position
@@ -131,14 +129,25 @@ void HealthBar::DestroyHealthBar()
 void HealthBar::Update()
 {
 
-	auto helthPos = vec3(m_cam->GetPosition().x - 18, m_cam->GetPosition().y + 15, 99);
-	auto iconPos = vec3(m_cam->GetPosition().x - 32, m_cam->GetPosition().y + 16, 99);
+	auto& Healthspr = ECS::GetComponent<Sprite>(healthEntity);
 
-	auto& animation = ECS::GetComponent<AnimationController>(healthEntity);
+	Healthspr.SetWidth(19 * (-m_cam->GetOrthoSize().x / 20));
+	Healthspr.SetHeight(4 * (m_cam->GetOrthoSize().y / 20));
 
-	animation.SetActiveAnim(this->GetHealth());
+	auto& iconspr = ECS::GetComponent<Sprite>(iconEntity);
 
-	ECS::GetComponent<Transform>(healthEntity).SetPosition(helthPos);
-	ECS::GetComponent<Transform>(iconEntity).SetPosition(iconPos);
+	iconspr.SetWidth(7 * (-m_cam->GetOrthoSize().x / 20));
+	iconspr.SetHeight(8 * (m_cam->GetOrthoSize().y / 20));
+	
+	if (!dontUpdate) {
+		auto helthPos = vec3(m_cam->GetPosition().x - 18, m_cam->GetPosition().y + 15, 99);
+		auto iconPos = vec3(m_cam->GetPosition().x - 32, m_cam->GetPosition().y + 16, 99);
 
+		auto& animation = ECS::GetComponent<AnimationController>(healthEntity);
+
+		animation.SetActiveAnim(this->GetHealth());
+
+		ECS::GetComponent<Transform>(healthEntity).SetPosition(helthPos);
+		ECS::GetComponent<Transform>(iconEntity).SetPosition(iconPos);
+	}
 }
